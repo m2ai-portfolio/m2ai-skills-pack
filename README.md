@@ -48,6 +48,10 @@ Then restart Claude Code. Skills will appear in your skill list and auto-trigger
 - **banana-maker** — Gemini image generation via Nano Banana Pro prompting
 - **what-am-i-forgetting** — consolidated agenda recall across memory index, roadmaps, open-item queues, daily notes, crons, and project folders
 
+### Video & Media Prompting
+- **seedance-prompt** — Master AI Video Prompt Engineer for Seedance 2.0; structures multi-shot timelines (0-14s) using the FRAMES framework (Frame, Reaction, Audio, Mood, Edit Plan, Shot)
+- **seedance-shot-prompt** — generate Seedance 2 prompts for linear A→B forward-motion shots (transitions, chases, reveals); includes 3-stage smoke-test protocol for identity-bound shots and 8-mode failure taxonomy
+
 ## Configuration
 
 Some skills expect environment variables for user-specific paths. If unset,
