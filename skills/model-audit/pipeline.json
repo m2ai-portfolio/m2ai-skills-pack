@@ -1,0 +1,78 @@
+{
+  "name": "ST Metro Pipeline",
+  "description": "Model assignments across the full ST Metro ecosystem -- Metroplex automated pipeline, research agents, and Claude Code interactive sessions",
+  "components": [
+    {
+      "name": "Triage Scoring",
+      "model": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B",
+      "provider": "deepinfra",
+      "benchmarks": ["idea_scoring"],
+      "monthly_runs_estimate": 500,
+      "notes": "Metroplex Gate 1"
+    },
+    {
+      "name": "Spec Expansion",
+      "model": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B",
+      "provider": "deepinfra",
+      "benchmarks": ["spec_expansion"],
+      "monthly_runs_estimate": 200,
+      "notes": "Metroplex Gate 2"
+    },
+    {
+      "name": "QA Spec Review (Tyrest)",
+      "model": "deepseek-ai/DeepSeek-V3",
+      "provider": "deepinfra",
+      "benchmarks": ["tyrest_spec_review"],
+      "monthly_runs_estimate": 200,
+      "notes": "Metroplex Gate 2.5"
+    },
+    {
+      "name": "QA Build Review (Tyrest)",
+      "model": "deepseek-ai/DeepSeek-V3",
+      "provider": "deepinfra",
+      "benchmarks": ["tyrest_build_review"],
+      "monthly_runs_estimate": 150,
+      "notes": "Metroplex Gate 4.25"
+    },
+    {
+      "name": "Listing Copy (Swindle)",
+      "model": "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+      "provider": "deepinfra",
+      "benchmarks": ["listing_copy"],
+      "monthly_runs_estimate": 100,
+      "notes": "Metroplex publish pipeline"
+    },
+    {
+      "name": "README Generation",
+      "model": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B",
+      "provider": "deepinfra",
+      "benchmarks": ["readme_gen"],
+      "monthly_runs_estimate": 100,
+      "notes": "Metroplex publish pipeline"
+    },
+    {
+      "name": "Research Validator (Claude)",
+      "model": "anthropic/claude-4-sonnet",
+      "provider": "deepinfra",
+      "benchmarks": ["research_signal"],
+      "monthly_runs_estimate": 300,
+      "notes": "AutoResearch signal validation via DeepInfra"
+    },
+    {
+      "name": "Research Agent (Gemini)",
+      "model": "gemini-2.0-flash",
+      "provider": "google",
+      "benchmarks": ["research_signal"],
+      "monthly_runs_estimate": 300,
+      "notes": "Gemini grounded research queries"
+    },
+    {
+      "name": "Research Agent (ChatGPT)",
+      "model": "gpt-4.1",
+      "provider": "openai",
+      "benchmarks": ["research_signal"],
+      "monthly_runs_estimate": 200,
+      "notes": "ChatGPT research queries"
+    }
+  ]
+}

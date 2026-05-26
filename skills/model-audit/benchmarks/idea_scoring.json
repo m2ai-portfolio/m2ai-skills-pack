@@ -1,0 +1,54 @@
+{
+  "id": "idea_scoring",
+  "name": "Idea Scoring (Anti-Inflation)",
+  "description": "Score a developer tool idea on multiple dimensions. Tests calibration discipline and resistance to score inflation.",
+  "category": "structured_generation",
+  "prompt": "You are a technical evaluator for a software factory that builds Python CLI tools and MCP servers autonomously in 5 iterations.\n\nScore the following idea on each dimension from 1-10.\n\nYour scores should produce this distribution:\n- ~15% of ideas score 1-3 (weak)\n- ~35% of ideas score 4-6 (moderate)\n- ~35% of ideas score 7-8 (strong)\n- ~15% of ideas score 9-10 (exceptional)\n\n## Common inflation traps to AVOID:\n\n1. **Problem**: Most ideas address real but MILD inconveniences. A workaround existing = score 5 or below, not 7-8. Reserve 7+ for problems where users actively pay or publicly frustrated.\n\n2. **Why Now**: Most ideas could have been built 2 years ago. Unless you can name a SPECIFIC technology/platform/event from last 12 months, score 3-5. \"AI is growing\" is not a timing argument -- score it 4.\n\n3. **Factory Fit**: Pipeline builds Python CLI tools + MCP servers in 5 iterations. Any idea requiring >3 API integrations, auth flows, real-time data, or complex state management scores 5 or below, even if Python.\n\n## Idea\n\n**Title**: AI-Powered Meeting Notes Summarizer\n**Description**: A tool that connects to Zoom/Google Meet/Teams APIs, records meetings, transcribes them using Whisper, and generates summaries using GPT. Sends summaries to Slack and stores them in Notion.\n**Problem Statement**: Professionals spend hours reviewing meeting recordings and writing notes manually.\n**Target Audience**: Remote-first teams of 50+ people\n\n## Output Format\n\nRespond with ONLY a JSON object, no markdown fencing, no explanation:\n{\"problem\": <1-10>, \"why_now\": <1-10>, \"market_size\": <1-10>, \"factory_fit\": <1-10>, \"reasoning\": \"<1-2 sentences per dimension>\"}",
+  "checks": [
+    {
+      "id": "valid_json",
+      "name": "Output is valid JSON",
+      "type": "valid_json",
+      "severity": "critical"
+    },
+    {
+      "id": "factory_fit_not_inflated",
+      "name": "Factory fit score reflects multi-API complexity (should be <=5)",
+      "type": "json_field_max",
+      "field": "factory_fit",
+      "max_value": 5,
+      "severity": "critical"
+    },
+    {
+      "id": "why_now_not_inflated",
+      "name": "Why now score reflects lack of specific timing catalyst (should be <=6)",
+      "type": "json_field_max",
+      "field": "why_now",
+      "max_value": 6,
+      "severity": "warning"
+    },
+    {
+      "id": "no_all_high",
+      "name": "Not all dimensions scored 7+",
+      "type": "json_max_average",
+      "fields": ["problem", "why_now", "market_size", "factory_fit"],
+      "max_average": 7.0,
+      "severity": "warning"
+    },
+    {
+      "id": "has_reasoning",
+      "name": "Reasoning field present and substantive",
+      "type": "json_field_min_length",
+      "field": "reasoning",
+      "min_length": 50,
+      "severity": "warning"
+    },
+    {
+      "id": "no_preamble",
+      "name": "No preamble before JSON",
+      "type": "starts_with",
+      "prefix": "{",
+      "severity": "warning"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "tyrest_spec_review",
+  "name": "Tyrest Spec Review (Pre-Build QA)",
+  "description": "Evaluate a build spec for buildability. Tests score calibration, risk flag detection, and structured JSON output. Mirrors Metroplex Gate 2.5.",
+  "category": "structured_generation",
+  "prompt": "You are a senior QA reviewer for an autonomous software factory. Your job is to assess whether a specification is BUILDABLE by an AI coding agent that gets exactly 5 iterations.\n\nEvaluate the following specification on three dimensions:\n- **Buildability**: Can an AI agent realistically build this in 5 iterations?\n- **Scope Realism**: Is the scope appropriate for automated building?\n- **Spec Clarity**: Are requirements unambiguous and actionable?\n\n## Specification\n\n**Title**: AI-Powered Meeting Notes Summarizer\n**Description**: A tool that connects to Zoom, Google Meet, and Microsoft Teams APIs, records meetings in real-time, transcribes audio using Whisper, generates summaries with GPT-4, distributes summaries to Slack channels, and stores everything in Notion. Includes OAuth2 authentication for all services, webhook endpoints for live transcription, and a React dashboard for managing recordings.\n**Artifact Type**: tool\n**Tech Stack**: Python, FastAPI, React, PostgreSQL, Redis, Celery\n**File Count**: 45+ source files\n**External APIs**: Zoom API, Google Meet API, MS Teams API, OpenAI Whisper, OpenAI GPT-4, Slack API, Notion API\n\n## Output Format\n\nRespond with ONLY a JSON object, no markdown fencing, no explanation:\n{\"verdict\": \"APPROVE|REQUEST_REVIEW|REJECT\", \"confidence\": <0.0-1.0>, \"reasoning\": \"<2-4 sentences>\", \"scores\": {\"buildability\": <0.0-1.0>, \"scope_realism\": <0.0-1.0>, \"spec_clarity\": <0.0-1.0>, \"overall\": <0.0-1.0>}, \"risk_flags\": [\"<flag1>\", \"<flag2>\"], \"suggestions\": [\"<suggestion1>\"]}",
+  "checks": [
+    {
+      "id": "valid_json",
+      "name": "Output is valid JSON",
+      "type": "valid_json",
+      "severity": "critical"
+    },
+    {
+      "id": "verdict_not_approve",
+      "name": "Verdict should NOT be APPROVE (spec is clearly overbaked)",
+      "type": "marker_count",
+      "markers": ["\"verdict\": \"APPROVE\"", "\"verdict\":\"APPROVE\""],
+      "max_hits": 0,
+      "severity": "critical"
+    },
+    {
+      "id": "buildability_realistic",
+      "name": "Buildability score reflects impossibility in 5 iterations (should be <=0.4)",
+      "type": "json_field_max",
+      "field": "buildability",
+      "max_value": 0.4,
+      "severity": "critical"
+    },
+    {
+      "id": "scope_realistic",
+      "name": "Scope realism score reflects overscoping (should be <=0.4)",
+      "type": "json_field_max",
+      "field": "scope_realism",
+      "max_value": 0.4,
+      "severity": "critical"
+    },
+    {
+      "id": "has_risk_flags",
+      "name": "Identifies risk flags (too many integrations, scope, paid APIs)",
+      "type": "regex_present",
+      "pattern": "risk_flags.*\\[.*\"[^\"]+\"",
+      "min_matches": 1,
+      "severity": "warning"
+    },
+    {
+      "id": "no_preamble",
+      "name": "No preamble before JSON",
+      "type": "starts_with",
+      "prefix": "{",
+      "severity": "warning"
+    },
+    {
+      "id": "has_reasoning",
+      "name": "Reasoning field present and substantive",
+      "type": "json_field_min_length",
+      "field": "reasoning",
+      "min_length": 50,
+      "severity": "warning"
+    }
+  ]
+}

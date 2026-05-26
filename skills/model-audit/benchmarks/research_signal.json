@@ -1,0 +1,62 @@
+{
+  "id": "research_signal",
+  "name": "Research Signal Quality",
+  "description": "Generate a structured research signal from a market trend query. Tests signal-to-noise ratio, structured output, and actionability for the IdeaForge pipeline.",
+  "category": "structured_generation",
+  "prompt": "You are a technology market research analyst generating signals for an autonomous software factory. The factory builds Python CLI tools and MCP servers.\n\nAnalyze the following trend and produce a structured research signal.\n\n## Trend Query\n\n\"Model Context Protocol (MCP) adoption in enterprise tooling -- what developer tools are being built, what gaps exist, and where are the opportunities for small open-source projects?\"\n\n## Output Format\n\nRespond with ONLY a JSON object, no markdown fencing, no explanation:\n{\n  \"title\": \"<concise signal title, max 80 chars>\",\n  \"category\": \"<one of: developer_tools, ai_infrastructure, data_engineering, devops, security>\",\n  \"summary\": \"<2-3 sentences describing the opportunity>\",\n  \"evidence\": [\"<specific data point or observation 1>\", \"<point 2>\", \"<point 3>\"],\n  \"opportunity_ideas\": [\n    {\"title\": \"<tool idea>\", \"description\": \"<1 sentence>\", \"feasibility\": \"high|medium|low\"}\n  ],\n  \"confidence\": <0.0-1.0>,\n  \"timeliness\": \"<why now, not 6 months ago or 6 months from now>\"\n}\n\n## Quality Rules\n- Evidence must be SPECIFIC (name projects, companies, or metrics) not generic (\"many companies are adopting...\")\n- Opportunity ideas must be buildable as Python CLI tools or MCP servers in 5 iterations\n- Do not suggest ideas requiring paid APIs, auth flows, or complex integrations\n- Confidence should reflect actual certainty, not optimism",
+  "checks": [
+    {
+      "id": "valid_json",
+      "name": "Output is valid JSON",
+      "type": "valid_json",
+      "severity": "critical"
+    },
+    {
+      "id": "has_evidence",
+      "name": "Evidence array has 3+ specific items",
+      "type": "regex_present",
+      "pattern": "\"evidence\"\\s*:\\s*\\[",
+      "min_matches": 1,
+      "severity": "critical"
+    },
+    {
+      "id": "no_generic_evidence",
+      "name": "No generic evidence (must be specific)",
+      "type": "marker_count",
+      "markers": ["many companies", "growing number of", "increasing adoption", "various organizations", "several teams", "numerous developers"],
+      "max_hits": 1,
+      "severity": "warning"
+    },
+    {
+      "id": "has_opportunity_ideas",
+      "name": "Has opportunity ideas with feasibility",
+      "type": "regex_present",
+      "pattern": "feasibility.*high|feasibility.*medium|feasibility.*low",
+      "min_matches": 1,
+      "severity": "critical"
+    },
+    {
+      "id": "confidence_not_inflated",
+      "name": "Confidence is calibrated (not always high)",
+      "type": "json_field_max",
+      "field": "confidence",
+      "max_value": 0.9,
+      "severity": "warning"
+    },
+    {
+      "id": "has_timeliness",
+      "name": "Timeliness field present and substantive",
+      "type": "json_field_min_length",
+      "field": "timeliness",
+      "min_length": 30,
+      "severity": "warning"
+    },
+    {
+      "id": "no_preamble",
+      "name": "No preamble before JSON",
+      "type": "starts_with",
+      "prefix": "{",
+      "severity": "warning"
+    }
+  ]
+}

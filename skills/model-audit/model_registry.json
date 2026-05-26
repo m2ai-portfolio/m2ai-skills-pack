@@ -1,0 +1,321 @@
+{
+  "_meta": {
+    "description": "Model registry for /model-audit skill. Maps models to tiers, task strengths, and pricing.",
+    "last_updated": "2026-04-05",
+    "staleness_ttl_days": 90,
+    "update_instructions": "Run /chub to verify current model names and pricing, then update this file. Adds latency and token cost to the run."
+  },
+  "providers": {
+    "anthropic": {
+      "name": "Anthropic",
+      "auth_patterns": ["ANTHROPIC_API_KEY", "anthropic.Anthropic", "from anthropic import", "import anthropic"],
+      "sdk_packages": ["anthropic", "@anthropic-ai/sdk"],
+      "tiers": {
+        "frontier": {
+          "models": ["claude-opus-4-6", "claude-opus-4-20250514", "opus"],
+          "label": "Frontier / Thinking",
+          "cost_tier": "premium",
+          "typical_use": "Complex reasoning, multi-step planning, architecture decisions, research synthesis"
+        },
+        "balanced": {
+          "models": ["claude-sonnet-4-6", "claude-sonnet-4-20250514", "sonnet"],
+          "label": "Balanced",
+          "cost_tier": "standard",
+          "typical_use": "Code generation, detailed analysis, code review, multi-turn conversations"
+        },
+        "fast": {
+          "models": ["claude-haiku-4-5-20251001", "claude-haiku-4-20250414", "haiku"],
+          "label": "Fast / Light",
+          "cost_tier": "economy",
+          "typical_use": "Classification, routing, structured extraction, simple Q&A, high-volume tasks"
+        }
+      }
+    },
+    "google": {
+      "name": "Google",
+      "auth_patterns": ["GOOGLE_API_KEY", "GEMINI_API_KEY", "google.generativeai", "import google.generativeai", "genai.configure"],
+      "sdk_packages": ["google-generativeai", "@google/generative-ai"],
+      "tiers": {
+        "frontier": {
+          "models": ["gemini-3.1-pro-preview", "gemini-2.5-pro-preview-05-06"],
+          "label": "Frontier / Thinking",
+          "cost_tier": "premium",
+          "typical_use": "Complex reasoning, long-context analysis, multimodal understanding, research"
+        },
+        "balanced": {
+          "models": ["gemini-3.1-flash-lite-preview", "gemini-3-flash-preview", "gemini-2.5-flash-preview-04-17"],
+          "label": "Balanced / Flash",
+          "cost_tier": "standard",
+          "typical_use": "Code generation, summarization, structured output, general-purpose tasks"
+        },
+        "fast": {
+          "models": ["gemini-2.0-flash", "gemini-2.0-flash-lite"],
+          "label": "Fast / Light",
+          "cost_tier": "economy",
+          "typical_use": "Classification, extraction, high-volume processing, simple generation"
+        }
+      }
+    },
+    "openai": {
+      "name": "OpenAI",
+      "auth_patterns": ["OPENAI_API_KEY", "openai.OpenAI", "from openai import", "import openai"],
+      "sdk_packages": ["openai", "openai"],
+      "tiers": {
+        "frontier": {
+          "models": ["gpt-5.4", "gpt-5.4-thinking", "o3", "o4-mini", "o3-pro"],
+          "label": "Frontier / Thinking",
+          "cost_tier": "premium",
+          "typical_use": "Complex reasoning, math, code analysis, multi-step problem solving"
+        },
+        "balanced": {
+          "models": ["gpt-5.4-mini", "gpt-4.1", "gpt-4o"],
+          "label": "Balanced",
+          "cost_tier": "standard",
+          "typical_use": "Code generation, analysis, creative writing, general-purpose tasks"
+        },
+        "fast": {
+          "models": ["gpt-5.4-nano", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-4o-mini"],
+          "label": "Fast / Light",
+          "cost_tier": "economy",
+          "typical_use": "Classification, extraction, structured output, high-volume tasks"
+        }
+      }
+    },
+    "open_source": {
+      "name": "Open Source",
+      "auth_patterns": ["DEEPINFRA_API_KEY", "TOGETHER_API_KEY", "OPENROUTER_API_KEY", "ollama.chat", "localhost:11434"],
+      "sdk_packages": ["ollama", "litellm"],
+      "routers": ["deepinfra", "together", "openrouter", "ollama", "vllm"],
+      "tiers": {
+        "frontier": {
+          "models": [
+            "meta-llama/Llama-4-Maverick-17Bx128E-Instruct",
+            "deepseek-ai/DeepSeek-R1",
+            "deepseek-ai/DeepSeek-V3",
+            "Qwen/Qwen3-235B-A22B"
+          ],
+          "label": "Frontier / Large",
+          "cost_tier": "standard",
+          "typical_use": "Complex reasoning, code generation, long-form analysis"
+        },
+        "balanced": {
+          "models": [
+            "meta-llama/Llama-4-Scout-17B-16E-Instruct",
+            "Qwen/Qwen3-32B",
+            "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B",
+            "mistralai/Mistral-Medium-3"
+          ],
+          "label": "Balanced / Medium",
+          "cost_tier": "economy",
+          "typical_use": "General-purpose tasks, structured output, summarization"
+        },
+        "fast": {
+          "models": [
+            "meta-llama/Llama-3.3-8B-Instruct",
+            "Qwen/Qwen3-8B",
+            "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+            "google/gemma-3-27b-it"
+          ],
+          "label": "Fast / Small",
+          "cost_tier": "budget",
+          "typical_use": "Classification, routing, extraction, local inference, high-volume batch"
+        }
+      }
+    }
+  },
+  "task_profiles": {
+    "reasoning_planning": {
+      "label": "Reasoning & Planning",
+      "description": "Multi-step logic, architecture decisions, complex problem decomposition",
+      "detection_patterns": ["plan", "architect", "design", "strategy", "reason", "think step", "analyze", "evaluate options"],
+      "recommended_tier": "frontier",
+      "provider_strengths": {
+        "anthropic": 9,
+        "google": 8,
+        "openai": 9,
+        "open_source": 7
+      }
+    },
+    "code_generation": {
+      "label": "Code Generation",
+      "description": "Writing code from specs, implementing features, generating boilerplate",
+      "detection_patterns": ["generate code", "implement", "write a function", "create a class", "build", "code this"],
+      "recommended_tier": "balanced",
+      "provider_strengths": {
+        "anthropic": 9,
+        "google": 7,
+        "openai": 8,
+        "open_source": 7
+      }
+    },
+    "code_review": {
+      "label": "Code Review & QA",
+      "description": "Reviewing code, finding bugs, security analysis, test generation",
+      "detection_patterns": ["review", "check", "audit", "qa", "quality", "test", "bug", "security", "vulnerability"],
+      "recommended_tier": "balanced",
+      "provider_strengths": {
+        "anthropic": 9,
+        "google": 7,
+        "openai": 8,
+        "open_source": 6
+      }
+    },
+    "structured_output": {
+      "label": "Structured Output",
+      "description": "JSON generation, schema-compliant output, data transformation",
+      "detection_patterns": ["json", "schema", "structured", "parse", "extract", "format", "transform", "pydantic", "zod"],
+      "recommended_tier": "fast",
+      "provider_strengths": {
+        "anthropic": 8,
+        "google": 8,
+        "openai": 9,
+        "open_source": 7
+      }
+    },
+    "summarization": {
+      "label": "Summarization",
+      "description": "Condensing text, meeting notes, document summaries, TL;DR",
+      "detection_patterns": ["summarize", "summary", "condense", "tldr", "brief", "digest", "recap"],
+      "recommended_tier": "balanced",
+      "provider_strengths": {
+        "anthropic": 8,
+        "google": 9,
+        "openai": 8,
+        "open_source": 7
+      }
+    },
+    "classification_routing": {
+      "label": "Classification & Routing",
+      "description": "Triage, labeling, intent detection, simple binary decisions",
+      "detection_patterns": ["classify", "categorize", "label", "triage", "route", "intent", "detect", "filter", "score"],
+      "recommended_tier": "fast",
+      "provider_strengths": {
+        "anthropic": 7,
+        "google": 8,
+        "openai": 8,
+        "open_source": 8
+      }
+    },
+    "creative_copy": {
+      "label": "Creative & Copy",
+      "description": "Marketing copy, product descriptions, creative writing, content generation",
+      "detection_patterns": ["write", "copy", "creative", "marketing", "description", "content", "blog", "email", "headline"],
+      "recommended_tier": "balanced",
+      "provider_strengths": {
+        "anthropic": 9,
+        "google": 7,
+        "openai": 8,
+        "open_source": 6
+      }
+    }
+  },
+  "legacy_models": {
+    "_note": "Models that still work in the API but have been superseded. Map old -> recommended replacement. Tier checks should flag these as [LEGACY] even though they pass validation.",
+    "gpt-4.1": {"replacement": "gpt-5.4-mini", "reason": "GPT-4.1 retired from ChatGPT Feb 2026. Still in API but superseded by GPT-5.4 family.", "provider": "openai"},
+    "gpt-4o": {"replacement": "gpt-5.4-mini", "reason": "GPT-4o retired from ChatGPT Feb 2026. Superseded by GPT-5.4 family.", "provider": "openai"},
+    "gpt-4.1-mini": {"replacement": "gpt-5.4-nano", "reason": "Superseded by GPT-5.4-nano at similar cost.", "provider": "openai"},
+    "gpt-4o-mini": {"replacement": "gpt-5.4-nano", "reason": "Superseded by GPT-5.4-nano.", "provider": "openai"},
+    "gemini-2.0-flash": {"replacement": "gemini-2.5-flash-preview-04-17", "reason": "Deprecated June 1 2026. Migrate to 2.5 Flash.", "provider": "google"},
+    "gemini-2.0-flash-lite": {"replacement": "gemini-3.1-flash-lite-preview", "reason": "Superseded by 3.1 Flash Lite.", "provider": "google"},
+    "claude-opus-4-20250514": {"replacement": "claude-opus-4-6", "reason": "Dated alias. Use current model ID.", "provider": "anthropic"},
+    "claude-sonnet-4-20250514": {"replacement": "claude-sonnet-4-6", "reason": "Dated alias. Use current model ID.", "provider": "anthropic"},
+    "claude-haiku-4-20250414": {"replacement": "claude-haiku-4-5-20251001", "reason": "Dated alias. Use current model ID.", "provider": "anthropic"}
+  },
+  "cost_rates_per_million_tokens": {
+    "anthropic": {
+      "claude-opus-4-6": {"input": 5.00, "output": 25.00},
+      "claude-sonnet-4-6": {"input": 3.00, "output": 15.00},
+      "claude-haiku-4-5-20251001": {"input": 1.00, "output": 5.00}
+    },
+    "google": {
+      "gemini-3.1-pro-preview": {"input": 2.00, "output": 12.00},
+      "gemini-3.1-flash-lite-preview": {"input": 0.25, "output": 1.50},
+      "gemini-3-flash-preview": {"input": 0.50, "output": 3.00},
+      "gemini-2.0-flash": {"input": 0.10, "output": 0.40}
+    },
+    "openai": {
+      "gpt-5.4": {"input": 2.50, "output": 10.00},
+      "gpt-5.4-mini": {"input": 0.50, "output": 2.00},
+      "gpt-5.4-nano": {"input": 0.08, "output": 0.30},
+      "o3": {"input": 10.00, "output": 40.00},
+      "o4-mini": {"input": 1.10, "output": 4.40},
+      "gpt-4.1": {"input": 2.00, "output": 8.00},
+      "gpt-4.1-mini": {"input": 0.40, "output": 1.60},
+      "gpt-4.1-nano": {"input": 0.05, "output": 0.20}
+    },
+    "open_source_via_deepinfra": {
+      "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B": {"input": 0.10, "output": 0.50},
+      "deepseek-ai/DeepSeek-V3": {"input": 0.27, "output": 1.10},
+      "meta-llama/Llama-4-Maverick-17Bx128E-Instruct": {"input": 0.20, "output": 0.60},
+      "meta-llama/Llama-4-Scout-17B-16E-Instruct": {"input": 0.05, "output": 0.15},
+      "mistralai/Mistral-Small-3.2-24B-Instruct-2506": {"input": 0.07, "output": 0.20},
+      "Qwen/Qwen3-235B-A22B": {"input": 0.20, "output": 0.60},
+      "Qwen/Qwen3-32B": {"input": 0.10, "output": 0.30}
+    }
+  },
+  "detection_patterns": {
+    "file_globs": ["*.py", "*.ts", "*.js", "*.jsx", "*.tsx", "*.yaml", "*.yml", "*.json", "*.toml", "*.env", "*.env.*", "*.cfg", "*.ini"],
+    "skip_dirs": ["node_modules", "venv", ".venv", "__pycache__", ".git", "dist", "build", ".next", "target", ".tox", "site-packages"],
+    "sdk_imports": {
+      "anthropic_python": "from anthropic|import anthropic",
+      "anthropic_ts": "from ['\"]@anthropic-ai/sdk|require\\(['\"]@anthropic-ai/sdk",
+      "openai_python": "from openai|import openai",
+      "openai_ts": "from ['\"]openai|require\\(['\"]openai",
+      "google_python": "import google\\.generativeai|from google\\.generativeai|genai\\.configure",
+      "google_ts": "from ['\"]@google/generative-ai|require\\(['\"]@google/generative-ai",
+      "litellm": "from litellm|import litellm|litellm\\.completion",
+      "langchain": "from langchain|import langchain|ChatOpenAI|ChatAnthropic|ChatGoogleGenerativeAI",
+      "ollama_python": "import ollama|from ollama|ollama\\.chat",
+      "ollama_ts": "from ['\"]ollama|require\\(['\"]ollama"
+    },
+    "model_string_patterns": [
+      "claude-opus-[0-9]",
+      "claude-sonnet-[0-9]",
+      "claude-haiku-[0-9]",
+      "claude-[0-9]",
+      "gpt-5[.0-9]",
+      "gpt-4[o0-9.-]",
+      "o[1-4]-",
+      "gemini-[0-9]",
+      "meta-llama/",
+      "nvidia/",
+      "mistralai/",
+      "deepseek-ai/",
+      "Qwen/"
+    ],
+    "config_key_patterns": ["model", "model_name", "model_id", "llm_model", "ai_model", "chat_model", "embedding_model"],
+    "env_var_patterns": ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY", "GEMINI_API_KEY", "DEEPINFRA_API_KEY", "TOGETHER_API_KEY", "OPENROUTER_API_KEY", "OLLAMA_HOST"]
+  },
+  "second_brain_markers": {
+    "obsidian": {
+      "marker": ".obsidian",
+      "type": "directory",
+      "search_paths": ["~/vault", "~/Vault", "~/obsidian", "~/Obsidian", "~/notes", "~/Notes", "~/Documents/vault", "~/Documents/Vault"],
+      "output_subdir": "model-audits"
+    },
+    "logseq": {
+      "marker": "logseq",
+      "type": "directory",
+      "search_paths": ["~/logseq", "~/Logseq", "~/Documents/logseq"],
+      "output_subdir": "pages"
+    },
+    "dendron": {
+      "marker": "dendron.yml",
+      "type": "file",
+      "search_paths": ["~/dendron", "~/Documents/dendron"],
+      "output_subdir": "notes"
+    },
+    "foam": {
+      "marker": ".vscode/foam.json",
+      "type": "file",
+      "search_paths": ["~/foam", "~/notes", "~/Documents/foam"],
+      "output_subdir": "notes"
+    },
+    "silverbullet": {
+      "marker": ".silverbullet",
+      "type": "directory",
+      "search_paths": ["~/silverbullet", "~/notes"],
+      "output_subdir": "model-audits"
+    }
+  }
+}

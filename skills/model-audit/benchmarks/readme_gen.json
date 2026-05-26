@@ -1,0 +1,65 @@
+{
+  "id": "readme_gen",
+  "name": "README Generation",
+  "description": "Generate a polished README.md for a project. Tests example quality, structure compliance, and no-placeholder discipline.",
+  "category": "structured_generation",
+  "prompt": "Generate a comprehensive, visually polished README.md for this project.\n\n**Title**: Git Branch Health Checker\n**App Specification**: CLI tool that scans git repos for stale branches (>30 days), merged-but-undeleted branches, and naming violations. Reports in table format.\n**File Tree**:\n```\ngit-branch-health/\n  main.py\n  analyzer.py\n  reporter.py\n  config.py\n  models.py\n  tests/\n    test_analyzer.py\n    test_reporter.py\n  pyproject.toml\n  README.md\n```\n\n## Quality Rules:\n- Every example must show BOTH input AND output -- never leave output as placeholder\n- Use realistic data in examples, not \"foo/bar/example.txt\"\n- Feature table rows must describe actual capabilities from the spec, not marketing fluff\n- Keep total length 150-250 lines\n- No em-dashes -- use commas, periods, or double-hyphens\n\n## Sections Required (exact order):\n1. Centered banner block (HTML)\n2. What is this? (2-3 sentences + code example with output)\n3. Features (table: Feature | Description, 4-8 rows)\n4. Quick Start (numbered, with package names from spec)\n5. Examples (2-3 progressive examples with realistic sample output)\n6. File Structure (clean tree from provided)\n7. Tech Stack (table: Technology | Purpose)\n8. Contributing (fork/test/PR, 4 lines max)\n9. License (MIT)\n10. Author metadata",
+  "checks": [
+    {
+      "id": "no_placeholders",
+      "name": "No placeholder output text",
+      "type": "marker_count",
+      "markers": ["output here", "expected output", "[show ", "[realistic", "REPLACE", "TODO", "placeholder", "your output"],
+      "max_hits": 0,
+      "severity": "critical"
+    },
+    {
+      "id": "no_em_dashes",
+      "name": "No em-dashes used",
+      "type": "marker_count",
+      "markers": ["\u2014"],
+      "max_hits": 0,
+      "severity": "warning"
+    },
+    {
+      "id": "has_html_banner",
+      "name": "Has HTML centered banner",
+      "type": "regex_present",
+      "pattern": "<[hH]1|<div.*align.*center|<p.*align.*center",
+      "min_matches": 1,
+      "severity": "warning"
+    },
+    {
+      "id": "has_feature_table",
+      "name": "Has feature table with pipe separators",
+      "type": "regex_present",
+      "pattern": "\\|.*Feature.*\\|.*Description.*\\|",
+      "min_matches": 1,
+      "severity": "warning"
+    },
+    {
+      "id": "length_bounds",
+      "name": "Output length within bounds",
+      "type": "line_count_range",
+      "min_lines": 100,
+      "max_lines": 300,
+      "severity": "warning"
+    },
+    {
+      "id": "has_code_examples",
+      "name": "Has code blocks with examples",
+      "type": "regex_present",
+      "pattern": "```",
+      "min_matches": 3,
+      "severity": "warning"
+    },
+    {
+      "id": "no_generic_features",
+      "name": "No generic features like Error Handling or Logging",
+      "type": "marker_count",
+      "markers": ["Error Handling |", "Logging |", "| Error handling", "| Logging"],
+      "max_hits": 0,
+      "severity": "warning"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "listing_copy",
+  "name": "Gumroad Listing Copy",
+  "description": "Generate a product listing for a free developer tool. Tests persuasive but honest copy, benefit-focused writing, placeholder avoidance, and structure.",
+  "category": "copywriting",
+  "prompt": "Generate a Gumroad product listing for a free developer tool.\n\nProduct: Git Branch Health Checker\nRepository: https://github.com/m2ai-portfolio/git-branch-health\n\nSpec: CLI tool that analyzes git repositories for stale branches (>30 days no commits), merged-but-not-deleted branches, and branch naming convention violations. Reports findings in a clean table format. Built with Python, click, and gitpython.\n\nSource files: main.py, analyzer.py, reporter.py, config.py, models.py, tests/test_analyzer.py, tests/test_reporter.py\n\nStyle guidelines:\n- Lead with a punchy hook -- one sentence that tells a developer why they should care\n- Use benefit-focused copy: what time/effort/pain does this save? Be specific (\"cuts branch cleanup from 30 min to 2 min\") not vague (\"improves your workflow\")\n- Technical-professional tone -- persuasive but honest. Developers trust specificity over hype.\n- NEVER use empty superlatives: \"revolutionary\", \"game-changing\", \"cutting-edge\", \"unleash\", \"supercharge\", \"next-generation\"\n- DO use concrete value propositions, comparisons to alternatives, and honest scope\n- Concise, respect reader's time\n- Price: FREE\n\n## Required Sections:\n1. Hook -- one punchy sentence (the reason someone clicks)\n2. What's Inside -- concrete deliverables (source code, configs, scripts)\n3. The Problem -- specific technical pain point, quantify the cost if possible\n4. How It Works -- brief architecture (3-5 bullets max)\n5. Why This One? -- what makes it different from alternatives (1-2 sentences, be honest)\n6. Get Started -- installation/setup with code blocks\n\n---\nAlso output:\n- SUMMARY: <max 140 chars, one-line description>\n- TAGS: tag1, tag2, tag3",
+  "checks": [
+    {
+      "id": "no_placeholders",
+      "name": "No placeholder text in output",
+      "type": "marker_count",
+      "markers": ["output here", "your output", "expected output", "REPLACE THIS", "placeholder", "[insert", "[your ", "lorem ipsum", "example output"],
+      "max_hits": 0,
+      "severity": "critical"
+    },
+    {
+      "id": "no_empty_superlatives",
+      "name": "No empty superlatives (hype without substance)",
+      "type": "marker_count",
+      "markers": ["revolutionary", "game-changing", "cutting-edge", "next-generation", "unleash", "supercharge", "turbocharge", "skyrocket"],
+      "max_hits": 0,
+      "severity": "warning"
+    },
+    {
+      "id": "has_benefit_language",
+      "name": "Uses benefit-focused or value-proposition language",
+      "type": "regex_present",
+      "pattern": "save[sd]?|reduc|faster|automat|eliminat|instead of|no more|stop wasting|minutes|hours|seconds",
+      "min_matches": 2,
+      "severity": "warning"
+    },
+    {
+      "id": "has_hook",
+      "name": "Has a hook or opening value statement",
+      "type": "regex_present",
+      "pattern": "## Hook|^[A-Z].*\\.",
+      "min_matches": 1,
+      "severity": "warning"
+    },
+    {
+      "id": "has_summary",
+      "name": "Contains SUMMARY line",
+      "type": "regex_present",
+      "pattern": "SUMMARY:",
+      "min_matches": 1,
+      "severity": "critical"
+    },
+    {
+      "id": "summary_length",
+      "name": "Summary is under 140 characters",
+      "type": "summary_length",
+      "max_chars": 140,
+      "severity": "warning"
+    },
+    {
+      "id": "has_tags",
+      "name": "Contains TAGS line",
+      "type": "regex_present",
+      "pattern": "TAGS:",
+      "min_matches": 1,
+      "severity": "warning"
+    },
+    {
+      "id": "has_code_blocks",
+      "name": "Contains code blocks for installation",
+      "type": "regex_present",
+      "pattern": "```",
+      "min_matches": 1,
+      "severity": "warning"
+    },
+    {
+      "id": "mentions_actual_files",
+      "name": "References actual source files from spec",
+      "type": "regex_present",
+      "pattern": "analyzer|reporter|main\\.py|config\\.py",
+      "min_matches": 1,
+      "severity": "warning"
+    }
+  ]
+}

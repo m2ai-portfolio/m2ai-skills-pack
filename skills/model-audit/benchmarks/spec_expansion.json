@@ -1,0 +1,63 @@
+{
+  "id": "spec_expansion",
+  "name": "App Spec Expansion",
+  "description": "Generate a build specification from an idea. Tests structured output, scope discipline, and instruction following.",
+  "category": "structured_generation",
+  "prompt": "CRITICAL: Output ONLY the final Markdown specification document. No preamble, no reasoning, no alternatives considered, no internal debate. Do not include phrases like \"let's consider\", \"however, note\", \"alternatively\", or any chain-of-thought. Start directly with the markdown heading.\n\nYou are a senior software architect writing a build specification for an autonomous coding agent.\n\nThe agent gets EXACTLY 5 iterations to produce a working project. Scope accordingly.\n\nGiven the following idea data, produce a focused, minimal-scope app specification in Markdown format.\nThe spec must be specific to THIS idea -- no generic boilerplate.\n\n## Idea Data\n\n- **Title**: Git Branch Health Checker\n- **Description**: CLI tool that analyzes git repositories for stale branches, merged-but-not-deleted branches, and branch naming convention violations. Reports findings in a clean table format.\n- **Problem Statement**: Developers accumulate stale branches over months, making repo navigation confusing and CI pipelines slower.\n- **Target Audience**: Solo developers and small teams managing 5-20 active repositories\n- **Artifact Type**: tool\n- **Scores**: opportunity=7.2, problem=6.8, feasibility=8.1\n\n## SCOPE CONSTRAINTS (CRITICAL)\n\n1. **Maximum 3 core features**.\n2. **Each feature must be implementable in ~50-100 lines**.\n3. **Maximum 8-12 source files** (excluding tests).\n4. **ZERO external API dependencies**.\n5. **ZERO paid services**.\n6. **Single data store only**: SQLite OR JSON files OR in-memory.\n7. **No multi-process architectures**.\n8. **No web frontends** for tool/agent types. CLI only.\n9. **Standard library + 3-5 pip packages max**.\n\n## Output Format\n\nProduce a Markdown document with EXACTLY these sections:\n\n# <Title> - App Specification\n\n## Overview\n<1-2 paragraphs: what this builds and who it serves. Be concrete, not aspirational.>\n\n**Problem Statement**: <one sentence>\n**Target Audience**: <one sentence>\n\n## Tech Stack\n<Short bullet list. For tools: Python 3.11+, click, pytest. Keep it minimal.>\n\n## Environment Setup\n\n### Prerequisites\n<Only Python and standard tools>\n\n### Configuration\n<Environment variables table -- should be 0-2 variables, all optional with defaults>\n\n## Architecture\n<Simple ASCII diagram. Should fit in 10 lines.>\n\n## Core Features\n<EXACTLY 2-3 features. Each must be completable in ~1 iteration.>\n\n### Feature N: <Name>\n**Description**: <1-2 sentences>\n\n**Requirements**:\n- <2-3 specific, testable requirements per feature>\n\n**Test Steps**:\n1. <Concrete CLI command> -> <expected output>\n\n## Data Models\n<1-2 Pydantic models or dataclasses. Keep fields minimal.>\n\n## File Structure\n<Flat structure preferred. 8-12 files max including tests.>\n\n## Success Criteria\n<3-5 verifiable outcomes that can be checked by running commands>\n\n## Constraints & Notes\n- No external API calls\n- Target: working MVP in 5 build iterations\n- Prioritize \"works correctly\" over \"feature complete\"\n\nIMPORTANT RULES:\n- Every feature must be SPECIFIC to this idea.\n- Every test step MUST be a concrete CLI command with EXACT expected stdout output.\n- Keep the total length between 300-600 lines of markdown. Shorter is better.",
+  "checks": [
+    {
+      "id": "no_cot_leakage",
+      "name": "No chain-of-thought leakage",
+      "type": "marker_count",
+      "markers": ["let's consider", "however, note", "alternatively", "given the constraints", "this is getting messy", "too long", "we'll need to", "count the lines", "let me think", "on second thought", "wait,", "hmm,"],
+      "max_hits": 2,
+      "severity": "critical"
+    },
+    {
+      "id": "no_template_parrot",
+      "name": "No template parroting",
+      "type": "marker_count",
+      "markers": ["Environment variables table -- should be 0-2 variables", "Simple ASCII diagram. Should fit in 10 lines", "Short bullet list. For tools:", "1-2 paragraphs: what this builds", "EXACTLY 2-3 features", "1-2 Pydantic models or dataclasses"],
+      "max_hits": 0,
+      "severity": "critical"
+    },
+    {
+      "id": "has_sections",
+      "name": "Has required section headers",
+      "type": "min_header_count",
+      "min_count": 6,
+      "severity": "critical"
+    },
+    {
+      "id": "length_bounds",
+      "name": "Output length within bounds",
+      "type": "line_count_range",
+      "min_lines": 50,
+      "max_lines": 400,
+      "severity": "critical"
+    },
+    {
+      "id": "no_duplicates",
+      "name": "No duplicate sections",
+      "type": "marker_count",
+      "markers": ["## Overview"],
+      "max_hits": 1,
+      "severity": "warning"
+    },
+    {
+      "id": "concrete_test_steps",
+      "name": "Test steps have concrete CLI commands",
+      "type": "regex_present",
+      "pattern": "\\$|python |pytest |git-branch-health|->",
+      "min_matches": 3,
+      "severity": "warning"
+    },
+    {
+      "id": "starts_with_heading",
+      "name": "Starts with markdown heading, no preamble",
+      "type": "starts_with",
+      "prefix": "#",
+      "severity": "warning"
+    }
+  ]
+}
