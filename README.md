@@ -1,6 +1,6 @@
 # M2AI Skills Pack
 
-A curated Claude Code plugin containing 33 portable skills for strategy work, prompt engineering, model routing, agent auditing, build pipelines, and workflow tooling.
+A curated Claude Code plugin containing 34 portable skills for strategy work, prompt engineering, model routing, agent auditing, build pipelines, and workflow tooling.
 
 ## Install
 
@@ -60,6 +60,9 @@ Then restart Claude Code. Skills will appear in your skill list and auto-trigger
 - **gemini-rescue** — get a second opinion from Google Gemini via one-shot review or agentic dispatch; use when Claude is stuck or for 1M-context audits
 - **silver-platter** — interview a business owner, build a tailored data map, render Pantry/Prep/Plate visualization, generate a 30-day build plan and Claude Code recommendations
 
+### Proactive Automation
+- **life-engine** -- *(reference implementation)* time-windowed proactive briefing loop that checks email, calendar, project health, and changelog sources on a recurring schedule; includes dedup logic, self-improvement cycles, and mobile-first message formatting
+
 ### Video & Media Prompting
 - **seedance-prompt** — Master AI Video Prompt Engineer for Seedance 2.0; structures multi-shot timelines (0-14s) using the FRAMES framework (Frame, Reaction, Audio, Mood, Edit Plan, Shot)
 - **seedance-shot-prompt** — generate Seedance 2 prompts for linear A→B forward-motion shots (transitions, chases, reveals); includes 3-stage smoke-test protocol for identity-bound shots and 8-mode failure taxonomy
@@ -91,9 +94,10 @@ A few skills contain environment-specific references. They still work, but you m
 - **what-am-i-forgetting** — most useful if you maintain a memory-index file, per-project TODO/NEXT files, and daily notes. Without them, it falls back to folder inventory + cron listings.
 - **gemini-rescue** — requires a Gemini MCP server exposing `gemini_ask` and `gemini_run` tools. Configure with your Google API key.
 - **self-healing-claudex** — requires the Codex CLI (`codex`) installed and authenticated. Falls back to the all-Claude `/self-healing-pipeline` if Codex is unavailable.
-- **tldr** — assumes an Obsidian vault at `~/vault/`. Adjust the path in the skill if your vault lives elsewhere.
+- **tldr** -- assumes an Obsidian vault at `~/vault/`. Adjust the path in the skill if your vault lives elsewhere.
+- **life-engine** -- reference implementation, not plug-and-play. Shows how one user wired Gmail, Google Calendar, an idea-catcher DB, and changelog tracking into a 30-minute proactive loop. Read the Adaptation Guide at the bottom of the skill to build your own.
 - **silver-platter** — uses Jinja2 for HTML rendering (`pip install jinja2`). Examples use fictional business personas.
 
 ## Version
 
-`0.3.0` — adds `self-healing-pipeline`, `self-healing-claudex`, `diagnose`, `sparring-planner`, `next`, `gemini-rescue`, `tldr`, `silver-platter`. Feedback welcome.
+`0.4.0` -- adds `life-engine` (reference implementation for proactive briefing loops). Feedback welcome.
