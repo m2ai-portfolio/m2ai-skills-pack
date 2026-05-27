@@ -1,6 +1,6 @@
 # M2AI Skills Pack
 
-A curated Claude Code plugin containing 25 portable skills for strategy work, prompt engineering, model routing, agent auditing, and workflow tooling.
+A curated Claude Code plugin containing 33 portable skills for strategy work, prompt engineering, model routing, agent auditing, build pipelines, and workflow tooling.
 
 ## Install
 
@@ -41,12 +41,24 @@ Then restart Claude Code. Skills will appear in your skill list and auto-trigger
 - **context-hygiene** — reference for `/by-the-way`, `/fork`, `context:fork`
 - **context-fork-guide** — add `context:fork` to heavy-research skills
 
+### Build Pipelines
+- **self-healing-pipeline** — three-agent Planner/Builder/Judge loop with spec-claim extraction, adversarial-input synthesis, and auto-retry up to 3 times before escalating; file-based state survives session interrupts
+- **self-healing-claudex** — Planner/Builder + Codex adversarial review loop; each round wears a different reviewer persona (engineer/security/ops); converges when Codex agrees or max rounds reached
+- **diagnose** — strict 4-gate diagnostic protocol: state the error, gather evidence, rank 3 hypotheses, get approval before any code edit
+
+### Planning & Session Management
+- **sparring-planner** — adversarial planning mode that challenges assumptions, asks deep multi-option questions, and explores competing approaches before converging on a plan
+- **next** — generate a continuation prompt and handoff document for a fresh session; lists completed work, current state, and remaining tasks
+- **tldr** — save a conversation summary to an Obsidian vault with auto-filed daily notes, wiki log entries, and topic cross-references
+
 ### Workflow
 - **gh-review** — review GitHub repos against current project, generate HTML report
 - **get-api-docs** — fetch API docs via Context Hub (`/chub`) to verify model names
 - **file-intel** — Gemini-powered extraction/summary for PDF/PPTX/XLSX/DOCX/CSV folders
 - **banana-maker** — Gemini image generation via Nano Banana Pro prompting
 - **what-am-i-forgetting** — consolidated agenda recall across memory index, roadmaps, open-item queues, daily notes, crons, and project folders
+- **gemini-rescue** — get a second opinion from Google Gemini via one-shot review or agentic dispatch; use when Claude is stuck or for 1M-context audits
+- **silver-platter** — interview a business owner, build a tailored data map, render Pantry/Prep/Plate visualization, generate a 30-day build plan and Claude Code recommendations
 
 ### Video & Media Prompting
 - **seedance-prompt** — Master AI Video Prompt Engineer for Seedance 2.0; structures multi-shot timelines (0-14s) using the FRAMES framework (Frame, Reaction, Audio, Mood, Edit Plan, Shot)
@@ -77,7 +89,11 @@ A few skills contain environment-specific references. They still work, but you m
 - **get-api-docs** — depends on the `/chub` (Context Hub) skill being installed separately. Without it, this skill is a no-op.
 - **aar** — assumes an orchestrated agent system with a SQLite task DB and A2A endpoints. Without those, Phase 1 forensics gets thin.
 - **what-am-i-forgetting** — most useful if you maintain a memory-index file, per-project TODO/NEXT files, and daily notes. Without them, it falls back to folder inventory + cron listings.
+- **gemini-rescue** — requires a Gemini MCP server exposing `gemini_ask` and `gemini_run` tools. Configure with your Google API key.
+- **self-healing-claudex** — requires the Codex CLI (`codex`) installed and authenticated. Falls back to the all-Claude `/self-healing-pipeline` if Codex is unavailable.
+- **tldr** — assumes an Obsidian vault at `~/vault/`. Adjust the path in the skill if your vault lives elsewhere.
+- **silver-platter** — uses Jinja2 for HTML rendering (`pip install jinja2`). Examples use fictional business personas.
 
 ## Version
 
-`0.2.0` — adds `aar`, `dark-code-audit`, `what-am-i-forgetting`. Feedback welcome.
+`0.3.0` — adds `self-healing-pipeline`, `self-healing-claudex`, `diagnose`, `sparring-planner`, `next`, `gemini-rescue`, `tldr`, `silver-platter`. Feedback welcome.
