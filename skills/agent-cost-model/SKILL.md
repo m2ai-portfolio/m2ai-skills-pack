@@ -120,7 +120,7 @@ Present as:
 
 - All estimates are approximations. Actual costs depend on exact prompt content, model behavior, and caching hit rates.
 - Pricing changes frequently. Always verify against current published rates before making business decisions.
-- For ClaudeClaw multi-agent costs, remember each agent (main, research, comms, content, ops) has its own token budget per task.
+- For the agent platform multi-agent costs, remember each agent (main, research, comms, content, ops) has its own token budget per task.
 
 ## Source
 

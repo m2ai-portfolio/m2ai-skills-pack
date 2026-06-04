@@ -95,7 +95,7 @@ vs all-Opus:   $X.XX (XX% savings)
 
 ## Phase 5: Agent Harness Integration (Optional)
 
-If the user is building an agent pipeline (YCE harness, ClaudeClaw, etc.), suggest a routing function pattern matching task types to model tiers.
+If the user is building an agent pipeline (YCE harness, the agent platform, etc.), suggest a routing function pattern matching task types to model tiers.
 
 ## Output Format
 

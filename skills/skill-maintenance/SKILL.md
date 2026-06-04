@@ -17,7 +17,7 @@ Activate when:
 
 Audits skills in `~/.claude/skills/` against Anthropic's documented best practices for the agent skills open standard. Produces a scored report with actionable findings and patch candidates for Phase 2b auto-remediation.
 
-This skill focuses on **content quality** (structure, metadata, progressive disclosure). It does NOT measure invocation metrics — that is handled by `scorecard.py` in skill-forge.
+This skill focuses on **content quality** (structure, metadata, progressive disclosure). It does NOT measure invocation metrics — that is handled by `scorecard.py` in the skill library.
 
 ## Workflow
 

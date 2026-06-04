@@ -81,7 +81,7 @@ This directory is gitignored. Structure:
 Before any phase transition in this pipeline, check for a file named
 `.heartbeat-callback` at the root of `target_dir`. If it exists, read its
 first line as an absolute path and touch that path via Bash. This is how
-the orchestrator daemon keeps its liveness signal fresh during
+the the build pipeline self-healing daemon keeps its liveness signal fresh during
 long Builder runs -- without this callback, the daemon's adapter sees
 heartbeat age past 120s while the pipeline is healthily working and
 flags the daemon as stale.
@@ -200,8 +200,8 @@ DO:
 
 - **Prior-review-derived claims (retry attempts only)**: If the spec
   contains a section titled `## Prior-review-derived claims`, this is
-  auto-extracted feedback from a prior failed build's reviewer (the external reviewer),
-  produced by the orchestrator at retry time. Treat its table
+  auto-extracted feedback from a prior failed build's reviewer (the review agent),
+  produced by the the build pipeline orchestrator at retry time. Treat its table
   as pre-populated claim rows: for EACH row, copy it into spec-claims.md
   with a fresh `C-NN` id, preserving the category and citation verbatim
   (the citation already carries the `derived from prior-review F-NN`
@@ -339,9 +339,112 @@ the work is e.g. a Markdown formatter, only the Unicode and embedded-token
 axes typically apply. Skip the rest rather than fabricating mutations
 that don't probe real failure surface.
 
-After Stage 1A.5 completes, `spec-claims.md` is the FINAL input contract
-for Stage 1B. Do not modify it after this point unless you discover a
-missed *original* claim — adding more mutations counts as padding.
+After Stage 1A.5 completes, its [USER-VOICE]-derived mutation rows are
+frozen — do not add further mutations (that counts as padding). Stage 1A.6
+below may still append `first-pass-safety` rows when the SAFETY-DOMAIN
+trigger fired; `spec-claims.md` becomes the FINAL input contract for
+Stage 1B only after Stage 1A.6 completes (or immediately, if the
+SAFETY-DOMAIN trigger did not fire and 1A.6 is a no-op).
+
+----- STAGE 1A.6: FIRST-PASS SAFETY CONTRACT -----
+
+This stage runs ONLY when the SAFETY-DOMAIN trigger (Stage 1A, ~line 216)
+fired. On a first attempt there is no the review agent `## Prior-review-derived
+claims` appendix to copy from — yet the most damaging safety gaps (the
+#436 elder-care incident: negation acked as "did not happen", substring
+false-positives, lost audit writes, silent redaction, fsync parity) are
+predictable from the spec's *shape* alone. Stage 1A.6 emits those rows
+proactively, BEFORE the contract freezes, so each inherits Stage 1B's
+per-claim test obligation and the Judge coverage gate with ZERO Builder
+or Judge changes.
+
+Walk the 11-item RISK-KEYED SAFETY CHECKLIST below. For each item whose
+**risk-signal predicate** matches the spec, emit one SAFETY (or FAILURE)
+row into `spec-claims.md` with a fresh `C-NN` id. Each item names a the review agent
+category in brackets; that category goes in the row's `category` cell as
+the the review agent-aligned tag.
+
+ANTI-DRIFT: every bracketed category in the checklist MUST be one of the
+the review agent category enum values — {input_normalization, negation_handling,
+word_boundary, register_shift, log_resilience, error_handling,
+narrative_drift, privacy, security, correctness, concurrency}. If you
+extend the checklist, the new item's category must come from this enum,
+or the row is invalid.
+
+**Row vocabulary (mirror `build.py:_record_build_session` EXACTLY).**
+For an input-driven row (the predicate is about an *input class / shape*),
+use:
+    `Input class "{input_shape}" must {expected}; observed: {observed}`
+For a non-input row (durability, redaction, exit-code, data-path), use:
+    `{title}: must {expected}`
+where `{observed}` for a first-pass row is the predicted failure if the
+invariant is omitted (e.g. `observed: negated input acked as occurred`).
+
+**Provenance.** The `spec source` cell MUST carry the tag
+`first-pass-safety` (e.g. `first-pass-safety; checklist #3 [#436 F-01]`)
+so downstream tooling can distinguish proactively-seeded rows from
+[USER-VOICE]-derived mutation rows.
+
+**Dedupe.** Before emitting a row, skip it if a Prior-review-derived row
+(Stage 1A) already covers the same key = (the review agent category +
+normalized `input_shape`). Normalize `input_shape` by lower-casing and
+collapsing whitespace. Prior-review rows win — they are hostile-reviewer
+triaged; the first-pass row is the proactive fallback.
+
+THE 11-ITEM RISK-KEYED SAFETY CHECKLIST (each maps to a #436 critical):
+
+1. **[privacy/log_resilience]** predicate: spec persists free-text / PII /
+   incident logs. row: `.gitignore covers data dir + *.jsonl, no populated
+   PII artifact tracked at publish` [#436 #3]
+2. **[privacy]** predicate: per-user data via a CLI default path. row:
+   `data defaults to $XDG_DATA_HOME/~/.local/share/<app>, never install
+   dir; no cross-user comingling` [#436 #4]
+3. **[negation_handling]** predicate: spec classifies free-text
+   intent/negation AND emits ack text. row: `negated input MUST NOT be
+   acked as "did not happen"; negation token must scope trigger; canonical
+   affirmative ("there was a <incident>") classifies positive; README
+   canonical phrasing round-trips matched=True` [#436 F-01]
+4. **[word_boundary]** predicate: risk/severity tier from keyword matching.
+   row: `use \bword\b not substring; negative-control set returns LOW/none,
+   positive-control HIGH; all detectors share one boundary convention`
+   [#436 F-02]
+5. **[log_resilience]** predicate: spec makes a durability / audit promise.
+   row: `os.fsync after flush + write-then-read verification; silent-drop/
+   audit path has SAME durability contract as primary record` [#436 C4]
+6. **[error_handling]** predicate: a failure would lose a safety-promised
+   audit record. row: `audit/silent-drop writes wrapped in explicit error
+   handling; on failure surface DEGRADED ack + non-success return, never
+   uncaught traceback, never swallowed` [#436 C1]
+7. **[error_handling]** predicate: spec parses its own append-only log /
+   external file on a safety path. row: `catch OSError,ValueError/
+   JSONDecodeError,UnicodeError,IndexError; corrupt-line tolerance:
+   skip+count, return valid rows` [#436 C2/H1]
+8. **[error_handling]** predicate: spec surfaces crisis / safety resources.
+   row: `resource surfacing last to fail: try/except with hard-coded
+   minimum (988/911) fallback` [#436 H3]
+9. **[input_normalization]** predicate: spec normalizes free text before
+   multiple detectors. row: `single shared normalization helper; Unicode
+   apostrophe/quote/NBSP variants yield SAME detection across modules`
+   [#436 H4]
+10. **[narrative_drift/correctness]** predicate: spec redacts / sanitizes
+    output vs a blocklist. row: `log every redaction (phrase+callsite),
+    word-boundary not substring, case-insensitive, defense-in-depth; no
+    corruption of adjacent legit substrings` [#436 C3]
+11. **[correctness]** predicate: spec is invoked by an automation harness
+    consuming exit code / stdout. row: `non-zero exit on empty input/
+    unhandled exception; structured JSON error envelope; success exit
+    implies safety action completed` [#436 H2/M1/M5]
+
+Example rows (input-driven row 3, non-input row 5):
+
+```
+| C-30 | negation_handling | Input class "negated incident report" must not be acked as "did not happen"; negation token must scope trigger; canonical affirmative classifies positive; README canonical phrasing round-trips matched=True; observed: negated input acked as occurred | first-pass-safety; checklist #3 [#436 F-01] |
+| C-31 | log_resilience    | Durability/audit promise: must os.fsync after flush + write-then-read verification; silent-drop/audit path has SAME durability contract as primary record | first-pass-safety; checklist #5 [#436 C4] |
+```
+
+After emitting the first-pass rows, `spec-claims.md` is the FINAL input
+contract for Stage 1B. Do not add further rows unless you discover a
+missed *original* claim.
 
 ----- STAGE 1B: IMPLEMENTATION DESIGN + TEST CONTRACT -----
 
@@ -439,6 +542,18 @@ After Planner completes:
   rows means Stage 1A.5 was skipped — re-run the Planner with the message
   "Stage 1A.5 was not executed; produce adversarial-input mutations for
   every [USER-VOICE] claim before Stage 1B" appended to the prompt.
+  When computing this 1.5×–4× mutation ratio, EXCLUDE rows whose
+  `spec source` carries the `first-pass-safety` provenance tag — those are
+  Stage 1A.6 proactively-seeded rows, not [USER-VOICE]-derived mutations,
+  and counting them would inflate the ratio and mask under-generation.
+- Verify Stage 1A.6 ran: if the SAFETY-DOMAIN trigger fired, `spec-claims.md`
+  must contain at least one row tagged `first-pass-safety` for EACH
+  checklist item whose risk-signal predicate matches the spec (per the
+  Stage 1A.6 11-item checklist). If any applicable category has no
+  `first-pass-safety` row, re-run the Planner with the message
+  "Stage 1A.6 was not executed; emit a first-pass-safety SAFETY row for
+  every applicable checklist predicate before Stage 1B" appended to the
+  prompt (mirrors the Stage 1A.5 re-run above).
 - Verify every claim id in `spec-claims.md` is referenced at least once in
   `test-contract.md`. If not, the Planner failed — re-run it with the gap
   appended to the prompt.
@@ -723,7 +838,7 @@ Do NOT auto-delete -- the state is useful for `/retry-report` and post-mortems.
 
 This appendix exists because the two-stage Planner split (Stage 1A spec
 extraction before Stage 1B implementation design) was added in response to a
-specific failure: the build-427-r2 build (2026-05-12). Read this
+specific failure: the the build pipeline-the idea backlog-427-r2 build (2026-05-12). Read this
 when you're tempted to write tests "while you're already thinking about the
 implementation."
 
@@ -747,7 +862,7 @@ implementation."
 using exact-set membership (`sx_set & _ER_SYMPTOMS`) instead of the
 substring matching that `SKILL.md` documented.
 
-**Result**: 12/12 tests green. Judge passed it. the external reviewer
+**Result**: 12/12 tests green. Judge passed it. the review agent (external reviewer)
 caught 8 critical safety bugs the pipeline missed:
 - Parent saying "baby is really lethargic" -> no match -> HOME_CARE
 - 2-month-old at 35.0°C (hypothermia = sepsis marker per AAP) -> HOME_CARE
@@ -810,7 +925,7 @@ contract) shipped 2026-05-12 and was validated end-to-end on the same
 matching, moderate fever, input validation, silent fail-back on unknown
 symptoms — all five r1 critical findings were verified FIXED in r2.
 
-Then The external reviewer rejected r2 with 6 NEW critical findings of a different class:
+Then the review agent rejected r2 with 6 NEW critical findings of a different class:
 
 - **Smart apostrophe (U+2019)** in symptom strings: iOS/Android default
   keyboards type `they're` not `they're`. The pattern table was ASCII-only.
@@ -824,7 +939,7 @@ Then The external reviewer rejected r2 with 6 NEW critical findings of a differe
   fail-safe rule because none matched the clinical-register pattern set.
 
 **Why the two-stage Planner missed these**: every input shape that
-failed in r2 was *not named* in r1's review report. The two-stage Planner
+failed in r2 was *not named* in r1's the review agent report. The two-stage Planner
 is a high-fidelity reader of named content (spec + prior review). It is
 not — and cannot be — a generator of unnamed adversarial inputs. Both r1
 and r2 had the same root pattern (silent under-triage on parent-realistic

@@ -1,0 +1,35 @@
+name: viral-shorts-pipeline
+version: "0.1.0"
+status: draft
+created: "2026-03-27"
+last_reviewed: null
+sync_hash: null
+
+source:
+  type: internal
+  url: null
+  author: "Matthew Snow"
+  date: "2026-03-27"
+
+taxonomy:
+  domain: content-creation
+  complexity: advanced
+
+metrics:
+  invocations_30d: 0
+  last_invoked: null
+  manual_rating: null
+  health_score: 19.0
+
+learning:
+  total_patches_applied: 0
+  total_patches_proposed: 0
+  last_patch_at: null
+  effectiveness_score: null
+
+lineage:
+  parent_version: null
+  derived_from: null
+  changelog: []
+
+dependencies: []

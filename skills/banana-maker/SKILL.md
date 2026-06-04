@@ -52,7 +52,7 @@ Run the script using the banana-maker venv:
 
 ### 5. Report Results
 - Show the output file path
-- Since Matthew browses from his Surface tablet, provide: `http://10.0.0.46:PORT/filename` if a file server is running, otherwise just the file path
+- Since Matthew browses from his Surface tablet, provide: `http://<host>:PORT/filename` if a file server is running, otherwise just the file path
 
 ## Script Usage Reference
 

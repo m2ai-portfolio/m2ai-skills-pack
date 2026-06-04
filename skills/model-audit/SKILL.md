@@ -38,7 +38,7 @@ When the user invokes `/model-audit`, follow this procedure exactly.
 
 Read the model registry data file:
 ```
-/home/apexaipc/projects/model-audit/model_registry.json
+/home/user/projects/model-audit/model_registry.json
 ```
 
 Check the `_meta.last_updated` field against today's date.

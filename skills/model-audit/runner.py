@@ -204,7 +204,7 @@ def _get_nested(d: dict, field: str):
     val = d.get(field)
     if val is not None:
         return val
-    # Check nested dicts (Tyrest nests scores under 'scores' key)
+    # Check nested dicts (QA reviewer nests scores under 'scores' key)
     for v in d.values():
         if isinstance(v, dict) and field in v:
             return v[field]
@@ -677,7 +677,7 @@ def load_pipeline(path: Path | None = None) -> list[PipelineComponent]:
 def format_pipeline_results(components: list[PipelineComponent], show_cost: bool = True) -> str:
     """Format pipeline audit as a component-grouped report."""
     lines = []
-    lines.append("## ST Metro Pipeline Audit\n")
+    lines.append("## Build Pipeline Audit\n")
 
     # Summary table
     lines.append("| Component | Model | Score | Status | Cost/run | Est. Monthly |")

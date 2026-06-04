@@ -16,7 +16,7 @@ Use when the user says "briefing on", "executive brief", "brief me on", "write a
 Accept the event or topic. This can be:
 - A news article URL or pasted text
 - A short description of an event ("helium supply disruption", "EU AI Act enforcement begins")
-- A market signal from IdeaForge or research-agents
+- A market signal from the idea backlog or research-agents
 - A Nate newsletter digest or similar analysis
 
 If a URL is provided, fetch and extract the core content. If a description, work with it directly.

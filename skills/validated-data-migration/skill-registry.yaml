@@ -1,0 +1,35 @@
+name: validated-data-migration
+version: "1.0.0"
+status: draft
+created: "2026-04-29"
+last_reviewed: null
+sync_hash: null
+
+source:
+  type: newsletter
+  url: "https://natesnewsletter.substack.com/p/chatgpt-55-scored-87-where-the-next"
+  author: "Nate Kadlac"
+  date: "2026-04-28"
+
+taxonomy:
+  domain: data-migration
+  complexity: advanced
+
+metrics:
+  invocations_30d: 0
+  last_invoked: null
+  manual_rating: null
+  health_score: null
+
+learning:
+  total_patches_applied: 0
+  total_patches_proposed: 0
+  last_patch_at: null
+  effectiveness_score: null
+
+lineage:
+  parent_version: null
+  derived_from: null
+  changelog: []
+
+dependencies: []

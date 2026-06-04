@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "m2ai-skills-pack",
-  "description": "M2AI internal skills pack — strategy, prompt engineering, model routing, and agent auditing skills.",
+  "description": "M2AI skills pack — strategy, prompt engineering, model routing, agent auditing, build pipelines, and workflow tooling.",
   "owner": {
     "name": "Matthew Snow",
     "email": "matthew@memyselfplusai.com"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "m2ai-skills-pack",
-      "description": "22 portable skills for model routing, prompt rewriting, agent cost modeling, strategic stress-testing, and workflow audits.",
+      "description": "176 portable skills for model routing, prompt engineering, agent architecture/auditing, build pipelines, strategy stress-testing, and workflow tooling.",
       "source": "./",
       "category": "productivity",
       "author": {

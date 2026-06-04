@@ -5,18 +5,18 @@ description: Enriches a market or technology signal with geopolitical context --
 
 # Geopolitical Signal Enricher
 
-Takes a market signal, technology trend, or industry development and enriches it with geopolitical context that pure tech-focused analysis would miss. Designed to complement research-agents output and IdeaForge signals.
+Takes a market signal, technology trend, or industry development and enriches it with geopolitical context that pure tech-focused analysis would miss. Designed to complement research-agents output and the idea backlog signals.
 
 ## Trigger
 
 Use when the user says "enrich this signal", "geopolitical context for", "what's the geopolitical angle", "supply chain risk for", or provides a market/tech signal and asks about its geopolitical or physical-world dependencies.
 
-Also use when reviewing IdeaForge signals or research-agent output that references physical infrastructure, supply chains, trade policy, or geopolitical events.
+Also use when reviewing the idea backlog signals or research-agent output that references physical infrastructure, supply chains, trade policy, or geopolitical events.
 
 ## Phase 1: Intake
 
 Accept the signal. This can be:
-- A market signal from IdeaForge or research-agents ("helium shortage", "TSMC capacity constraints")
+- A market signal from the idea backlog or research-agents ("helium shortage", "TSMC capacity constraints")
 - A technology trend ("AI infrastructure buildout", "on-device inference shift")
 - A geopolitical event ("sanctions on X", "trade route disruption")
 - A business decision that has physical-world dependencies
@@ -100,7 +100,7 @@ Only include effects with a plausible causal chain. No speculation without a mec
 ## Phase 5: Output
 
 Present the enriched signal, then offer:
-- "Want me to save this enrichment to IdeaForge?"
+- "Want me to save this enrichment to the idea backlog?"
 - "Want an executive briefing on this?" (hand off to executive-briefing skill)
 - "Want me to check other signals in the pipeline for similar exposure?"
 

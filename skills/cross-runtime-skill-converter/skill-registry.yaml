@@ -1,0 +1,35 @@
+name: cross-runtime-skill-converter
+version: "1.0.0"
+status: draft
+created: "2026-05-22"
+last_reviewed: null
+sync_hash: null
+
+source:
+  type: youtube
+  url: "https://www.youtube.com/watch?v=tjjX43FoAUg"
+  author: "Mark Kashef"
+  date: "2026-05-21"
+
+taxonomy:
+  domain: skill-management
+  complexity: medium
+
+metrics:
+  invocations_30d: 0
+  last_invoked: null
+  manual_rating: null
+  health_score: null
+
+learning:
+  total_patches_applied: 0
+  total_patches_proposed: 0
+  last_patch_at: null
+  effectiveness_score: null
+
+lineage:
+  parent_version: null
+  derived_from: null
+  changelog: []
+
+dependencies: []

@@ -70,7 +70,7 @@ After adding `context: fork` to a skill:
 
 ## Existing Skills to Consider Forking
 
-Review /home/apexaipc/.claude/skills/ for skills that do heavy search or research.
+Review /home/user/.claude/skills/ for skills that do heavy search or research.
 Candidates: any skill that reads multiple files, runs searches, or pulls external data.
 Add `context: fork` to their frontmatter and test.
 

@@ -128,10 +128,10 @@ python3 -m http.server 8901 --directory /tmp/gh-review &
 
 Then tell the user the URL. The URL format is important -- the user browses from a different device on the LAN:
 
-**ALWAYS use `10.0.0.46:<port>/<filename>` -- NEVER use `localhost`.**
+**ALWAYS use `<host>:<port>/<filename>` -- NEVER use `localhost`.**
 
 Example output to the user:
-> Report ready: `http://10.0.0.46:8901/20260410-143022-report.html`
+> Report ready: `http://<host>:8901/20260410-143022-report.html`
 
 If the user wants deeper analysis of a specific repo (reading source files, analyzing specific modules), they can ask as a follow-up. This first pass intentionally stays at README + file-tree level to keep things fast.
 

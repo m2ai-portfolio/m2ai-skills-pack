@@ -1,0 +1,35 @@
+name: api-breaking-change-scanner
+version: "1.0.0"
+status: draft
+created: "2026-04-22"
+last_reviewed: null
+sync_hash: null
+
+source:
+  type: newsletter
+  url: "https://natesnewsletter.substack.com"
+  author: "Nate Kadlac"
+  date: "2026-04-21"
+
+taxonomy:
+  domain: developer-tooling
+  complexity: intermediate
+
+metrics:
+  invocations_30d: 0
+  last_invoked: null
+  manual_rating: null
+  health_score: 0.0
+
+learning:
+  total_patches_applied: 0
+  total_patches_proposed: 0
+  last_patch_at: null
+  effectiveness_score: null
+
+lineage:
+  parent_version: null
+  derived_from: null
+  changelog: []
+
+dependencies: []

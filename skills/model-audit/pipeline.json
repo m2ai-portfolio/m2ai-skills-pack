@@ -1,6 +1,6 @@
 {
-  "name": "ST Metro Pipeline",
-  "description": "Model assignments across the full ST Metro ecosystem -- Metroplex automated pipeline, research agents, and Claude Code interactive sessions",
+  "name": "Build Pipeline",
+  "description": "Model assignments across the full build-pipeline ecosystem -- the automated build pipeline, research agents, and Claude Code interactive sessions",
   "components": [
     {
       "name": "Triage Scoring",
@@ -8,7 +8,7 @@
       "provider": "deepinfra",
       "benchmarks": ["idea_scoring"],
       "monthly_runs_estimate": 500,
-      "notes": "Metroplex Gate 1"
+      "notes": "the build pipeline Gate 1"
     },
     {
       "name": "Spec Expansion",
@@ -16,31 +16,31 @@
       "provider": "deepinfra",
       "benchmarks": ["spec_expansion"],
       "monthly_runs_estimate": 200,
-      "notes": "Metroplex Gate 2"
+      "notes": "the build pipeline Gate 2"
     },
     {
-      "name": "QA Spec Review (Tyrest)",
+      "name": "QA Spec Review",
       "model": "deepseek-ai/DeepSeek-V3",
       "provider": "deepinfra",
       "benchmarks": ["tyrest_spec_review"],
       "monthly_runs_estimate": 200,
-      "notes": "Metroplex Gate 2.5"
+      "notes": "the build pipeline Gate 2.5"
     },
     {
-      "name": "QA Build Review (Tyrest)",
+      "name": "QA Build Review",
       "model": "deepseek-ai/DeepSeek-V3",
       "provider": "deepinfra",
       "benchmarks": ["tyrest_build_review"],
       "monthly_runs_estimate": 150,
-      "notes": "Metroplex Gate 4.25"
+      "notes": "the build pipeline Gate 4.25"
     },
     {
-      "name": "Listing Copy (Swindle)",
+      "name": "Listing Copy",
       "model": "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
       "provider": "deepinfra",
       "benchmarks": ["listing_copy"],
       "monthly_runs_estimate": 100,
-      "notes": "Metroplex publish pipeline"
+      "notes": "the build pipeline publish pipeline"
     },
     {
       "name": "README Generation",
@@ -48,7 +48,7 @@
       "provider": "deepinfra",
       "benchmarks": ["readme_gen"],
       "monthly_runs_estimate": 100,
-      "notes": "Metroplex publish pipeline"
+      "notes": "the build pipeline publish pipeline"
     },
     {
       "name": "Research Validator (Claude)",

@@ -1,0 +1,35 @@
+name: failure-mode-tool-router
+version: "1.0.0"
+status: draft
+created: "2026-04-28"
+last_reviewed: null
+sync_hash: null
+
+source:
+  type: newsletter
+  url: "https://natesnewsletter.substack.com/p/your-team-spends-5-hours-a-week-on"
+  author: "Nate Kadlac"
+  date: "2026-04-27"
+
+taxonomy:
+  domain: agent-architecture
+  complexity: beginner
+
+metrics:
+  invocations_30d: 0
+  last_invoked: null
+  manual_rating: null
+  health_score: null
+
+learning:
+  total_patches_applied: 0
+  total_patches_proposed: 0
+  last_patch_at: null
+  effectiveness_score: null
+
+lineage:
+  parent_version: null
+  derived_from: null
+  changelog: []
+
+dependencies: []
