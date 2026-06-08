@@ -32,7 +32,8 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 | ✅ [Deliverable Quality & Verification](#deliverable-quality--verification) | 10 | Hostile-reviewer passes and trust scoring before anything ships. |
 | 🗂️ [Productivity & Workflow](#productivity--workflow) | 12 | Sessions, handoffs, recall, calendar, and remote access. |
 | 🎬 [Content & Media](#content--media) | 4 | Image and video prompt engineering and shorts pipelines. |
-| | **176** | |
+| 🆕 [Recently synced](#-recently-synced-pending-categorization) | 1 | Pending categorization — refile before merge. |
+| | **177** | |
 
 ## The catalog
 
@@ -302,6 +303,14 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 | [seedance-prompt](skills/seedance-prompt/) | Master AI Video Prompt Engineer for Seedance 2.0. | Converting a user concept into a high-quality, cinematic Seedance 2 |
 | [seedance-shot-prompt](skills/seedance-shot-prompt/) | Use when generating a Seedance 2 video prompt for a linear forward-motion shot — transitions, chase shots, establishi… | Generating a Seedance 2 video prompt for a linear forward-motion shot — transitions, chase shots, establishing shots, A→B narra… |
 | [viral-shorts-pipeline](skills/viral-shorts-pipeline/) | Generate and publish viral TikTok/YouTube Shorts from a single theme prompt. | Asked to "make viral videos", "generate TikToks", "create shorts", "run the viral pipeline", or "generate and post videos" |
+
+### 🆕 Recently synced (pending categorization)
+
+*Added by sync_to_pack on 2026-06-07. Refile each skill into the correct division above and adjust counts before merging.*
+
+| Skill | What it does | When to use |
+|---|---|---|
+| [book-to-skill](skills/book-to-skill/) | Create Claude Code skills from technical books, documents, or source collections. Extracts a structured knowle… | _refile + verify before merge_ |
 
 ## Configuration
 

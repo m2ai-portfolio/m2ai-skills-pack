@@ -1,0 +1,37 @@
+name: book-to-skill
+version: "1.0.0"
+status: draft
+created: "2026-06-06"
+last_reviewed: null
+sync_hash: null
+
+source:
+  type: github
+  url: "https://github.com/virgiliojr94/book-to-skill"
+  author: "virgiliojr94"
+  date: "2026-06-06"
+
+taxonomy:
+  domain: content-creation
+  complexity: advanced
+
+metrics:
+  invocations_30d: 0
+  last_invoked: null
+  manual_rating: null
+  health_score: null
+
+learning:
+  total_patches_applied: 0
+  total_patches_proposed: 0
+  last_patch_at: null
+  effectiveness_score: null
+
+lineage:
+  parent_version: null
+  derived_from: video-to-skill
+  changelog: []
+
+dependencies:
+  - file-intel
+  - skill-creator
