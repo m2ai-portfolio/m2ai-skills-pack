@@ -1,0 +1,42 @@
+{
+ "skill_name": "prompt-goodies",
+ "evals": [
+  {
+   "id": 0,
+   "prompt": "here's my prompt for a subagent: \"Build me a REST API for my todo app and write tests.\" make it better",
+   "expected_output": "Applies rungs 1-5 only (receipt, fence, green loop, house rules, named slop). Does NOT add multi-agent rungs 6-8. Preserves the user's wording, returns an upgraded paste-ready prompt plus a short list of what was applied.",
+   "files": [],
+   "assertions": [
+    "returns_pastable_upgraded_prompt: response contains a clearly marked block with an upgraded version of the user's subagent prompt, ready to paste",
+    "applies_receipt_rung: the upgraded prompt demands pasted verification evidence (exact command plus its output), not just a success claim",
+    "applies_green_loop: the upgraded prompt names an explicit verification command and instructs to iterate until it passes",
+    "no_multiagent_rungs: the response does NOT apply rungs 6-8 (no pinned interface contract for multiple workers, no allowed_commands manifest, no never-list role boundaries) since this is a single-worker task",
+    "preserves_user_voice: the user's original task wording (build REST API for todo app, write tests) survives recognizably inside the upgraded prompt"
+   ]
+  },
+  {
+   "id": 1,
+   "prompt": "Claude keeps telling me it finished my script but when I run it the thing doesn't even work. someone in the community said to check out prompt goodies?",
+   "expected_output": "Serves Rung 1 (Show me the receipt) verbatim from the ladder: the one idea, the copy-paste block, what you'll notice, hook to Rung 2. Does not dump the whole ladder or lecture.",
+   "files": [],
+   "assertions": [
+    "serves_rung1_asset: response contains the Rung 1 copy-paste block about pasting the exact verification command and its output",
+    "includes_what_youll_notice: response predicts what changes after using the asset (real verification happens, real errors surface)",
+    "no_ladder_dump: response serves at most 2 rungs, not the whole 8-rung ladder",
+    "includes_next_rung_hook: response points to the next rung / next upgrade so the user can climb"
+   ]
+  },
+  {
+   "id": 2,
+   "prompt": "I'm setting up three agents that share a sqlite db (one writes leads, one does outreach, one builds reports). give me the prompt patterns so they don't step on each other",
+   "expected_output": "Jumps to rungs 6-8 (pinned contract, greppable privilege, never list) with copy-paste blocks adapted to the three-agent scenario. May mention rungs 1-3 briefly but leads with multi-agent patterns.",
+   "files": [],
+   "assertions": [
+    "leads_with_multiagent_rungs: response centers on pinned contract (rung 6) and never-list boundaries (rung 8) rather than the entry rungs",
+    "adapts_to_scenario: the assets name the user's three roles (lead writer, outreach, reports) rather than staying generic",
+    "greppable_privilege_present: response includes the two-direction permission rule (everything used is listed, nothing listed is unused)",
+    "copy_paste_blocks: response contains at least 3 fenced copy-paste blocks the user can lift directly"
+   ]
+  }
+ ]
+}
