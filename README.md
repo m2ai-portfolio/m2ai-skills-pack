@@ -1,8 +1,8 @@
 # M2AI Skills Pack
 
-> **177 portable Claude Code skills** for building, governing, and operating AI agents — architecture, safety, model strategy, cost control, code pipelines, and business analysis. One install, organized into 13 working divisions.
+> **178 portable Claude Code skills** for building, governing, and operating AI agents — architecture, safety, model strategy, cost control, code pipelines, and business analysis. One install, organized into 13 working divisions.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-177-brightgreen.svg)](#the-catalog)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-178-brightgreen.svg)](#the-catalog)
 
 ## Install
 
@@ -30,9 +30,9 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 | 🧰 [Skills, Tools & MCP](#skills-tools--mcp) | 21 | Build, audit, convert, and maintain skills, tools, and MCP servers. |
 | 📊 [Strategy & Business Analysis](#strategy--business-analysis) | 27 | Briefings, stress-tests, market signals, and workflow-investment scoring. |
 | ✅ [Deliverable Quality & Verification](#deliverable-quality--verification) | 10 | Hostile-reviewer passes and trust scoring before anything ships. |
-| 🗂️ [Productivity & Workflow](#productivity--workflow) | 13 | Sessions, handoffs, recall, calendar, and remote access. |
+| 🗂️ [Productivity & Workflow](#productivity--workflow) | 14 | Sessions, handoffs, recall, calendar, and remote access. |
 | 🎬 [Content & Media](#content--media) | 4 | Image and video prompt engineering and shorts pipelines. |
-| | **177** | |
+| | **178** | |
 
 ## The catalog
 
@@ -281,6 +281,7 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 | Skill | What it does | When to use |
 |---|---|---|
 | [calendar-hygiene](skills/calendar-hygiene/) | Audit the next N days of a Google Calendar and surface hygiene issues before the user notices them -- back-to-back me… | Asking "calendar hygiene", "audit my calendar", "check my schedule", "what's wrong with my week?", "add buffers to my calendar"… |
+| [decompose-goal](skills/decompose-goal/) | Decompose a free-text goal into an ordered list of atomic, dispatchable subtasks for any downstream executor — subagents, Agent Teams, DAG engines (LangGraph, CrewAI, n8n), headless cron, or human checklists. Downstream of goal-maker. | A multi-step instruction needs atomization before handoff; "decompose this goal", "break this into subtasks", "flatten this for dispatch", "turn this into a runnable task list" |
 | [file-intel](skills/file-intel/) | Run the Gemini file processor on any folder — extracts content from PDF, PPTX, XLSX, DOCX, CSV, JSON, and any text fo… | Asked to "summarise this folder", "run file intel", "process these files", or a folder path is provided and summaries are needed |
 | [gh-review](skills/gh-review/) | Review 1-3 GitHub repos against the current project and generate an HTML report with plain-speak summaries, relevance… | Ever the user shares a GitHub repo link and wants to understand how it fits their project, asks 'what is this repo?', 'how woul… |
 | [goal-maker](skills/goal-maker/) | Turn a fuzzy idea or triaged item into a well-formed, runnable GOAL card — crisp objective, observable done-state, and a chosen execution shape (one-shot/loop/cron/subagents/worktree) with owner/sink/kill. Upstream of decompose-goal. | A raw idea needs sharpening into an objective with success criteria and a way to run it; "make a goal", "turn this into a goal/loop", "how should I run this" |
@@ -338,4 +339,4 @@ A few skills contain environment-specific references. They still work, but you m
 
 ## Version
 
-`0.5.0` -- consolidated SkillForge into the pack (now 177 skills), sanitized for sharing, and reorganized the README into 13 divisions. Feedback welcome.
+`0.5.0` -- consolidated SkillForge into the pack (now 178 skills), sanitized for sharing, and reorganized the README into 13 divisions. Feedback welcome.
