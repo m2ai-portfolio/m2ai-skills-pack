@@ -1,0 +1,93 @@
+# CLAUDE.md (User-Level) — Starter Template
+
+Every line here changes behavior Claude would not exhibit by default.
+Add rules when mistakes happen in sessions. Treat this like code, not documentation.
+
+---
+
+## Taste Profile
+
+Apply `~/.claude/taste-profile.md` on all output — code, content, analysis, proposals.
+(Create this file with your stylistic preferences: tone, code style, communication standards.)
+
+---
+
+## Hard Rules
+
+Non-negotiable behaviors. Each line should prevent a specific failure mode.
+
+- NEVER give `localhost` URLs if you browse from a different device — always use the LAN IP of the host machine
+- NEVER ask to verify SSH connections that are already configured and working
+- Always source `~/.env.shared` (or your equivalent) for API keys — never create scattered `.env` files
+- Always state what you CAN and CANNOT test before, during, and after execution
+- Ask before making destructive or irreversible changes, even if the user seems to want speed
+- Use TodoWrite for multi-step tasks to track progress
+
+---
+
+## Nested Rules (Advanced — add when your main file exceeds ~75 lines)
+
+Instead of putting everything here, point to separate rule pages. Claude loads them
+on demand when the situation triggers the pointer. This keeps the main file lean
+and readable without losing any enforcement.
+
+Pattern: one line per domain, one rule file per domain.
+
+```
+When over-architecting or adding unnecessary abstraction, see ~/.claude/rules/architect.md
+When a curl or shell command fails unexpectedly, see ~/.claude/rules/shell-safety.md
+When choosing between tools, skills, or sub-agents, see ~/.claude/rules/tool-triage.md
+```
+
+Starter examples are in the `rules/` folder alongside this template.
+Copy them to `~/.claude/rules/` and uncomment the pointers above.
+
+---
+
+## Adoption Gate (Prevent Build-but-Forget)
+
+Any new skill, hook, or plugin is experimental for 14 days. In that window it must
+earn adoption from one of:
+
+1. Human adoption — you invoke it at least 3 times
+2. Agent sponsorship — it appears in an active agent's manifest (agent.yaml)
+3. Callsite sponsorship — it is referenced by an active hook, rule, or another active skill
+
+If none happens by the deadline, cold-archive it. No "keep in case I need it later."
+
+Active sponsor guards (all must be true):
+- Deployed and running (not planned, not paused)
+- Documented in the sponsor's manifest or config
+- Actually invoked at least once in the window, verifiable via logs
+
+---
+
+## Learned Mistakes
+
+Add a rule every time Claude makes a mistake. One line per rule. Lead with the action.
+
+- When curl payloads contain special characters, use `--data-raw` or a heredoc — shell expansion corrupts JSON silently
+- After modifying a function signature, update all call sites in the same edit — do not leave broken mocks for a follow-up
+- Run the relevant test suite before declaring a task done — "it compiles" is not a substitute for a green test run
+- <Add your own learned mistakes here>
+
+---
+
+## Agent Team Rules (add if you have more than one agent)
+
+- Planner / Builder / Judge pattern: Judge validates within 60 seconds of Builder completion
+- If a sub-agent appears stuck (no output for 30 seconds), retry with a simplified prompt
+- Builder outputs a structured checklist that Judge can verify point-by-point
+- Every delegation writes a handoff note to vault/handoffs/[task-id].md before dispatching
+
+---
+
+## Personal Context
+
+At the start of every session, read `<path-to-your-context-file>` for context about
+who you are, your work, and your conventions. Example:
+
+```
+At the start of every session, read ~/vault/CLAUDE.md for context about who I am,
+my current projects, and my preferred working style.
+```

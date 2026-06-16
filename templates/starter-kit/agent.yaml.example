@@ -1,0 +1,35 @@
+# agent.yaml — one file per agent
+#
+# This is the identity card. The model reads CLAUDE.md for instructions;
+# this file tells the runtime WHO the agent is and HOW to reach it.
+#
+# Copy this template to agents/[your-agent-name]/agent.yaml and fill in.
+
+name: ResearchAgent                     # Display name. Human-readable.
+
+description: >                          # THIS FIELD DRIVES ROUTING.
+  Searches the web, reads documents,    # Write it as "what this agent does"
+  and synthesises research reports      # in plain language. The conductor
+  on any topic. Owns the knowledge      # reads descriptions when deciding
+  ingestion pipeline.                   # who to dispatch a task to.
+                                        # Vague here = bad routing everywhere.
+
+# The Claude model this agent runs on.
+# Options (common): claude-sonnet-4-6, claude-opus-4-6, claude-haiku-4-5
+# Sonnet is the default for most agents. Opus for reasoning-heavy work.
+# Haiku for fast/cheap triage.
+model: claude-sonnet-4-6
+
+# If this agent has a Telegram persona, point at the token env var.
+# Remove this block if the agent is dispatch-only (no Telegram surface).
+telegram_bot_token_env: RESEARCH_AGENT_BOT_TOKEN
+
+# Obsidian vault access (optional).
+# Hard-rail: the runtime enforces read_only. CLAUDE.md rules alone don't.
+# obsidian:
+#   vault: /path/to/vault
+#   folders:
+#     - Research/       # agent can read AND write here
+#   read_only:
+#     - Daily Notes/    # agent can read but NOT write here
+#     - Identity/       # same
