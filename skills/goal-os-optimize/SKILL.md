@@ -1,6 +1,6 @@
 ---
 name: goal-os-optimize
-description: Use /goal to run a self-directed optimization loop on your agentic OS — skills, CLAUDE.md, rules files, and projects. A judge agent on a separate LLM validates each iteration. Five modes: clean, sharpen, revive, forge, maintain. Trigger: "goal OS", "optimize my skills", "clean my agentic OS", "self-optimize", "OS maintenance", "prune my skills", "revive projects", "goal os optimize".
+description: "Use /goal to run a self-directed optimization loop on your agentic OS — skills, CLAUDE.md, rules files, and projects. A judge agent on a separate LLM validates each iteration. Five modes: clean, sharpen, revive, forge, maintain. Trigger: \"goal OS\", \"optimize my skills\", \"clean my agentic OS\", \"self-optimize\", \"OS maintenance\", \"prune my skills\", \"revive projects\", \"goal os optimize\"."
 ---
 
 # Goal OS Optimize — Self-Directed Agentic OS Maintenance

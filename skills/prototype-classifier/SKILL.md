@@ -1,6 +1,6 @@
 ---
 name: prototype-classifier
-description: Classify any software tool, script, or AI artifact onto a 4-rung production-class ladder (Personal Tool → Team Beta → Supported Internal → Customer-Facing) using evidence-based thresholds. Never rounds up on aspiration — only classifies at the highest rung the artifact fully qualifies for. Trigger phrases: "classify this tool", "what class is this", "prototype classifier", "production tier", "what rung is this".
+description: "Classify any software tool, script, or AI artifact onto a 4-rung production-class ladder (Personal Tool → Team Beta → Supported Internal → Customer-Facing) using evidence-based thresholds. Never rounds up on aspiration — only classifies at the highest rung the artifact fully qualifies for. Trigger phrases: \"classify this tool\", \"what class is this\", \"prototype classifier\", \"production tier\", \"what rung is this\"."
 ---
 
 # Prototype Classifier

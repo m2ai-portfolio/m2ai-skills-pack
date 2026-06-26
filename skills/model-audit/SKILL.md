@@ -1,5 +1,5 @@
 ---
-argument-hint: [--tier] [--task-fit] [--cost] [--recent] [--check-docs] [--path DIR]
+argument-hint: "[--tier] [--task-fit] [--cost] [--recent] [--check-docs] [--path DIR]"
 model: haiku
 context: fork
 ---

@@ -1,6 +1,6 @@
 ---
 name: code-review-memory
-description: Accumulates repo-specific code review lessons and surfaces them before the next review of the same file or module. Learns from recurring issues -- migration bugs, error-handling patterns, fixture quirks, security gaps -- so the same mistake isn't flagged for the first time twice. Trigger phrases: "review this", "check this PR", "code review", "review these changes", "what do we know about this file".
+description: "Accumulates repo-specific code review lessons and surfaces them before the next review of the same file or module. Learns from recurring issues -- migration bugs, error-handling patterns, fixture quirks, security gaps -- so the same mistake isn't flagged for the first time twice. Trigger phrases: \"review this\", \"check this PR\", \"code review\", \"review these changes\", \"what do we know about this file\"."
 ---
 
 # Code Review Memory

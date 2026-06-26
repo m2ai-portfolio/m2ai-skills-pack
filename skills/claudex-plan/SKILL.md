@@ -1,6 +1,6 @@
 ---
 name: claudex-plan
-description: Enforced multi-round planning loop with a stop hook that blocks code execution until the plan survives adversarial review and receives explicit approval. Use when a task is high-stakes enough that a wrong plan is expensive to undo — the stop hook is the "bouncer" that prevents jumping straight to implementation. Trigger phrases: "claudex plan", "enforce planning before coding", "stop hook planning gate", "plan must survive review before I build", "plan-first workflow".
+description: "Enforced multi-round planning loop with a stop hook that blocks code execution until the plan survives adversarial review and receives explicit approval. Use when a task is high-stakes enough that a wrong plan is expensive to undo — the stop hook is the \"bouncer\" that prevents jumping straight to implementation. Trigger phrases: \"claudex plan\", \"enforce planning before coding\", \"stop hook planning gate\", \"plan must survive review before I build\", \"plan-first workflow\"."
 ---
 
 # Claudex Plan — Stop-Hook Enforced Planning Gate

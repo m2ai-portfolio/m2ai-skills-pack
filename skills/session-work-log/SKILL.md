@@ -1,6 +1,6 @@
 ---
 name: session-work-log
-description: Produces a structured session-end artifact capturing what was attempted, what changed, what blocked progress, and what the next agent or session needs to know. Machine-readable by design -- survives model swaps and cross-agent handoffs. Trigger phrases: "write a work log", "session work log", "log this session", "create a handoff artifact", "what did we do this session", "session end log".
+description: "Produces a structured session-end artifact capturing what was attempted, what changed, what blocked progress, and what the next agent or session needs to know. Machine-readable by design -- survives model swaps and cross-agent handoffs. Trigger phrases: \"write a work log\", \"session work log\", \"log this session\", \"create a handoff artifact\", \"what did we do this session\", \"session end log\"."
 ---
 
 # Session Work Log

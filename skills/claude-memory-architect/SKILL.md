@@ -1,6 +1,6 @@
 ---
 name: claude-memory-architect
-description: Interview-driven skill that designs a custom Claude Code memory system tailored to how the user actually works. Clones open-source memory repos, audits their patterns, then builds a personal memory spec using building blocks — decay, promotion, multi-signal retrieval, salience, disclosure, compaction — deployed via CLAUDE.md entries, hooks, or agent-scoped files. Trigger phrases: "build my memory system", "design my CLAUDE.md memory", "memory architect", "personal memory spec", "I keep repeating context to Claude".
+description: "Interview-driven skill that designs a custom Claude Code memory system tailored to how the user actually works. Clones open-source memory repos, audits their patterns, then builds a personal memory spec using building blocks — decay, promotion, multi-signal retrieval, salience, disclosure, compaction — deployed via CLAUDE.md entries, hooks, or agent-scoped files. Trigger phrases: \"build my memory system\", \"design my CLAUDE.md memory\", \"memory architect\", \"personal memory spec\", \"I keep repeating context to Claude\"."
 ---
 
 # Claude Memory Architect

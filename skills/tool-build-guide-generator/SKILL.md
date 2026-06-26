@@ -1,6 +1,6 @@
 ---
 name: tool-build-guide-generator
-description: Generate a hands-on, machine-ready build guide for any tool or library — takes a tool name and produces a runnable, annotated project that closes the gap between "I've heard of it" and "I can build with it". Not a hello-world demo; a real build that develops genuine fluency. Trigger: "build guide for [tool]", "help me actually learn [library]", "I know what [tool] does but can't build with it", "heard-of to can-build-with for [tool]".
+description: "Generate a hands-on, machine-ready build guide for any tool or library — takes a tool name and produces a runnable, annotated project that closes the gap between \"I've heard of it\" and \"I can build with it\". Not a hello-world demo; a real build that develops genuine fluency. Trigger: \"build guide for [tool]\", \"help me actually learn [library]\", \"I know what [tool] does but can't build with it\", \"heard-of to can-build-with for [tool]\"."
 ---
 
 # Tool Build Guide Generator

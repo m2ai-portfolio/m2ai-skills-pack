@@ -1,6 +1,6 @@
 ---
 name: plan-stop-hook
-description: Installs a "bouncer" hook in Claude Code that blocks all file edits until an explicit planning gate is passed. Prevents the common failure of jumping from idea to implementation before the plan has survived adversarial challenge. Use when a task is non-trivial, prior attempts drifted, or the cost of a wrong plan is high. Trigger phrases: "stop me from coding too soon", "add a planning gate", "plan stop hook", "bouncer before I code", "don't let me implement until the plan holds".
+description: "Installs a \"bouncer\" hook in Claude Code that blocks all file edits until an explicit planning gate is passed. Prevents the common failure of jumping from idea to implementation before the plan has survived adversarial challenge. Use when a task is non-trivial, prior attempts drifted, or the cost of a wrong plan is high. Trigger phrases: \"stop me from coding too soon\", \"add a planning gate\", \"plan stop hook\", \"bouncer before I code\", \"don't let me implement until the plan holds\"."
 ---
 
 # Plan Stop Hook

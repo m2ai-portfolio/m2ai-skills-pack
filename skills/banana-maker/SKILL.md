@@ -1,7 +1,7 @@
 ---
 name: banana-maker
 description: Generate images using the Gemini image generation API with the Nano Banana Pro prompting methodology. Use when the user asks to generate, create, or make an image, picture, photo, illustration, or visual.
-argument-hint: "PROMPT" [--model flash|pro|grounded] [--aspect-ratio AR] [--size SIZE] [--reference PATH]
+argument-hint: "\"PROMPT\" [--model flash|pro|grounded] [--aspect-ratio AR] [--size SIZE] [--reference PATH]"
 ---
 
 # Banana Maker — Gemini Image Generation

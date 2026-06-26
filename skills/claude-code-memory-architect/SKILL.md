@@ -1,6 +1,6 @@
 ---
 name: claude-code-memory-architect
-description: Interviews the user to design and build a personalized Claude Code memory system — choosing which building blocks (decay, promotion, multi-signal retrieval, salience, compaction) to include, then wiring the result into CLAUDE.md, hooks, or agent-scoped memory. Use when a user wants to build, redesign, or consolidate their Claude Code memory layer. Trigger phrases: "build my memory system", "design memory for Claude Code", "memory architect", "7 levels of memory", "personalize my CLAUDE.md memory", "memory fingerprint".
+description: "Interviews the user to design and build a personalized Claude Code memory system — choosing which building blocks (decay, promotion, multi-signal retrieval, salience, compaction) to include, then wiring the result into CLAUDE.md, hooks, or agent-scoped memory. Use when a user wants to build, redesign, or consolidate their Claude Code memory layer. Trigger phrases: \"build my memory system\", \"design memory for Claude Code\", \"memory architect\", \"7 levels of memory\", \"personalize my CLAUDE.md memory\", \"memory fingerprint\"."
 ---
 
 # Claude Code Memory Architect

@@ -1,6 +1,6 @@
 ---
 name: silver-platter
-description: Interview a business owner about their day-to-day tools, build a tailored data map, render a Pantry → Prep → Plate HTML visualization with recipes, a 30-day build plan, and an interaction-layer Sankey, plus generate plain-English Claude Code recommendations (skills, subagents, hooks, rules, CLIs to install). Audits existing Claude Code setups in the cwd before asking questions, so users who've started building don't get re-asked. Output: a self-contained data_map.html, an OPPORTUNITIES.md, and a copy-paste prompt for the @claude-code-guide agent. Free, open-source, ships in the Business OS Demos Kit.
+description: "Interview a business owner about their day-to-day tools, build a tailored data map, render a Pantry → Prep → Plate HTML visualization with recipes, a 30-day build plan, and an interaction-layer Sankey, plus generate plain-English Claude Code recommendations (skills, subagents, hooks, rules, CLIs to install). Audits existing Claude Code setups in the cwd before asking questions, so users who've started building don't get re-asked. Output: a self-contained data_map.html, an OPPORTUNITIES.md, and a copy-paste prompt for the @claude-code-guide agent. Free, open-source, ships in the Business OS Demos Kit."
 when_to_use: "agentic OS, data map, silver platter, build my back of house, what should I build first in claude code, audit my repo, opportunities for AI, where do I start, how to map my data, claude code recommendations"
 argument-hint: "[archetype | --audit | --resume]"
 ---

@@ -1,6 +1,6 @@
 ---
 name: dynamic-workflow-orchestration
-description: Invoke Claude Code's dynamic workflow orchestration to coordinate teams of 10–50+ agents for large-scale, comprehensive tasks requiring parallel analysis and cross-validation. Trigger phrases: "build a workflow", "dynamic workflow", "/workflows", "spin up agents for", "comprehensive audit across", "workflow that reads every".
+description: "Invoke Claude Code's dynamic workflow orchestration to coordinate teams of 10–50+ agents for large-scale, comprehensive tasks requiring parallel analysis and cross-validation. Trigger phrases: \"build a workflow\", \"dynamic workflow\", \"/workflows\", \"spin up agents for\", \"comprehensive audit across\", \"workflow that reads every\"."
 ---
 
 # Dynamic Workflow Orchestration
