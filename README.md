@@ -1,8 +1,8 @@
 # M2AI Skills Pack
 
-> **178 portable Claude Code skills** for building, governing, and operating AI agents — architecture, safety, model strategy, cost control, code pipelines, and business analysis. One install, organized into 13 working divisions.
+> **179 portable Claude Code skills** for building, governing, and operating AI agents — architecture, safety, model strategy, cost control, code pipelines, and business analysis. One install, organized into 13 working divisions.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-178-brightgreen.svg)](#the-catalog)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-179-brightgreen.svg)](#the-catalog)
 
 ## Install
 
@@ -21,7 +21,7 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 |---|---:|---|
 | 🏗️ [Agent Architecture & Design](#agent-architecture--design) | 18 | Design, scaffold, and structure single- and multi-agent systems. |
 | 🛡️ [Safety, Governance & Control](#safety-governance--control) | 17 | Guardrails, permissions, kill switches, and judgment gates before an agent acts. |
-| 🩺 [Operations, Reliability & Observability](#operations-reliability--observability) | 16 | Health checks, diagnostics, post-mortems, and run observability. |
+| 🩺 [Operations, Reliability & Observability](#operations-reliability--observability) | 17 | Health checks, diagnostics, post-mortems, and run observability. |
 | 🔀 [Model & Inference Strategy](#model--inference-strategy) | 12 | Routing, migration, cross-model review, and provider monitoring. |
 | 💰 [Cost & Token Economics](#cost--token-economics) | 6 | Token spend, boot tax, and inference-cost exposure. |
 | 🔓 [Portability & Vendor Independence](#portability--vendor-independence) | 10 | Lock-in scoring, licensing, and exit-cost analysis. |
@@ -32,7 +32,7 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 | ✅ [Deliverable Quality & Verification](#deliverable-quality--verification) | 10 | Hostile-reviewer passes and trust scoring before anything ships. |
 | 🗂️ [Productivity & Workflow](#productivity--workflow) | 14 | Sessions, handoffs, recall, calendar, and remote access. |
 | 🎬 [Content & Media](#content--media) | 4 | Image and video prompt engineering and shorts pipelines. |
-| | **178** | |
+| | **179** | |
 
 ## The catalog
 
@@ -108,6 +108,7 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 | [open-loop-audit](skills/open-loop-audit/) | Audit open loops and classify each as real delegation candidate vs simulated work using Nate's "land or leave" framework | Diagnosing, reviewing, or monitoring agent runs. |
 | [session-work-log](skills/session-work-log/) | Produces a structured session-end artifact capturing what was attempted, what changed, what blocked progress, and wha… | Machine-readable by design -- survives model swaps and cross-agent handoffs |
 | [simulated-work-detector](skills/simulated-work-detector/) | Recurring audit that reviews agent fleet output and flags simulated work that generated artifacts but didn't close an… | Diagnosing, reviewing, or monitoring agent runs. |
+| [trace-prompt](skills/trace-prompt/) | Reconstruct a sanitized diagnostic trace of the current prompt exchange only and write it to a markdown file for shar… | The user says "trace this", "trace-prompt", something just went wrong, or needs a concrete bug report instead of a vague compl… |
 
 ### 🔀 Model & Inference Strategy
 
@@ -339,5 +340,7 @@ A few skills contain environment-specific references. They still work, but you m
 - **silver-platter** — uses Jinja2 for HTML rendering (`pip install jinja2`). Examples use fictional business personas.
 
 ## Version
+
+`0.5.1` -- added trace-prompt, a diagnostic skill that captures a sanitized markdown trace of the current exchange only (prompt, active model, tools run, errors verbatim) for support threads and bug reports (179 skills).
 
 `0.5.0` -- consolidated SkillForge into the pack (now 178 skills), sanitized for sharing, and reorganized the README into 13 divisions. Feedback welcome.
