@@ -20,7 +20,7 @@
 // while still "succeeding". Both are repointed here. The plugin dirs are DERIVED from the
 // manifest, never globbed and never hardcoded, so the SSOT stays the only place membership lives.
 
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, renameSync, unlinkSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -268,9 +268,32 @@ if (CHECK) {
   process.exit(0);
 }
 
-for (const [p, c] of writes) {
-  mkdirSync(dirname(p), { recursive: true });
-  writeFileSync(p, c);
+// Codex r2 MEDIUM (adopted). This wrote the 17 generated files one-by-one with plain
+// writeFileSync. An interrupt (or a disk error) partway through left the repo holding a mix of
+// old and new metadata -- e.g. a regenerated marketplace.json advertising 7 plugins next to
+// stale plugin.json files, which is precisely the count-drift class this script exists to kill.
+// Per-file atomicity: write to a temp file in the SAME directory (so rename() stays on one
+// filesystem and is atomic), then rename over the target. A reader now sees either the whole old
+// file or the whole new one, never a truncated write.
+//
+// Honest scope: this is per-file atomic, NOT a cross-file transaction. An interrupt can still
+// land between two renames. Making all 17 atomic together would need a staging dir and a
+// swap, which is real complexity for a local generator whose remedy is "run it again" --
+// `--check` detects any mixed state, and the run is idempotent. Per-file atomicity removes the
+// corrupt-file failure mode; the mixed-set one is detected rather than prevented.
+const tmps = [];
+try {
+  for (const [p, c] of writes) {
+    mkdirSync(dirname(p), { recursive: true });
+    const tmp = `${p}.tmp-${process.pid}`;
+    writeFileSync(tmp, c);
+    tmps.push(tmp);
+  }
+  for (let i = 0; i < writes.length; i++) renameSync(tmps[i], writes[i][0]);
+} finally {
+  // Any temp that survived (a throw before its rename) must not be left lying next to the real
+  // file -- it would be untracked clutter at best and confusing at worst.
+  for (const t of tmps) { try { if (existsSync(t)) unlinkSync(t); } catch { /* best effort */ } }
 }
 console.log(`Wrote ${TOTAL} skills across ${manifest.divisions.length} divisions in ${pluginIds.length} plugins.`);
 for (const id of pluginIds) console.log(`  ${String(pluginCount.get(id)).padStart(3)}  ${id}`);

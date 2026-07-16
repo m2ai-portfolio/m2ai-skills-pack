@@ -56,6 +56,16 @@ fi
 # away from the real runtime-derived `id -un`. A replace-style seam was a genuine bypass.
 PROBE_USER="zzprobeuser"
 
+# Codex r2 HIGH (adopted). The negative controls below back up real repo files (README.md,
+# marketplace.json, skills-manifest.json) to a temp dir and copy them BACK afterwards. They used
+# fixed, predictable /tmp names, which is a symlink-plant vector on a shared machine: a local user
+# can pre-create that exact path as a symlink, and then the backup step clobbers whatever it points
+# at, while the restore step can feed attacker-controlled content straight back into a tracked file
+# that is about to be committed. A private 0700 mktemp dir closes both directions.
+TMPD=$(mktemp -d) || { echo "FATAL: cannot create a private temp dir"; exit 1; }
+chmod 700 "$TMPD"
+trap 'rm -rf "$TMPD"' EXIT
+
 # ---- planted-control helpers -------------------------------------------------------------
 # A mutation claim with NO planted control is UNPROVEN regardless of what the scan returns
 # today: "the scan is clean" and "the scan is blind" look identical from the outside.
@@ -343,7 +353,10 @@ t "C-22/C-30 NEGATIVE CONTROL: leak-scan CATCHES a planted BINARY leak"
 # (C-38) and drives the bare-token path via the LEAK_SCAN_EXTRA_USERS seam -- no real identity planted.
 probe=$PROBE_DIR/_leakprobe.bin
 cleanup_probe() { git rm --cached -q "$probe" 2>/dev/null; rm -f "$probe"; }
-trap cleanup_probe EXIT
+# `trap` REPLACES the handler rather than adding to it, so a bare `trap cleanup_probe EXIT` here
+# would silently drop the TMPD cleanup installed at the top, and the `trap - EXIT` below would
+# then leave the temp dir behind on every run. Chain both explicitly.
+trap 'cleanup_probe; rm -rf "$TMPD"' EXIT
 printf '\x00\x01binary\x00/home/%s/secret\x00' "$PROBE_USER" > "$probe"
 git add -f "$probe" || bad "could not stage probe (control inconclusive)"
 if LEAK_SCAN_EXTRA_USERS="$PROBE_USER" bash scripts/leak-scan.sh >/dev/null 2>&1; then
@@ -351,7 +364,7 @@ if LEAK_SCAN_EXTRA_USERS="$PROBE_USER" bash scripts/leak-scan.sh >/dev/null 2>&1
 else
   ok "scan correctly failed on planted binary leak"
 fi
-cleanup_probe; trap - EXIT
+cleanup_probe; trap 'rm -rf "$TMPD"' EXIT   # restore the TMPD cleanup, do not clear the trap
 
 t "C-33 NEGATIVE CONTROL: untracked/ignored file does NOT trip the scan (no false positive)"
 mkdir -p $BANANA/__pycache__
@@ -367,15 +380,15 @@ t "C-23 NEGATIVE CONTROL: generator REFUSES a manifest with an orphan, and write
 # FIXED (Codex r1 MEDIUM, adopted per Matthew decision (5)): round 1 asserted only that README.md
 # was unmutated. The generator writes TWO files -- a partial write to marketplace.json on the
 # refusal path would have slipped through silently. Assert BOTH are byte-identical.
-cp skills-manifest.json /tmp/_m.bak; cp README.md /tmp/_r.bak; cp .claude-plugin/marketplace.json /tmp/_mk.bak
+cp skills-manifest.json "$TMPD/m.bak"; cp README.md "$TMPD/r.bak"; cp .claude-plugin/marketplace.json "$TMPD/mk.bak"
 python3 -c "
 import json;j=json.load(open('skills-manifest.json'));j['skills'].pop('aar');json.dump(j,open('skills-manifest.json','w'),indent=2)"
 if node scripts/sync-from-manifest.mjs >/dev/null 2>&1; then
   bad "generator accepted an orphaned manifest"
 else
   r_ok=0; m_ok=0
-  cmp -s README.md /tmp/_r.bak && r_ok=1
-  cmp -s .claude-plugin/marketplace.json /tmp/_mk.bak && m_ok=1
+  cmp -s README.md "$TMPD/r.bak" && r_ok=1
+  cmp -s .claude-plugin/marketplace.json "$TMPD/mk.bak" && m_ok=1
   if [ "$r_ok" = 1 ] && [ "$m_ok" = 1 ]; then
     ok "refused loudly AND wrote nothing (BOTH README and marketplace.json untouched)"
   else
@@ -383,15 +396,15 @@ else
     [ "$m_ok" = 1 ] || bad "refused but still mutated .claude-plugin/marketplace.json (partial write)"
   fi
 fi
-cp /tmp/_m.bak skills-manifest.json; cp /tmp/_r.bak README.md; cp /tmp/_mk.bak .claude-plugin/marketplace.json
-rm -f /tmp/_mk.bak
+cp "$TMPD/m.bak" skills-manifest.json; cp "$TMPD/r.bak" README.md; cp "$TMPD/mk.bak" .claude-plugin/marketplace.json
+rm -f "$TMPD/mk.bak"
 
 t "C-24 NEGATIVE CONTROL: --check DETECTS a hand-edited count literal"
-cp README.md /tmp/_r.bak
+cp README.md "$TMPD/r.bak"
 sed -i 's/\*\*183 portable Claude Code skills\*\*/**999 portable Claude Code skills**/' README.md
 node scripts/sync-from-manifest.mjs --check >/dev/null 2>&1 && bad "--check missed drifted literal" || ok "--check caught drift"
-cp /tmp/_r.bak README.md
-rm -f /tmp/_m.bak /tmp/_r.bak
+cp "$TMPD/r.bak" README.md
+rm -f "$TMPD/m.bak" "$TMPD/r.bak"
 
 # ---------- mutation tests: PLANTED POSITIVE CONTROLS ----------
 # The round-1 contract CITED T27/T28/T29/T31/T32 but never implemented them: the suite tested the
@@ -597,11 +610,11 @@ grep -qi 'starter kit' README.md && ok "Starter Kit section present" \
 
 t "C-41 sync-from-manifest.mjs is IDEMPOTENT"
 node scripts/sync-from-manifest.mjs >/dev/null 2>&1 || bad "generator failed on a valid manifest"
-cp README.md /tmp/_r1.bak; cp .claude-plugin/marketplace.json /tmp/_mk1.bak
+cp README.md "$TMPD/r1.bak"; cp .claude-plugin/marketplace.json "$TMPD/mk1.bak"
 node scripts/sync-from-manifest.mjs >/dev/null 2>&1
-cmp -s README.md /tmp/_r1.bak && cmp -s .claude-plugin/marketplace.json /tmp/_mk1.bak \
+cmp -s README.md "$TMPD/r1.bak" && cmp -s .claude-plugin/marketplace.json "$TMPD/mk1.bak" \
   && ok "second run produced no diff" || bad "generator is NOT idempotent"
-rm -f /tmp/_r1.bak /tmp/_mk1.bak
+rm -f "$TMPD/r1.bak" "$TMPD/mk1.bak"
 [ -z "$(git status --porcelain README.md .claude-plugin/marketplace.json)" ] \
   && ok "generator left committed files unchanged" || bad "generator mutated committed files"
 

