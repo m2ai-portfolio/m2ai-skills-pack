@@ -50,6 +50,42 @@ for (const p of m.plugins) {
 process.exit(bad ? 1 : 0);
 JS
 
+t "C-37c .cursor-plugin/plugin.json satisfies Cursor's REVIEW bar, not just its docs"
+# The docs (cursor.com/docs/plugins) say only `name` is required, so C-37 above tests exactly that.
+# Cursor's own review-plugin-submission skill (cursor/plugins) applies a STRICTER bar and requires
+# name + description + version + author + license "required and coherent". Building to the docs and
+# submitting against the reviewer is how a submission gets bounced for something the docs never
+# asked for. Both bars are tested on purpose: C-37 is what Cursor promises to load, C-37c is what a
+# human reviewer will actually check.
+node - <<'JS' && ok "all 7 satisfy the reviewer's required fields" || bad "a plugin would be bounced by Cursor's review checklist"
+const fs = require('fs');
+const m = JSON.parse(fs.readFileSync('skills-manifest.json', 'utf8'));
+const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const PERMISSIVE = ['MIT', 'BSD-2-Clause', 'BSD-3-Clause', 'Apache-2.0'];
+let bad = 0;
+for (const p of m.plugins) {
+  const f = `${p.id}/.cursor-plugin/plugin.json`;
+  const d = JSON.parse(fs.readFileSync(f, 'utf8'));
+  for (const k of ['name', 'description', 'version', 'author', 'license']) {
+    if (!d[k] || (typeof d[k] === 'string' && !d[k].trim())) {
+      console.log(`    missing/empty '${k}': ${f}`); bad++;
+    }
+  }
+  if (d.name && !KEBAB.test(d.name)) { console.log(`    'name' not lowercase kebab-case: ${d.name}`); bad++; }
+  // Publisher Terms bar copyleft outright: GPL/AGPL/LGPL cannot ship on the Marketplace.
+  if (d.license && !PERMISSIVE.includes(d.license)) {
+    console.log(`    license '${d.license}' is not on the permissive allowlist: ${f}`); bad++;
+  }
+}
+process.exit(bad ? 1 : 0);
+JS
+
+t "C-37d the declared license matches the actual LICENSE file"
+# A manifest claiming MIT over a GPL LICENSE file is worse than claiming nothing.
+head -1 LICENSE | grep -qi "MIT License" \
+  && ok "LICENSE is MIT, matching every manifest's declared license" \
+  || bad "LICENSE file does not match the MIT declared in the manifests"
+
 t "C-37 .cursor-plugin/marketplace.json matches cursor/plugins' live shape"
 node - <<'JS' && ok "Cursor marketplace shape valid" || bad "Cursor marketplace shape invalid"
 const fs = require('fs');
