@@ -46,14 +46,56 @@ scan() {
 
 # C-27 / C-28: personal names, any case, possessive with ASCII or smart apostrophe (U+2019)
 scan "personal-name"    "matthew|snow2|matthew(’|')s" nocase
-# C-29: home paths and the bare username token (case-sensitive: see note above).
-# `/home/user` and `/home/<user>` are the sanitized PLACEHOLDERS this pack uses on purpose and are
-# allowed; any other concrete username under /home is a real leak. Verified 2026-07-16: the only
-# /home/ match in the whole pack is /home/user.
+# C-29: CONCRETE home paths. `/home/user` and `/home/<user>` are the sanitized PLACEHOLDERS this
+# pack uses on purpose and are allowed (verified 2026-07-16: in active use in context-fork-guide,
+# model-audit, viral-shorts-pipeline); any OTHER concrete username under /home is a real leak.
+# C-44: the allowlist is exact-token (`user\b`), not a prefix -- /home/username123 still flags.
+#
+# NOT SCANNED, deliberately (C-39): `~/` and `$HOME` are the CORRECT, portable, already-sanitized
+# way to reference a home dir -- they are this pack's sanctioned idiom, not a leak. `~/` appears in
+# 58 tracked files as legitimate content (~/vault, ~/.claude/skills/...); `$HOME` appears 0 times.
+# Adding them as patterns would flag 58 files of correct content and make this gate unusable.
+# This is a recorded decision, not an oversight. tests/gate0.test.sh T39 enforces it.
 scan "home-path-unix"   "/home/(?!user\b|<)[a-z0-9._-]+|/Users/(?!<)[A-Za-z0-9._-]+" perl
-scan "home-path-user"   "apexaipc" nocase
-# C-31: internal agent / product / project names
-scan "internal-name"    "claudeclaw|ccos|ravage|soundwave|starscream|teletraan|metroplex|sky-lynx|ideaforge|st.metro|perceptor|bunker" nocase
+
+# C-37: the BARE username token. NEVER hardcode a concrete username here -- this file ships in a
+# PUBLIC repo, so a literal username would make the leak detector itself the leak it exists to
+# remove. Derive it at runtime instead; this also future-proofs the scan for any other runner.
+# C-37a: the home-path-unix scan ABOVE is already generic and catches /home/<runner> for ANY
+# runner. This adds only the BARE-token case, which an absolute-path pattern cannot cover.
+# Word boundaries are safe: verified 2026-07-16 that \b still matches inside BINARY content, so
+# the .pyc case (C-30) that triggered this gate is preserved.
+# LEAK_SCAN_USER is a TEST SEAM only: it changes WHICH token is scanned, never whether the other
+# scans run, so it cannot be used to disable the gate.
+RUNNER_USER="${LEAK_SCAN_USER-$(id -un 2>/dev/null || true)}"
+case "$RUNNER_USER" in
+  user|root|"")
+    # C-42: a sanctioned placeholder or root is not a leak identity. If the runner IS named
+    # `user`, scanning the bare token would self-flag every legitimate /home/user in the pack.
+    echo "NOTE: runner username '${RUNNER_USER:-<unknown>}' is a sanctioned placeholder or root; bare-token scan skipped (C-42)."
+    ;;
+  *)
+    if printf '%s' "$RUNNER_USER" | grep -qE '^[A-Za-z0-9._-]+$'; then
+      # `.` passes the charset guard above but IS a regex metacharacter -- escape before use.
+      esc=$(printf '%s' "$RUNNER_USER" | sed 's/[.[\*^$()+?{|]/\\&/g')
+      scan "home-path-runner-user" "\\b${esc}\\b" nocase
+    else
+      # C-43: a runtime-derived username is untrusted regex input. Fail-safe toward the human:
+      # refuse loudly rather than silently scanning a corrupted pattern that matches nothing.
+      echo "LEAK [runner-user-unscannable] username has regex metacharacters; refusing to scan blind"
+      status=1
+    fi
+    ;;
+esac
+
+# C-31: internal agent / product / project names.
+# NOT SCANNED, deliberately (C-31a): `Data` and `Kup`. Verified 2026-07-16 that no non-overmatching
+# form exists -- even case-sensitive word-boundary `\bData\b` hits 47 files of legitimate content in
+# a pack about data pipelines ("Data residency", "Data footprint"), and `\bKup\b` hits 0 while the
+# `kup` substring hits 30 files of ordinary English (Pickup, markup, backup, lookup, mockup).
+# They are unscannable by regex and are routed to HUMAN REVIEW instead. T31a enforces this.
+# `st[- ]metro` (not `st.metro`): an unescaped `.` is a wildcard that would overmatch.
+scan "internal-name"    "claudeclaw|ccos|ravage|soundwave|starscream|teletraan|metroplex|sky-lynx|ideaforge|st[- ]metro|perceptor|bunker" nocase
 # C-32: private network addresses and personal device names
 scan "lan-and-device"   "10\.0\.0\.[0-9]+|192\.168\.[0-9]+\.[0-9]+|surface tablet|probook|alienpc|gaming-pc" nocase
 # credentials that should never ship
