@@ -94,6 +94,41 @@ done
 [ "$miss" = "0" ] && ok "every plugin has a non-empty skills/ for Cursor to discover" \
   || bad "$miss plugin(s) would ship empty to Cursor"
 
+# C-37a. Cursor's own `review-plugin-submission` skill (cursor/plugins) names "missing frontmatter
+# on discoverable components" as an explicit REJECTION criterion, and requires skills/*/SKILL.md to
+# carry BOTH `name` and `description`. This check exists because the rest of this suite validated
+# manifests and dir presence, passed 5/5, and still missed that `get-api-docs` and `model-audit`
+# shipped with only `argument-hint`. It is not a Cursor-only concern: a skill with no `description`
+# cannot auto-trigger in Claude Code either, so it silently degrades to explicit-invoke-only.
+# Parse ONLY the leading frontmatter block; a `description:` line in the body is not frontmatter.
+t "C-37a every discoverable skill has name AND description frontmatter"
+missfm=0; checked=0
+while IFS= read -r f; do
+  checked=$((checked+1))
+  hn=$(awk 'NR==1 && $0!="---"{exit} /^---$/{c++; if(c==2) exit; next} c==1 && /^name:[[:space:]]*[^[:space:]]/{print "y"; exit}' "$f")
+  hd=$(awk 'NR==1 && $0!="---"{exit} /^---$/{c++; if(c==2) exit; next} c==1 && /^description:[[:space:]]*[^[:space:]]/{print "y"; exit}' "$f")
+  if [ "$hn" != "y" ] || [ "$hd" != "y" ]; then
+    echo "    ${f} name=${hn:-MISSING} description=${hd:-MISSING}"
+    missfm=$((missfm+1))
+  fi
+done < <(node -e 'require("./skills-manifest.json").plugins.forEach((p) => console.log(p.id))' | while read -r p; do find "$p/skills" -maxdepth 2 -name SKILL.md; done)
+[ "$checked" -gt 0 ] || bad "C-37a scanned ZERO skills -- pathspec matched nothing, this check is blind"
+[ "$checked" -gt 0 ] && { [ "$missfm" = "0" ] && ok "all $checked skills carry name + description" \
+  || bad "$missfm of $checked skills would be REJECTED by Cursor for missing frontmatter"; }
+
+t "C-37b C-37a actually fires (planted control)"
+# Without this, "no skills missing frontmatter" and "the check never read a file" look identical.
+_p="$(node -e 'console.log(require("./skills-manifest.json").plugins[0].id)')/skills/_fmprobe_$$"
+mkdir -p "$_p" && printf -- '---\nargument-hint: x\n---\n\n# probe\n' > "$_p/SKILL.md"
+_bad=0
+while IFS= read -r f; do
+  hn=$(awk 'NR==1 && $0!="---"{exit} /^---$/{c++; if(c==2) exit; next} c==1 && /^name:[[:space:]]*[^[:space:]]/{print "y"; exit}' "$f")
+  [ "$hn" = "y" ] || _bad=$((_bad+1))
+done < <(find "$(dirname "$_p")" -maxdepth 2 -name SKILL.md)
+[ "$_bad" -gt 0 ] && ok "planted a frontmatter-less skill and the check caught it" \
+  || bad "planted a frontmatter-less skill and the check stayed green -- it is blind"
+rm -rf "$_p"
+
 t "C-34 this suite does NOT claim a Cursor install was tested"
 # Guards the honesty constraint itself: if someone later makes this file assert an install,
 # that is a false claim, because `cursor` is not installed here.
