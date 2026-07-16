@@ -8,9 +8,9 @@
   },
   "plugins": [
     {
-      "name": "m2ai-skills-pack",
-      "description": "183 portable skills for model routing, prompt engineering, agent architecture/auditing, build pipelines, strategy stress-testing, and workflow tooling.",
-      "source": "./",
+      "name": "m2ai-workflow-content",
+      "description": "20 portable skills. Sessions, handoffs, recall, calendar, and remote access. Image and video prompt engineering and shorts pipelines.",
+      "source": "./m2ai-workflow-content",
       "category": "productivity",
       "author": {
         "name": "Matthew Snow",

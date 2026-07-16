@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "_comment": "SSOT for skill->division. README + marketplace.json counts are GENERATED from this file by scripts/sync-from-manifest.mjs. Do not hand-edit counts elsewhere.",
+  "_comment": "SSOT for skill->division->plugin. README counts, both marketplace.json files, and every <plugin>/.claude-plugin|.cursor-plugin/plugin.json are GENERATED from this file by scripts/sync-from-manifest.mjs. Plugin descriptions are DERIVED by joining member divisions' focus fields. Do not hand-edit counts, descriptions, or plugin membership anywhere else.",
   "divisions": [
     {
       "id": "agent-architecture-design",
@@ -79,6 +79,56 @@
       "title": "Content & Media",
       "emoji": "🎬",
       "focus": "Image and video prompt engineering and shorts pipelines."
+    }
+  ],
+  "plugins": [
+    {
+      "id": "m2ai-agent-architecture",
+      "divisions": [
+        "agent-architecture-design",
+        "context-memory"
+      ]
+    },
+    {
+      "id": "m2ai-safety-verification",
+      "divisions": [
+        "safety-governance-control",
+        "deliverable-quality-verification"
+      ]
+    },
+    {
+      "id": "m2ai-agent-ops",
+      "divisions": [
+        "operations-reliability-observability"
+      ]
+    },
+    {
+      "id": "m2ai-model-economics",
+      "divisions": [
+        "model-inference-strategy",
+        "cost-token-economics",
+        "portability-vendor-independence"
+      ]
+    },
+    {
+      "id": "m2ai-build-tooling",
+      "divisions": [
+        "build-pipelines-code-comprehension",
+        "skills-tools-mcp"
+      ]
+    },
+    {
+      "id": "m2ai-strategy-analysis",
+      "divisions": [
+        "strategy-business-analysis"
+      ]
+    },
+    {
+      "id": "m2ai-workflow-content",
+      "divisions": [
+        "productivity-workflow",
+        "content-media"
+      ]
     }
   ],
   "skills": {
