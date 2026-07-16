@@ -1,0 +1,4 @@
+{
+  "name": "m2ai-agent-ops",
+  "description": "Health checks, diagnostics, post-mortems, and run observability."
+}

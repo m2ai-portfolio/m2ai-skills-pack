@@ -1,0 +1,10 @@
+{
+  "name": "m2ai-model-economics",
+  "version": "0.1.0",
+  "description": "Routing, migration, cross-model review, and provider monitoring. Token spend, boot tax, and inference-cost exposure. Lock-in scoring, licensing, and exit-cost analysis.",
+  "author": {
+    "name": "Matthew Snow",
+    "email": "matthew@memyselfplusai.com"
+  },
+  "homepage": "https://github.com/m2ai-portfolio/m2ai-skills-pack"
+}

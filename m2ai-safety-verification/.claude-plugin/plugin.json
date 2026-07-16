@@ -1,0 +1,10 @@
+{
+  "name": "m2ai-safety-verification",
+  "version": "0.1.0",
+  "description": "Guardrails, permissions, kill switches, and judgment gates before an agent acts. Hostile-reviewer passes and trust scoring before anything ships.",
+  "author": {
+    "name": "Matthew Snow",
+    "email": "matthew@memyselfplusai.com"
+  },
+  "homepage": "https://github.com/m2ai-portfolio/m2ai-skills-pack"
+}

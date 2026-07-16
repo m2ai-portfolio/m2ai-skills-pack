@@ -24,18 +24,6 @@ m2ai-*/skills/*/build/
 m2ai-*/skills/*/logs/
 m2ai-*/skills/*/tmp/
 m2ai-*/skills/*/.pytest_cache/
-
-# TRANSITIONAL (removed once all 7 plugins are moved and `skills/` is gone): the split lands in
-# two commits so ONE plugin can be proven end-to-end before the other six move. Between those
-# commits `skills/` still holds the unmoved skills, including skill-maintenance/reports/, so the
-# old-depth rules must stay live or the same cron tracks them mid-flight.
-skills/*/output/
-skills/*/reports/
-skills/*/dist/
-skills/*/build/
-skills/*/logs/
-skills/*/tmp/
-skills/*/.pytest_cache/
 node_modules/
 
 # loop state for /self-healing-claudex (local only)

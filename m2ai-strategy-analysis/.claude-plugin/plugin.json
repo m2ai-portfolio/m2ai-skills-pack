@@ -1,0 +1,10 @@
+{
+  "name": "m2ai-strategy-analysis",
+  "version": "0.1.0",
+  "description": "Briefings, stress-tests, market signals, and workflow-investment scoring.",
+  "author": {
+    "name": "Matthew Snow",
+    "email": "matthew@memyselfplusai.com"
+  },
+  "homepage": "https://github.com/m2ai-portfolio/m2ai-skills-pack"
+}

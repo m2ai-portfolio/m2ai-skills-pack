@@ -1,0 +1,10 @@
+{
+  "name": "m2ai-agent-ops",
+  "version": "0.1.0",
+  "description": "Health checks, diagnostics, post-mortems, and run observability.",
+  "author": {
+    "name": "Matthew Snow",
+    "email": "matthew@memyselfplusai.com"
+  },
+  "homepage": "https://github.com/m2ai-portfolio/m2ai-skills-pack"
+}
