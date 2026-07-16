@@ -108,7 +108,7 @@ For each question scoring below 0.75, generate a concrete compensation:
 
 ### Memory Compensation (if Q1 < 0.75)
 - Context package: what to inject at the start of each run
-- Memory proxy: external store (Obsidian, SQLite, Perceptor) to hold state between runs
+- Memory proxy: external store (Obsidian, SQLite, an MCP context server) to hold state between runs
 - Refresh cadence: how often to update the injected context
 
 ### Inspectability Compensation (if Q2 < 0.75)

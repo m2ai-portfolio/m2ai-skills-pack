@@ -38,7 +38,7 @@ MODEL_RATES: dict[str, dict[str, float]] = {
     "opus": {"input": 15.00, "output": 75.00},
     "sonnet": {"input": 3.00, "output": 15.00},
     "haiku": {"input": 0.80, "output": 4.00},
-    # Local (Ollama on AlienPC) -- free
+    # Local (Ollama on a self-hosted GPU box) -- free
     "qwen2.5:7b-instruct": {"input": 0.00, "output": 0.00},
 }
 

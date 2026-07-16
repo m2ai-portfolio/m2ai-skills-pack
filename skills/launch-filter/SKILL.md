@@ -12,7 +12,7 @@ description: >
 Takes any agent announcement — URL, press release, release notes, or pasted text — and runs it
 through a sequenced 5-question filter to produce a scored verdict and a go/wait/skip recommendation.
 
-Replaces Matthew's manual weekly evaluation loop with a 30-second invocation.
+Replaces a manual weekly evaluation loop with a 30-second invocation.
 
 ## The 5-Question Filter
 

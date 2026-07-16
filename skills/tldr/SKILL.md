@@ -42,6 +42,6 @@ If no matching topic wiki exists, the vault-root `log.md` entry is sufficient.
 
 The vault path defaults to `~/vault/`. If your Obsidian vault lives elsewhere,
 adjust the paths above accordingly. You can also add a post-save hook to sync
-the summary to an external context store (e.g., Perceptor, a vector DB, or
+the summary to an external context store (e.g., an MCP context server, a vector DB, or
 a Git-backed wiki) by adding a PostToolUse hook that triggers on Write calls
 targeting the vault directory.

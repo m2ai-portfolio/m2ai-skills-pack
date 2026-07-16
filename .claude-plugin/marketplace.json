@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "m2ai-skills-pack",
-      "description": "176 portable skills for model routing, prompt engineering, agent architecture/auditing, build pipelines, strategy stress-testing, and workflow tooling.",
+      "description": "183 portable skills for model routing, prompt engineering, agent architecture/auditing, build pipelines, strategy stress-testing, and workflow tooling.",
       "source": "./",
       "category": "productivity",
       "author": {

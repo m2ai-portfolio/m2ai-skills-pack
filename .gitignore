@@ -4,3 +4,6 @@ venv/
 .venv/
 __pycache__/
 *.pyc
+
+# loop state for /self-healing-claudex (local only)
+.self-healing-claudex/

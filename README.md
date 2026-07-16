@@ -1,8 +1,8 @@
 # M2AI Skills Pack
 
-> **179 portable Claude Code skills** for building, governing, and operating AI agents — architecture, safety, model strategy, cost control, code pipelines, and business analysis. One install, organized into 13 working divisions.
+> **183 portable Claude Code skills** for building, governing, and operating AI agents — architecture, safety, model strategy, cost control, code pipelines, and business analysis. One install, organized into 13 working divisions.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-179-brightgreen.svg)](#the-catalog)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-183-brightgreen.svg)](#the-catalog)
 
 ## Install
 
@@ -19,7 +19,7 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 
 | Division | Skills | Focus |
 |---|---:|---|
-| 🏗️ [Agent Architecture & Design](#agent-architecture--design) | 18 | Design, scaffold, and structure single- and multi-agent systems. |
+| 🏗️ [Agent Architecture & Design](#agent-architecture--design) | 19 | Design, scaffold, and structure single- and multi-agent systems. |
 | 🛡️ [Safety, Governance & Control](#safety-governance--control) | 17 | Guardrails, permissions, kill switches, and judgment gates before an agent acts. |
 | 🩺 [Operations, Reliability & Observability](#operations-reliability--observability) | 17 | Health checks, diagnostics, post-mortems, and run observability. |
 | 🔀 [Model & Inference Strategy](#model--inference-strategy) | 12 | Routing, migration, cross-model review, and provider monitoring. |
@@ -27,12 +27,12 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 | 🔓 [Portability & Vendor Independence](#portability--vendor-independence) | 10 | Lock-in scoring, licensing, and exit-cost analysis. |
 | 🧠 [Context & Memory](#context--memory) | 8 | Context hygiene, memory architecture, and world-model design. |
 | 🏭 [Build Pipelines & Code Comprehension](#build-pipelines--code-comprehension) | 15 | Spec-first build loops, code comprehension, and migration safety. |
-| 🧰 [Skills, Tools & MCP](#skills-tools--mcp) | 21 | Build, audit, convert, and maintain skills, tools, and MCP servers. |
+| 🧰 [Skills, Tools & MCP](#skills-tools--mcp) | 22 | Build, audit, convert, and maintain skills, tools, and MCP servers. |
 | 📊 [Strategy & Business Analysis](#strategy--business-analysis) | 27 | Briefings, stress-tests, market signals, and workflow-investment scoring. |
 | ✅ [Deliverable Quality & Verification](#deliverable-quality--verification) | 10 | Hostile-reviewer passes and trust scoring before anything ships. |
-| 🗂️ [Productivity & Workflow](#productivity--workflow) | 14 | Sessions, handoffs, recall, calendar, and remote access. |
+| 🗂️ [Productivity & Workflow](#productivity--workflow) | 16 | Sessions, handoffs, recall, calendar, and remote access. |
 | 🎬 [Content & Media](#content--media) | 4 | Image and video prompt engineering and shorts pipelines. |
-| | **179** | |
+| | **183** | |
 
 ## The catalog
 
@@ -282,6 +282,7 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 
 | Skill | What it does | When to use |
 |---|---|---|
+| [afk](skills/afk/) | Overnight worker fired by a scheduled task. Drains a content-backlog inbox: expands items tagged `afk: ready` into dr… | A nightly scheduler fires it, or the user says "/afk", "run afk", "drain the inbox" |
 | [calendar-hygiene](skills/calendar-hygiene/) | Audit the next N days of a Google Calendar and surface hygiene issues before the user notices them -- back-to-back me… | Asking "calendar hygiene", "audit my calendar", "check my schedule", "what's wrong with my week?", "add buffers to my calendar"… |
 | [decompose-goal](skills/decompose-goal/) | Decompose a free-text goal into an ordered list of atomic, dispatchable subtasks for any downstream executor — subagents, Agent Teams, DAG engines (LangGraph, CrewAI, n8n), headless cron, or human checklists. Downstream of goal-maker. | A multi-step instruction needs atomization before handoff; "decompose this goal", "break this into subtasks", "flatten this for dispatch", "turn this into a runnable task list" |
 | [file-intel](skills/file-intel/) | Run the Gemini file processor on any folder — extracts content from PDF, PPTX, XLSX, DOCX, CSV, JSON, and any text fo… | Asked to "summarise this folder", "run file intel", "process these files", or a folder path is provided and summaries are needed |
@@ -290,6 +291,7 @@ Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explic
 | [goal-os-optimize](skills/goal-os-optimize/) | Use /goal to run a self-directed optimization loop on your agentic OS — skills, CLAUDE.md, rules files, and projects. | A judge agent on a separate LLM validates each iteration |
 | [life-engine](skills/life-engine/) | Reference implementation of a proactive Life Engine -- a time-windowed briefing loop that checks email, calendar, pro… | This is a REFERENCE IMPLEMENTATION showing one user's full wiring, not a plug-and-play template |
 | [next](skills/next/) | Generate a continuation prompt for a fresh session and list current tasks. | Wrapping up a session or handing off work |
+| [quick](skills/quick/) | Quick-capture a spur-of-the-moment idea into a content-backlog inbox file so it is not lost. Tags captures for the AF… | The user says "/quick …", "quick capture", "jot this down", "add to the backlog", or fires off a half-formed idea |
 | [remote-channels](skills/remote-channels/) | Set up and configure Claude Code remote access via Telegram and Discord channels. | Guides through bot creation, plugin installation, security lockdown, and always-on configuration |
 | [sparring-planner](skills/sparring-planner/) | Custom planning mode that challenges assumptions, asks deep multi-option questions, and explores multiple approaches… | The user says "plan", "let's think through", "help me decide", "sparring planner", "think this through with me", "let's figure… |
 | [structured-elicitation](skills/structured-elicitation/) | A conversational skill that interviews the user across five layers of operational knowledge -- operating rhythms, rec… | The user says "elicitation", "interview me", "extract my workflows", "bootstrap agent persona", "build my SOUL.md", "help me do… |

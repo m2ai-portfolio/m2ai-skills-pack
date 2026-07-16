@@ -1,6 +1,6 @@
 ---
 name: trace-prompt
-description: "Reconstruct a sanitized diagnostic trace of the CURRENT prompt exchange only, not the full session, and write it to a markdown file the user can share for support or bug reports. Captures the exact prompt, which model/brain was active (Claude, Codex, Gemini, etc), what tools ran, what happened versus what was expected, and any error text verbatim. Redacts PII before writing anything. Built for ClaudeClaw-OS (CCOS) users hitting model-specific quirks (e.g. Codex-run agents behaving differently than Claude-run ones) who need to hand a support thread something concrete instead of a vague complaint."
+description: "Reconstruct a sanitized diagnostic trace of the CURRENT prompt exchange only, not the full session, and write it to a markdown file the user can share for support or bug reports. Captures the exact prompt, which model/brain was active (Claude, Codex, Gemini, etc), what tools ran, what happened versus what was expected, and any error text verbatim. Redacts PII before writing anything. Built for agent-OS users hitting model-specific quirks (e.g. Codex-run agents behaving differently than Claude-run ones) who need to hand a support thread something concrete instead of a vague complaint."
 when_to_use: "trace this, trace-prompt, something went wrong just now, capture a bug report, diagnostic trace, what just happened, log this exchange for support, weird behavior with codex, weird behavior with a different model"
 ---
 

@@ -42,10 +42,11 @@ Check Claude Code's MCP configuration for registered servers. For each:
 - Can we list tools from it?
 
 ### 3. SSH Connections
-Check configured SSH hosts from `~/.ssh/config`:
-- `gaming-pc` (AlienPC)
-- `nas` (Asustor NAS)
-- `surface` (Surface tablet)
+Check configured SSH hosts from `~/.ssh/config`. Read the host list from the config rather than
+assuming; a typical set looks like:
+- a workstation host (may be Windows -- use `cmd.exe` syntax, not Linux)
+- a NAS or file server
+- a tablet or laptop that may be asleep
 
 For each: attempt a quick connection test (`ssh <host> echo ok` or equivalent).
 
@@ -97,9 +98,9 @@ API Credentials
   Firecrawl       [FAIL] key empty or missing
 
 SSH Connections
-  gaming-pc       [OK] Windows cmd.exe responding
+  workstation     [OK] Windows cmd.exe responding
   nas             [OK] BusyBox Linux responding
-  surface         [FAIL] timeout -- likely asleep
+  tablet          [FAIL] timeout -- likely asleep
 
 HTTP Services
   the container manager API   [OK] https://<host>:19943 (200)
@@ -109,7 +110,7 @@ MCP Servers
   google-calendar [OK] 5 tools registered
   Gmail           [OK] 8 tools registered
   Notion          [OK] 12 tools registered
-  Perceptor       [WARN] server not running
+  context-store   [WARN] server not running
 
 CLI Tools
   git 2.43.0      [OK]

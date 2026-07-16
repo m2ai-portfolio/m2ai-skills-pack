@@ -44,7 +44,18 @@ Read the prompting guide at `~/.claude/skills/banana-maker/prompting-guide.md` a
 Show the enhanced prompt to the user before generating.
 
 ### 4. Generate the Image
-Run the script using the banana-maker venv:
+
+First run only — create the venv (it is intentionally not shipped with this pack):
+
+```bash
+python3 -m venv ~/.claude/skills/banana-maker/venv
+~/.claude/skills/banana-maker/venv/bin/pip install -r ~/.claude/skills/banana-maker/requirements.txt
+```
+
+The script reads `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) from the environment, or from a
+`.env.shared` file in your home directory.
+
+Then run the script using the banana-maker venv:
 
 ```bash
 ~/.claude/skills/banana-maker/venv/bin/python ~/.claude/skills/banana-maker/generate_image.py "THE ENHANCED PROMPT" --model MODEL_CHOICE [OPTIONS]
@@ -52,7 +63,7 @@ Run the script using the banana-maker venv:
 
 ### 5. Report Results
 - Show the output file path
-- Since Matthew browses from his Surface tablet, provide: `http://<host>:PORT/filename` if a file server is running, otherwise just the file path
+- If the user views output from another device on the LAN, provide: `http://<host>:PORT/filename` if a file server is running, otherwise just the file path
 
 ## Script Usage Reference
 

@@ -10,7 +10,7 @@ description: >
 # Life Engine -- Proactive Briefing Loop (Reference Implementation)
 
 > **This is a reference implementation**, not a generic template. It shows how one
-> user wired Gmail, Google Calendar, an Obsidian vault, a Surface tablet idea-catcher,
+> user wired Gmail, Google Calendar, an Obsidian vault, a tablet idea-catcher,
 > a multi-agent dashboard, and changelog tracking into a single proactive loop.
 > The value is in the pattern -- time windows, dedup logic, self-improvement cycles,
 > and message formatting rules. Your integrations will differ.
