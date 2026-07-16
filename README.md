@@ -1,6 +1,6 @@
 # M2AI Skills Pack
 
-> **183 portable Claude Code skills** for building, governing, and operating AI agents — architecture, safety, model strategy, cost control, code pipelines, and business analysis. One install, organized into 13 working divisions.
+> **183 portable Claude Code skills** for building, governing, and operating AI agents: architecture, safety, model strategy, cost control, code pipelines, and business analysis. Ships as 7 themed plugins spanning 13 working divisions, so you install only the ones you need.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-183-brightgreen.svg)](#the-catalog)
 
