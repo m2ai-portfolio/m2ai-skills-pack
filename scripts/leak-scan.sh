@@ -98,7 +98,23 @@ scan_user_token() {  # <username> <label>
   fi
 }
 
-RUNNER_USER="$(id -un 2>/dev/null || true)"
+# C-48: resolve `id` by ABSOLUTE path, never through the caller's PATH. Reproduced: an `id` shim
+# earlier in PATH that prints `user` triggers the C-42 placeholder skip above, and a real
+# maintainer-username leak then ships with exit 0. Note this is the SAME mechanism T45 uses to
+# simulate a broken `id`, so the path is demonstrably reachable, not theoretical.
+#
+# Honest threat model: a caller who fully controls PATH could equally replace `git` or edit this
+# script, so this is NOT a security boundary against a determined attacker. It defends the
+# REACHABLE accidental cases -- shims, wrappers, containers, a stray `id` earlier in PATH -- which
+# is the realistic failure mode for a local pre-publish gate.
+_resolve_runner_user() {
+  local c
+  for c in /usr/bin/id /bin/id; do
+    if [ -x "$c" ]; then "$c" -un 2>/dev/null; return; fi
+  done
+  command -p id -un 2>/dev/null   # POSIX default PATH, not the caller's
+}
+RUNNER_USER="$(_resolve_runner_user || true)"
 if [ -z "$RUNNER_USER" ]; then
   # C-45: an UNKNOWN runner is a HARD FAILURE, not a silent skip. Deliberately NOT folded in with
   # the user|root placeholder case: `root` is a KNOWN identity we have decided not to scan, whereas

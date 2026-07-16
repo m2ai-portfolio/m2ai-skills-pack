@@ -388,15 +388,40 @@ t "C-45 an UNKNOWN runner username fails CLOSED (never a silent skip)"
 # the placeholder case, and skipped the bare-token scan while exiting 0. `root` is a KNOWN identity
 # we chose not to scan; "" means the scan does not know WHO it is scanning for -- and a scan that
 # cannot answer that cannot report clean. Distinct cases, distinct outcomes.
-fakebin=$(mktemp -d)
-printf '#!/bin/sh\nexit 1\n' > "$fakebin/id"; chmod +x "$fakebin/id"
-uout=$(PATH="$fakebin:$PATH" bash scripts/leak-scan.sh 2>&1); urc=$?
+# NOTE: this deliberately does NOT spoof via PATH. Since C-48 the scanner resolves `id` by
+# absolute path, so a PATH shim no longer reaches this branch -- that is the point of C-48. The
+# branch is instead exercised by mutating the resolution to empty, the same mutation technique
+# T47 uses. This tests the real branch logic without relying on a hole we just closed.
+sed 's|^RUNNER_USER=.*|RUNNER_USER=""|' scripts/leak-scan.sh > scripts/_ls_noid_$$.sh
+uout=$(bash scripts/_ls_noid_$$.sh 2>&1); urc=$?
 case "$uout" in
   *runner-user-unknown*) [ "$urc" -ne 0 ] && ok "unknown runner refuses to report clean" \
                            || bad "warned about unknown runner but still exited 0" ;;
   *) bad "unknown runner did not fail closed (rc=$urc) -- silent skip is a false clean" ;;
 esac
-rm -rf "$fakebin"
+rm -f scripts/_ls_noid_$$.sh
+
+t "C-48 a spoofed 'id' in PATH cannot suppress the bare-token scan"
+# Codex r2 HIGH (adopted). Reproduced before the fix: an `id` shim printing `user` triggered the
+# C-42 placeholder skip and a real maintainer-username leak shipped with exit 0. The scanner now
+# resolves `id` by absolute path. Plant a REAL leak, spoof `id`, and assert the scan STILL fails.
+if [ -n "$MAINT_USER" ]; then
+  spoof=$(mktemp -d)
+  printf '#!/bin/sh\necho user\n' > "$spoof/id"; chmod +x "$spoof/id"
+  sp="skills/_probe_spoof_$$.md"
+  printf 'contact %s for access\n' "$MAINT_USER" > "$sp"; git add -f "$sp" >/dev/null 2>&1
+  if PATH="$spoof:$PATH" bash scripts/leak-scan.sh >/dev/null 2>&1; then
+    bad "a spoofed 'id' suppressed the scan and a REAL leak shipped clean"
+  else
+    ok "spoofed 'id' did not suppress the scan (absolute resolution holds)"
+  fi
+  git rm --cached -q "$sp" >/dev/null 2>&1; rm -f "$sp"; rm -rf "$spoof"
+  grep -qE '/usr/bin/id|/bin/id|command -p id' scripts/leak-scan.sh \
+    && ok "scanner resolves id by absolute path (not via caller PATH)" \
+    || bad "scanner still resolves id through the caller's PATH"
+else
+  echo "  SKIP  runner is a placeholder/root; spoof probe not applicable"
+fi
 
 t "C-47 a scan ERROR fails CLOSED (an erroring scan is not a clean scan)"
 # Codex r1 MEDIUM (adopted). `git grep` exits 0=match, 1=no-match, >1=ERROR. The old
