@@ -15,6 +15,17 @@ In Claude Code:
 
 Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explicitly (e.g. `/model-router`, `/diagnose`, `/aar`).
 
+## Starter Kit
+
+New to Claude Code agents? [`templates/starter-kit/`](templates/starter-kit/) contains a ready `CLAUDE.md` + `agent.yaml` pair that shows how the two files connect — useful for anyone setting up their first agent.
+
+| File | What it is |
+|---|---|
+| [`CLAUDE.md.template`](templates/starter-kit/CLAUDE.md.template) | A complete `CLAUDE.md` skeleton — hard rules, learned-mistakes log, adoption gate, and agent team rules — showing how behavioral constraints are written as enforced code, not documentation |
+| [`agent.yaml.example`](templates/starter-kit/agent.yaml.example) | A single `agent.yaml` identity card — model, description, tools, and routing fields — showing how it pairs with `CLAUDE.md` to form one complete agent |
+
+Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `agents/<your-agent-name>/agent.yaml`, fill in your details, then install the skills above. The `rules/` subfolder contains starter rule files for shell safety and architecture discipline that `CLAUDE.md.template` already points to.
+
 ## What's inside
 
 | Division | Skills | Focus |
