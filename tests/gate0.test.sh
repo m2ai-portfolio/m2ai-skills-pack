@@ -605,6 +605,49 @@ rm -f /tmp/_r1.bak /tmp/_mk1.bak
 [ -z "$(git status --porcelain README.md .claude-plugin/marketplace.json)" ] \
   && ok "generator left committed files unchanged" || bad "generator mutated committed files"
 
+t "C-47 the Phase 2 gate is a REAL install, and exists as an executable artifact"
+# Codex r1 coverage gap (adopted). The gate was originally proven by a human running the CLI in a
+# session. It really passed -- but a hand-run proof is unverifiable to anyone who was not
+# watching, which is indistinguishable from never having run it. The proof must be re-runnable.
+if [ -f tests/phase2-gate.sh ]; then
+  ok "tests/phase2-gate.sh exists (the gate is re-runnable, not a one-off claim)"
+else
+  bad "no executable Phase 2 gate -- the install proof is unverifiable"
+fi
+# It must drive the REAL CLI. A gate that only parses JSON is exactly the anti-pattern the card
+# names: "An assertion that the JSON is well-formed is NOT the proof."
+if grep -qE 'claude plugin marketplace add' tests/phase2-gate.sh 2>/dev/null \
+   && grep -qE 'claude plugin install' tests/phase2-gate.sh 2>/dev/null \
+   && grep -qE 'claude plugin list' tests/phase2-gate.sh 2>/dev/null; then
+  ok "gate drives the real CLI (marketplace add + install + list)"
+else
+  bad "gate does not drive the real claude CLI -- a JSON assertion is not the proof"
+fi
+# ...and it must clean up, or it leaves the machine holding a local-path marketplace.
+grep -qE 'plugin uninstall' tests/phase2-gate.sh 2>/dev/null \
+  && grep -qE 'marketplace remove' tests/phase2-gate.sh 2>/dev/null \
+  && ok "gate cleans up after itself (uninstall + marketplace remove)" \
+  || bad "gate does not clean up the test install"
+# C-37: the Cursor claim must be backed by a machine check, not just README prose.
+[ -f tests/cursor-schema.test.sh ] && ok "tests/cursor-schema.test.sh backs the Cursor validation claim" \
+  || bad "README claims Cursor validation with no test behind it"
+
+t "C-19 the ONE-then-scale ordering is provable from git history"
+# The card's Phase 2 gate is an ORDERING constraint ("Do not build all 7 and then test"), so it
+# has to be checked against history, not asserted in prose. m2ai-workflow-content must appear in
+# an EARLIER commit than the other six.
+WFC_COMMIT=$(git log --format=%H --diff-filter=A -1 -- 'm2ai-workflow-content/skills/*/SKILL.md' 2>/dev/null | tail -1)
+OTHER_COMMIT=$(git log --format=%H --diff-filter=A -1 -- 'm2ai-agent-ops/skills/*/SKILL.md' 2>/dev/null | tail -1)
+if [ -z "$WFC_COMMIT" ] || [ -z "$OTHER_COMMIT" ]; then
+  echo "  SKIP  cannot locate the introducing commits (shallow clone?)"
+elif [ "$WFC_COMMIT" = "$OTHER_COMMIT" ]; then
+  bad "all 7 plugins landed in ONE commit -- the one-end-to-end-then-scale gate was skipped"
+elif git merge-base --is-ancestor "$WFC_COMMIT" "$OTHER_COMMIT" 2>/dev/null; then
+  ok "m2ai-workflow-content (${WFC_COMMIT:0:7}) landed BEFORE the other plugins (${OTHER_COMMIT:0:7})"
+else
+  bad "m2ai-workflow-content did not land first -- proving order violated"
+fi
+
 t "C-36 Gate 0 marked complete in the decision doc"
 DEC="$HOME/vault/decisions/2026-07-16-m2ai-skills-pack-one-click-cursor-claude-code.md"
 if [ ! -f "$DEC" ]; then
