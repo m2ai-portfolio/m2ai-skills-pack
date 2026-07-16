@@ -11,13 +11,19 @@ __pycache__/
 # tracked documentation for several skills and must stay tracked.
 # Generators create these dirs on demand (banana-maker: generate_image.py mkdir(exist_ok=True)),
 # so ignoring them cannot break a fresh clone.
-skills/*/output/
-skills/*/reports/
-skills/*/dist/
-skills/*/build/
-skills/*/logs/
-skills/*/tmp/
-skills/*/.pytest_cache/
+# NOTE (Q-20260716-0002): `*` does not cross `/`, so `skills/*/output/` STOPS MATCHING the
+# moment a plugin dir is inserted above it. The themed-plugin split does exactly that, so these
+# rules are REPOINTED to the new `<plugin>/skills/<skill>/output/` depth. Losing them would
+# silently make 4.8MB of banana-maker's generated images trackable again -- and the wip-snapshot
+# cron runs `git add -A` on this repo every 30 min, so "trackable" becomes "committed" within
+# half an hour. Verify with `git check-ignore` at a CONCRETE path, never by reading the pattern.
+m2ai-*/skills/*/output/
+m2ai-*/skills/*/reports/
+m2ai-*/skills/*/dist/
+m2ai-*/skills/*/build/
+m2ai-*/skills/*/logs/
+m2ai-*/skills/*/tmp/
+m2ai-*/skills/*/.pytest_cache/
 node_modules/
 
 # loop state for /self-healing-claudex (local only)

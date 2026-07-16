@@ -15,7 +15,38 @@ bad()  { echo "  FAIL  $1"; fail=$((fail+1)); }
 t()    { echo; echo "$1"; }
 
 VENV_DEST="$HOME/.local/share/m2ai-skills-pack/banana-maker-venv"
+# NOTE: this is the INSTALLED skill's venv under ~/.claude/skills/, which is a user-machine path
+# and is NOT affected by the repo's plugin split. It stays `skills/banana-maker`.
 SKILL_VENV="$HOME/.claude/skills/banana-maker/venv"
+
+# Q-20260716-0002: the 183 skills moved from `skills/` into 7 top-level plugin dirs. Every repo
+# path below is repointed, DERIVED from skills-manifest.json (the SSOT) rather than hardcoded, so
+# a future re-grouping moves the tests with the layout instead of leaving them pointed at dirs
+# that no longer exist -- a test whose pathspec matches nothing passes silently.
+plugin_of() {  # <skill-name> -> plugin dir owning it
+  node -e '
+    const m = require("./skills-manifest.json");
+    const d2p = {}; for (const p of m.plugins) for (const d of p.divisions) d2p[d] = p.id;
+    const p = d2p[m.skills[process.argv[1]]];
+    if (!p) process.exit(1);
+    console.log(p);
+  ' "$1"
+}
+BANANA="$(plugin_of banana-maker)/skills/banana-maker"
+SILVER="$(plugin_of silver-platter)/skills/silver-platter"
+# PROBE_DIR must sit INSIDE a scanned scope (C-42). A probe planted where leak-scan.sh does not
+# look means every plant_expect_pass "passes" without the scan ever reading the file: green, and
+# proving nothing.
+PROBE_DIR="$(plugin_of banana-maker)/skills"
+PLUGIN_GLOB="$(node -e '
+  const m = require("./skills-manifest.json");
+  console.log(m.plugins.map((p) => p.id + "/skills/").join(" "));
+')"
+if [ -z "$BANANA" ] || [ -z "$SILVER" ] || [ -z "$PROBE_DIR" ] || [ -z "$PLUGIN_GLOB" ]; then
+  echo "FATAL: could not derive plugin paths from skills-manifest.json -- refusing to run a suite"
+  echo "       whose paths may silently match nothing."
+  exit 1
+fi
 
 # C-38: probes must NEVER plant a real person's username. This file ships in a public repo; a
 # literal username here would re-introduce the identifier the gate exists to remove. PROBE_USER is
@@ -24,6 +55,16 @@ SKILL_VENV="$HOME/.claude/skills/banana-maker/venv"
 # The seam is additive by design (C-46): it can only ADD tokens to scan, never redirect the scan
 # away from the real runtime-derived `id -un`. A replace-style seam was a genuine bypass.
 PROBE_USER="zzprobeuser"
+
+# Codex r2 HIGH (adopted). The negative controls below back up real repo files (README.md,
+# marketplace.json, skills-manifest.json) to a temp dir and copy them BACK afterwards. They used
+# fixed, predictable /tmp names, which is a symlink-plant vector on a shared machine: a local user
+# can pre-create that exact path as a symlink, and then the backup step clobbers whatever it points
+# at, while the restore step can feed attacker-controlled content straight back into a tracked file
+# that is about to be committed. A private 0700 mktemp dir closes both directions.
+TMPD=$(mktemp -d) || { echo "FATAL: cannot create a private temp dir"; exit 1; }
+chmod 700 "$TMPD"
+trap 'rm -rf "$TMPD"' EXIT
 
 # ---- planted-control helpers -------------------------------------------------------------
 # A mutation claim with NO planted control is UNPROVEN regardless of what the scan returns
@@ -37,7 +78,7 @@ _unplant() { git rm --cached -q "$1" >/dev/null 2>&1; rm -f "$1"; }
 
 plant_expect_fail() {  # <label> <content> [env assignments...]
   local label="$1" content="$2"; shift 2
-  local p="skills/_probe_$$.md"
+  local p="$PROBE_DIR/_probe_$$.md"
   _plant "$p" "$content"
   if env "$@" bash scripts/leak-scan.sh >/dev/null 2>&1; then
     bad "$label -- scan PASSED on a planted leak (pattern is blind)"
@@ -49,7 +90,7 @@ plant_expect_fail() {  # <label> <content> [env assignments...]
 
 plant_expect_pass() {  # <label> <content> [env assignments...]
   local label="$1" content="$2"; shift 2
-  local p="skills/_probe_$$.md"
+  local p="$PROBE_DIR/_probe_$$.md"
   _plant "$p" "$content"
   if env "$@" bash scripts/leak-scan.sh >/dev/null 2>&1; then
     ok "$label -- correctly NOT flagged"
@@ -61,39 +102,39 @@ plant_expect_pass() {  # <label> <content> [env assignments...]
 
 # ---------- item 1: tracked build artifact ----------
 t "C-01 .pyc untracked"
-[ -z "$(git ls-files skills/banana-maker/__pycache__/)" ] && ok "no __pycache__ in index" || bad "still tracked"
+[ -z "$(git ls-files $BANANA/__pycache__/)" ] && ok "no __pycache__ in index" || bad "still tracked"
 
 t "C-02 no build artifacts tracked anywhere"
 [ -z "$(git ls-files | grep -E '__pycache__|/venv/|\.pyc$')" ] && ok "index clean" || bad "artifacts tracked"
 
 # C-02a: the ORIGINAL C-02 pattern only knew about venvs and pycache, so it passed while 4.8MB of
-# generated images sat tracked in skills/banana-maker/output/ (69% of the pack's tracked weight)
-# and a real audit run sat in skills/skill-maintenance/reports/. A skill WRITES to these dirs, so
+# generated images sat tracked in $BANANA/output/ (69% of the pack's tracked weight)
+# and a real audit run sat in m2ai-build-tooling/skills/skill-maintenance/reports/. A skill WRITES to these dirs, so
 # anything tracked in one is a leftover from someone's usage. Deliberately narrow: examples/,
 # references/, evals/ and scripts/ are legitimate tracked documentation and must NOT appear here.
 t "C-02a no runtime artifact DIRS tracked under skills/"
-[ -z "$(git ls-files skills/ | grep -E '/(output|reports|dist|build|logs|tmp|node_modules|\.pytest_cache)/')" ] \
-  && ok "no artifact dirs in index" || bad "artifact dir tracked: $(git ls-files skills/ | grep -E '/(output|reports|dist|build|logs|tmp|node_modules|\.pytest_cache)/' | head -3 | tr '\n' ' ')"
+[ -z "$(git ls-files -- $PLUGIN_GLOB | grep -E '/(output|reports|dist|build|logs|tmp|node_modules|\.pytest_cache)/')" ] \
+  && ok "no artifact dirs in index" || bad "artifact dir tracked: $(git ls-files -- $PLUGIN_GLOB | grep -E '/(output|reports|dist|build|logs|tmp|node_modules|\.pytest_cache)/' | head -3 | tr '\n' ' ')"
 
 t "C-02b legitimate doc subdirs are still tracked (guards against over-ignoring)"
-[ -n "$(git ls-files skills/silver-platter/examples/)" ] && ok "examples/ still tracked" || bad "examples/ wrongly untracked"
-[ -n "$(git ls-files skills/silver-platter/references/)" ] && ok "references/ still tracked" || bad "references/ wrongly untracked"
+[ -n "$(git ls-files $SILVER/examples/)" ] && ok "examples/ still tracked" || bad "examples/ wrongly untracked"
+[ -n "$(git ls-files $SILVER/references/)" ] && ok "references/ still tracked" || bad "references/ wrongly untracked"
 
 t "C-03 .gitignore covers the artifact classes"
-git check-ignore -q skills/banana-maker/__pycache__/x.pyc && ok ".pyc ignored" || bad ".pyc NOT ignored"
-git check-ignore -q skills/banana-maker/venv/x && ok "venv ignored" || bad "venv NOT ignored"
+git check-ignore -q $BANANA/__pycache__/x.pyc && ok ".pyc ignored" || bad ".pyc NOT ignored"
+git check-ignore -q $BANANA/venv/x && ok "venv ignored" || bad "venv NOT ignored"
 
 t "C-03a .gitignore covers runtime artifact dirs"
-git check-ignore -q skills/banana-maker/output/x.png && ok "output/ ignored" || bad "output/ NOT ignored"
-git check-ignore -q skills/skill-maintenance/reports/x.json && ok "reports/ ignored" || bad "reports/ NOT ignored"
+git check-ignore -q $BANANA/output/x.png && ok "output/ ignored" || bad "output/ NOT ignored"
+git check-ignore -q m2ai-build-tooling/skills/skill-maintenance/reports/x.json && ok "reports/ ignored" || bad "reports/ NOT ignored"
 
 t "C-03b .gitignore does NOT swallow legitimate doc subdirs"
-git check-ignore -q skills/silver-platter/examples/x.md && bad "examples/ wrongly ignored" || ok "examples/ not ignored"
-git check-ignore -q skills/silver-platter/references/x.md && bad "references/ wrongly ignored" || ok "references/ not ignored"
+git check-ignore -q $SILVER/examples/x.md && bad "examples/ wrongly ignored" || ok "examples/ not ignored"
+git check-ignore -q $SILVER/references/x.md && bad "references/ wrongly ignored" || ok "references/ not ignored"
 
 # ---------- item 2: venv relocation ----------
 t "C-04 venv absent from work-tree"
-[ ! -e skills/banana-maker/venv ] && ok "no venv in repo" || bad "venv still in work-tree"
+[ ! -e $BANANA/venv ] && ok "no venv in repo" || bad "venv still in work-tree"
 
 t "C-05 venv RELOCATED, not deleted, and outside the repo"
 [ -d "$VENV_DEST" ] && ok "exists at $VENV_DEST" || bad "relocated venv missing (deleted?)"
@@ -110,19 +151,19 @@ else
 fi
 
 t "C-06b shipped generate_image.py still parses after edits"
-python3 -c "import ast,sys; ast.parse(open('skills/banana-maker/generate_image.py').read())" \
+python3 -c "import ast,sys; ast.parse(open('$BANANA/generate_image.py').read())" \
   && ok "parses" || bad "syntax error"
 
 # ---------- item 3: sanitization ----------
 t "C-07 trace-prompt free of internal product names"
-[ -z "$(git grep -in -E 'claudeclaw|ccos' -- skills/trace-prompt/)" ] && ok "clean" || bad "internal name present"
+[ -z "$(git grep -in -E 'claudeclaw|ccos' -- m2ai-agent-ops/skills/trace-prompt/)" ] && ok "clean" || bad "internal name present"
 
 t "C-08..C-10 named files free of personal name"
-[ -z "$(git grep -in matthew -- skills/banana-maker/ skills/launch-filter/ skills/viral-shorts-pipeline/)" ] \
+[ -z "$(git grep -in matthew -- $BANANA/ m2ai-strategy-analysis/skills/launch-filter/ m2ai-workflow-content/skills/viral-shorts-pipeline/)" ] \
   && ok "clean" || bad "personal name present"
 
 t "C-11 the 4 sanitized skills still declare working frontmatter"
-for f in skills/trace-prompt/SKILL.md skills/banana-maker/SKILL.md skills/launch-filter/SKILL.md; do
+for f in m2ai-agent-ops/skills/trace-prompt/SKILL.md $BANANA/SKILL.md m2ai-strategy-analysis/skills/launch-filter/SKILL.md; do
   n=$(awk '/^---$/{c++;next} c==1 && /^name:/{print;exit}' "$f")
   d=$(awk '/^---$/{c++;next} c==1 && /^description:/{print;exit}' "$f")
   [ -n "$n" ] && [ -n "$d" ] && ok "$(basename $(dirname $f)) frontmatter intact" || bad "$f frontmatter broken"
@@ -133,7 +174,7 @@ python3 - <<'PY' && ok "yaml intact" || bad "yaml broken"
 import sys
 try: import yaml
 except ImportError: print("  (pyyaml absent, structural check only)"); sys.exit(0)
-d=yaml.safe_load(open('skills/viral-shorts-pipeline/skill-registry.yaml'))
+d=yaml.safe_load(open('m2ai-workflow-content/skills/viral-shorts-pipeline/skill-registry.yaml'))
 assert d['name']=='viral-shorts-pipeline', d.get('name')
 assert d['source']['author'], 'author key lost'
 assert 'version' in d
@@ -147,11 +188,25 @@ t "C-13 manifest assigns 183 skills"
 N=$(python3 -c "import json;print(len(json.load(open('skills-manifest.json'))['skills']))")
 [ "$N" = "183" ] && ok "183 skills" || bad "manifest has $N, expected 183"
 
-t "C-14 zero orphans, zero ghosts (symmetric diff, both directions)"
-python3 - <<'PY' && ok "manifest == disk" || bad "manifest/disk mismatch"
+t "C-14 zero orphans, zero ghosts, zero duplicates (symmetric diff, both directions)"
+python3 - <<'PY' && ok "manifest == disk, each skill in exactly one plugin" || bad "manifest/disk mismatch"
 import json,os,sys
-m=set(json.load(open('skills-manifest.json'))['skills'])
-d={x for x in os.listdir('skills') if os.path.isfile(f'skills/{x}/SKILL.md')}
+j=json.load(open('skills-manifest.json'))
+m=set(j['skills'])
+# Walk the PLUGIN dirs, not a top-level skills/ (which no longer exists). Tracks which plugin
+# each skill was found in so a skill present in TWO plugins is caught -- the old single-dir walk
+# could not express that failure at all.
+seen={}
+dupes=[]
+for p in j['plugins']:
+    d=f"{p['id']}/skills"
+    if not os.path.isdir(d): print("  missing plugin dir:", d); sys.exit(1)
+    for x in os.listdir(d):
+        if os.path.isfile(f'{d}/{x}/SKILL.md'):
+            if x in seen: dupes.append(f"{x} in {seen[x]} and {p['id']}")
+            seen[x]=p['id']
+if dupes: print("  duplicates:", dupes); sys.exit(1)
+d=set(seen)
 if m-d: print("  ghosts:", sorted(m-d)); sys.exit(1)
 if d-m: print("  orphans:", sorted(d-m)); sys.exit(1)
 PY
@@ -171,15 +226,37 @@ node scripts/sync-from-manifest.mjs --check >/dev/null 2>&1 && ok "--check clean
 t "C-17b all four count sources read the SAME number"
 python3 - <<'PY' && ok "all sources agree" || bad "sources disagree"
 import json,re,sys
-n=len(json.load(open('skills-manifest.json'))['skills'])
-r=open('README.md').read(); m=open('.claude-plugin/marketplace.json').read()
+j=json.load(open('skills-manifest.json'))
+n=len(j['skills'])
+r=open('README.md').read()
+# Q-20260716-0002: marketplace.json no longer carries ONE total -- it carries 7 per-plugin
+# counts. The old regex `"(\d+) portable skills` now matches whichever plugin happens to be
+# listed first (it read 27, the agent-architecture count, and called it the pack total). Sum the
+# per-plugin counts instead, and separately assert each one against the manifest so a wrong
+# split cannot hide inside a right total.
+mk=json.load(open('.claude-plugin/marketplace.json'))
+cur=json.load(open('.cursor-plugin/marketplace.json'))
+d2p={d:p['id'] for p in j['plugins'] for d in p['divisions']}
+expect={}
+for s,d in j['skills'].items(): expect[d2p[d]]=expect.get(d2p[d],0)+1
+for name,doc in (('claude',mk),('cursor',cur)):
+    if len(doc['plugins'])!=len(j['plugins']):
+        print(f"  {name} marketplace has {len(doc['plugins'])} entries, manifest has {len(j['plugins'])}"); sys.exit(1)
+    for p in doc['plugins']:
+        got_n=int(re.match(r'(\d+) portable skills',p['description']).group(1))
+        if got_n!=expect[p['name']]:
+            print(f"  {name} marketplace says {p['name']}={got_n}, manifest says {expect[p['name']]}"); sys.exit(1)
+mk_total=sum(int(re.match(r'(\d+) portable skills',p['description']).group(1)) for p in mk['plugins'])
 got={
  'manifest': n,
+ 'marketplace_sum': mk_total,
  'blurb': int(re.search(r'\*\*(\d+) portable Claude Code skills\*\*',r).group(1)),
  'badge': int(re.search(r'badge/skills-(\d+)-brightgreen',r).group(1)),
  'summary_total': int(re.search(r'\|\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\|',r).group(1)),
- 'catalog_rows': len(re.findall(r'^\|\s*\[[a-z0-9-]+\]\(skills/',r,re.M)),
- 'marketplace': int(re.search(r'"(\d+) portable skills',m).group(1)),
+ # The link target now carries the plugin dir. This regex previously read `\]\(skills/` and would
+ # have counted ZERO rows post-split -- caught only by the len(set())!=1 check below, and only by
+ # luck. Anchoring on the plugin prefix makes the row prove membership, not just existence.
+ 'catalog_rows': len(re.findall(r'^\|\s*\[[a-z0-9-]+\]\(m2ai-[a-z-]+/skills/',r,re.M)),
 }
 print("  ",got)
 if len(set(got.values()))!=1: sys.exit(1)
@@ -190,38 +267,78 @@ t "C-18 .pyc REMAINS in git history (history not rewritten)"
 [ -n "$(git log --all --oneline -- '*generate_image.cpython-312.pyc' 2>/dev/null)" ] \
   && ok "history intact" || bad "history appears rewritten -- OUT OF SCOPE"
 
-t "C-19 no themed-plugin restructure"
-[ -z "$(ls -d m2ai-*/ 2>/dev/null)" ] && ok "no themed plugin dirs" || bad "restructure happened"
-[ "$(find skills -maxdepth 2 -name SKILL.md | wc -l)" = "183" ] && ok "all 183 still under skills/" || bad "skills moved"
+t "C-19 INVERTED (Q-20260716-0002): the themed-plugin restructure HAS happened"
+# SUPERSESSION, recorded deliberately rather than deleted. Under Gate 0 (card Q-20260716-0001)
+# this test asserted the OPPOSITE -- "no themed plugin dirs" and "all 183 still under skills/" --
+# because restructuring was explicitly out of scope for THAT card. Card Q-20260716-0002's
+# Done-when requires exactly the restructure Gate 0 forbade, so the constraint is inverted, not
+# dropped. Keeping it inverted (rather than removing it) preserves the invariant in both
+# directions: a partial or accidental revert to the monolith now BREAKS THE SUITE instead of
+# passing silently.
+EXPECTED_PLUGINS=$(node -e '
+  const m = require("./skills-manifest.json");
+  console.log(m.plugins.length);
+')
+ACTUAL_PLUGINS=$(ls -d m2ai-*/ 2>/dev/null | wc -l)
+[ "$ACTUAL_PLUGINS" = "$EXPECTED_PLUGINS" ] \
+  && ok "$ACTUAL_PLUGINS themed plugin dirs present (manifest says $EXPECTED_PLUGINS)" \
+  || bad "expected $EXPECTED_PLUGINS plugin dirs, found $ACTUAL_PLUGINS"
+[ ! -e skills ] && ok "the old monolithic skills/ dir is gone" || bad "skills/ still exists -- split incomplete"
+[ "$(find m2ai-*/skills -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l)" = "183" ] \
+  && ok "all 183 skills live under the plugin dirs" || bad "skill count under plugins != 183"
 
 t "C-20 nothing pushed: the REMOTE does not contain the Gate-0 commit"
 # FIXED (Codex r1 MEDIUM, adopted per Matthew decision (5)): the round-1 assertion checked local
 # ahead/behind, which CANNOT prove a push never happened -- being ahead of origin now is entirely
 # consistent with having pushed and then committed more on top. The only sound assertion queries
 # the REMOTE and asks whether it contains the Gate-0 commit.
-GATE0_SHA=$(git log --format=%H --grep='Gate 0: sanitize' -n 1)
+# Q-20260716-0002: anchor on the CURRENT branch tip rather than the Gate-0 commit specifically.
+# The never-pushed constraint applies to ALL local work on this branch, not just one commit, and
+# HEAD is the strongest single anchor: if HEAD is not on the remote, nothing below it that was
+# authored locally is either. Grepping for one old commit subject would also silently go
+# inconclusive the moment the branch moved past it.
+GATE0_SHA=$(git rev-parse HEAD)
 if [ -z "$GATE0_SHA" ]; then
-  bad "cannot locate the Gate-0 commit locally -- C-20 inconclusive"
+  bad "cannot resolve HEAD -- C-20 inconclusive"
 elif ! git ls-remote --exit-code origin >/dev/null 2>&1; then
   echo "  SKIP  remote unreachable (offline) -- C-20 cannot be proven without the remote"
 else
-  REMOTE_MASTER=$(git ls-remote origin refs/heads/master | cut -f1)
-  if [ -z "$REMOTE_MASTER" ]; then
-    echo "  SKIP  origin has no refs/heads/master"
+  # Q-20260716-0002: check EVERY remote ref, not just master. This work lives on
+  # feature/themed-plugin-split, so a push would create refs/heads/feature/themed-plugin-split
+  # and sail straight past a master-only assertion -- the constraint is "never pushed", not
+  # "never pushed to master".
+  #
+  # `git ls-remote origin` is also the only sound probe here: it asks the REMOTE what it has.
+  # Local ahead/behind cannot prove a push never happened.
+  REMOTE_REFS=$(git ls-remote --heads origin | cut -f1 | sort -u)
+  if [ -z "$REMOTE_REFS" ]; then
+    echo "  SKIP  origin has no branches"
   else
-    git fetch -q origin master 2>/dev/null || true
-    # Sound test: if the Gate-0 commit had ever been pushed, it would be an ANCESTOR of the
-    # remote master tip. It must not be.
-    if git merge-base --is-ancestor "$GATE0_SHA" "$REMOTE_MASTER" 2>/dev/null; then
-      bad "Gate-0 commit ${GATE0_SHA:0:7} IS on the remote -- IT WAS PUSHED (constraint violated)"
+    git fetch -q origin 2>/dev/null || true
+    pushed=""
+    for rref in $REMOTE_REFS; do
+      # If HEAD had ever been pushed, it would be an ANCESTOR of some remote branch tip.
+      # `git cat-file -e` guards refs we could not fetch (merge-base errors on unknown objects).
+      git cat-file -e "$rref" 2>/dev/null || continue
+      if git merge-base --is-ancestor "$GATE0_SHA" "$rref" 2>/dev/null; then
+        pushed="$rref"; break
+      fi
+    done
+    if [ -n "$pushed" ]; then
+      bad "HEAD ${GATE0_SHA:0:7} IS on the remote (${pushed:0:7}) -- IT WAS PUSHED (constraint violated)"
     else
-      ok "remote master ${REMOTE_MASTER:0:7} does NOT contain Gate-0 ${GATE0_SHA:0:7} -- never pushed"
+      ok "no remote branch contains HEAD ${GATE0_SHA:0:7} -- never pushed ($(printf '%s\n' "$REMOTE_REFS" | wc -l) remote heads checked)"
     fi
   fi
 fi
 
-t "C-35 work landed as LOCAL COMMITS on master, tree clean"
-[ -n "$(git log --oneline master -n 5)" ] && ok "commits present on master" || bad "no commits on master"
+t "C-35 work landed as LOCAL COMMITS on the working branch, tree clean"
+# Q-20260716-0002: Gate 0 landed on master; this card works on feature/themed-plugin-split.
+# Anchor on the CURRENT branch so the test follows the work instead of asserting against
+# whichever branch happened to be right in July.
+WORKING_BRANCH=$(git branch --show-current)
+[ -n "$(git log --oneline "$WORKING_BRANCH" -n 5)" ] \
+  && ok "commits present on $WORKING_BRANCH" || bad "no commits on $WORKING_BRANCH"
 [ -z "$(git status --porcelain)" ] && ok "work-tree clean (nothing left uncommitted)" \
   || { echo "    dirty:"; git status --porcelain | sed 's/^/      /'; bad "work-tree dirty -- work not committed"; }
 
@@ -234,9 +351,12 @@ t "C-22/C-30 NEGATIVE CONTROL: leak-scan CATCHES a planted BINARY leak"
 # The .pyc that triggered this whole gate was invisible to `git grep -I` while plainly visible
 # to `git grep`. This control proves the scan is not blind to binary. Uses a synthetic username
 # (C-38) and drives the bare-token path via the LEAK_SCAN_EXTRA_USERS seam -- no real identity planted.
-probe=skills/_leakprobe.bin
+probe=$PROBE_DIR/_leakprobe.bin
 cleanup_probe() { git rm --cached -q "$probe" 2>/dev/null; rm -f "$probe"; }
-trap cleanup_probe EXIT
+# `trap` REPLACES the handler rather than adding to it, so a bare `trap cleanup_probe EXIT` here
+# would silently drop the TMPD cleanup installed at the top, and the `trap - EXIT` below would
+# then leave the temp dir behind on every run. Chain both explicitly.
+trap 'cleanup_probe; rm -rf "$TMPD"' EXIT
 printf '\x00\x01binary\x00/home/%s/secret\x00' "$PROBE_USER" > "$probe"
 git add -f "$probe" || bad "could not stage probe (control inconclusive)"
 if LEAK_SCAN_EXTRA_USERS="$PROBE_USER" bash scripts/leak-scan.sh >/dev/null 2>&1; then
@@ -244,31 +364,31 @@ if LEAK_SCAN_EXTRA_USERS="$PROBE_USER" bash scripts/leak-scan.sh >/dev/null 2>&1
 else
   ok "scan correctly failed on planted binary leak"
 fi
-cleanup_probe; trap - EXIT
+cleanup_probe; trap 'rm -rf "$TMPD"' EXIT   # restore the TMPD cleanup, do not clear the trap
 
 t "C-33 NEGATIVE CONTROL: untracked/ignored file does NOT trip the scan (no false positive)"
-mkdir -p skills/banana-maker/__pycache__
-printf '%s /home/%s\n' "$PROBE_USER" "$PROBE_USER" > skills/banana-maker/__pycache__/probe.pyc
+mkdir -p $BANANA/__pycache__
+printf '%s /home/%s\n' "$PROBE_USER" "$PROBE_USER" > $BANANA/__pycache__/probe.pyc
 if LEAK_SCAN_EXTRA_USERS="$PROBE_USER" bash scripts/leak-scan.sh >/dev/null 2>&1; then
   ok "ignored untracked file correctly not scanned"
 else
   bad "scan tripped on an untracked gitignored file -- false positive"
 fi
-rm -rf skills/banana-maker/__pycache__
+rm -rf $BANANA/__pycache__
 
 t "C-23 NEGATIVE CONTROL: generator REFUSES a manifest with an orphan, and writes NOTHING"
 # FIXED (Codex r1 MEDIUM, adopted per Matthew decision (5)): round 1 asserted only that README.md
 # was unmutated. The generator writes TWO files -- a partial write to marketplace.json on the
 # refusal path would have slipped through silently. Assert BOTH are byte-identical.
-cp skills-manifest.json /tmp/_m.bak; cp README.md /tmp/_r.bak; cp .claude-plugin/marketplace.json /tmp/_mk.bak
+cp skills-manifest.json "$TMPD/m.bak"; cp README.md "$TMPD/r.bak"; cp .claude-plugin/marketplace.json "$TMPD/mk.bak"
 python3 -c "
 import json;j=json.load(open('skills-manifest.json'));j['skills'].pop('aar');json.dump(j,open('skills-manifest.json','w'),indent=2)"
 if node scripts/sync-from-manifest.mjs >/dev/null 2>&1; then
   bad "generator accepted an orphaned manifest"
 else
   r_ok=0; m_ok=0
-  cmp -s README.md /tmp/_r.bak && r_ok=1
-  cmp -s .claude-plugin/marketplace.json /tmp/_mk.bak && m_ok=1
+  cmp -s README.md "$TMPD/r.bak" && r_ok=1
+  cmp -s .claude-plugin/marketplace.json "$TMPD/mk.bak" && m_ok=1
   if [ "$r_ok" = 1 ] && [ "$m_ok" = 1 ]; then
     ok "refused loudly AND wrote nothing (BOTH README and marketplace.json untouched)"
   else
@@ -276,15 +396,15 @@ else
     [ "$m_ok" = 1 ] || bad "refused but still mutated .claude-plugin/marketplace.json (partial write)"
   fi
 fi
-cp /tmp/_m.bak skills-manifest.json; cp /tmp/_r.bak README.md; cp /tmp/_mk.bak .claude-plugin/marketplace.json
-rm -f /tmp/_mk.bak
+cp "$TMPD/m.bak" skills-manifest.json; cp "$TMPD/r.bak" README.md; cp "$TMPD/mk.bak" .claude-plugin/marketplace.json
+rm -f "$TMPD/mk.bak"
 
 t "C-24 NEGATIVE CONTROL: --check DETECTS a hand-edited count literal"
-cp README.md /tmp/_r.bak
+cp README.md "$TMPD/r.bak"
 sed -i 's/\*\*183 portable Claude Code skills\*\*/**999 portable Claude Code skills**/' README.md
 node scripts/sync-from-manifest.mjs --check >/dev/null 2>&1 && bad "--check missed drifted literal" || ok "--check caught drift"
-cp /tmp/_r.bak README.md
-rm -f /tmp/_m.bak /tmp/_r.bak
+cp "$TMPD/r.bak" README.md
+rm -f "$TMPD/m.bak" "$TMPD/r.bak"
 
 # ---------- mutation tests: PLANTED POSITIVE CONTROLS ----------
 # The round-1 contract CITED T27/T28/T29/T31/T32 but never implemented them: the suite tested the
@@ -392,7 +512,7 @@ else
   ok "no replace-style seam in the scanner's executable lines"
 fi
 if [ -n "$MAINT_USER" ]; then
-  bp="skills/_probe_bypass_$$.md"
+  bp="$PROBE_DIR/_probe_bypass_$$.md"
   printf 'contact %s for access\n' "$MAINT_USER" > "$bp"; git add -f "$bp" >/dev/null 2>&1
   if LEAK_SCAN_EXTRA_USERS=zzbenign bash scripts/leak-scan.sh >/dev/null 2>&1; then
     bad "a real bare-username leak PASSED while the seam pointed elsewhere -- BYPASS"
@@ -429,7 +549,7 @@ t "C-48 a spoofed 'id' in PATH cannot suppress the bare-token scan"
 if [ -n "$MAINT_USER" ]; then
   spoof=$(mktemp -d)
   printf '#!/bin/sh\necho user\n' > "$spoof/id"; chmod +x "$spoof/id"
-  sp="skills/_probe_spoof_$$.md"
+  sp="$PROBE_DIR/_probe_spoof_$$.md"
   printf 'contact %s for access\n' "$MAINT_USER" > "$sp"; git add -f "$sp" >/dev/null 2>&1
   if PATH="$spoof:$PATH" bash scripts/leak-scan.sh >/dev/null 2>&1; then
     bad "a spoofed 'id' suppressed the scan and a REAL leak shipped clean"
@@ -490,13 +610,108 @@ grep -qi 'starter kit' README.md && ok "Starter Kit section present" \
 
 t "C-41 sync-from-manifest.mjs is IDEMPOTENT"
 node scripts/sync-from-manifest.mjs >/dev/null 2>&1 || bad "generator failed on a valid manifest"
-cp README.md /tmp/_r1.bak; cp .claude-plugin/marketplace.json /tmp/_mk1.bak
+cp README.md "$TMPD/r1.bak"; cp .claude-plugin/marketplace.json "$TMPD/mk1.bak"
 node scripts/sync-from-manifest.mjs >/dev/null 2>&1
-cmp -s README.md /tmp/_r1.bak && cmp -s .claude-plugin/marketplace.json /tmp/_mk1.bak \
+cmp -s README.md "$TMPD/r1.bak" && cmp -s .claude-plugin/marketplace.json "$TMPD/mk1.bak" \
   && ok "second run produced no diff" || bad "generator is NOT idempotent"
-rm -f /tmp/_r1.bak /tmp/_mk1.bak
+rm -f "$TMPD/r1.bak" "$TMPD/mk1.bak"
 [ -z "$(git status --porcelain README.md .claude-plugin/marketplace.json)" ] \
   && ok "generator left committed files unchanged" || bad "generator mutated committed files"
+
+t "C-25/C-48 banana-maker's untracked output/ survived the move AND is hidden from git"
+# Codex r3 coverage gap (adopted). This was verified by hand during the move and passed -- but a
+# hand-check is not a test, and this is the single most expensive thing to get wrong: `git mv` of
+# a directory relocates UNTRACKED children physically while staging only the tracked renames, and
+# the wip-snapshot cron runs `git add -A` on this repo every 30 min. If the ignore rule does not
+# cover the NEW depth, 4.8MB of generated images become tracked within half an hour. `*` does not
+# cross `/`, so the old `skills/*/output/` silently stopped matching the moment a plugin dir was
+# inserted above it. Assert the whole chain, not the pattern text.
+if [ -d "$BANANA/output" ]; then
+  n=$(find "$BANANA/output" -type f | wc -l)
+  [ "$n" -gt 0 ] && ok "output/ physically followed the move ($n files at the new path)" \
+    || bad "output/ exists but is EMPTY -- the untracked images did not follow the git mv"
+  # ignored at the CONCRETE new path...
+  f=$(find "$BANANA/output" -type f | head -1)
+  git check-ignore -q "$f" && ok "a real file in output/ is ignored at the new depth" \
+    || bad "output/ file NOT ignored at the new depth -- the cron will track it: $f"
+  # ...and therefore invisible to `git add -A`, which is the property that actually matters.
+  [ -z "$(git status --porcelain --untracked-files=all -- "$BANANA/output" 2>/dev/null)" ] \
+    && ok "output/ is invisible to git status (git add -A cannot sweep it in)" \
+    || bad "output/ is VISIBLE to git -- `git add -A` would commit it"
+  [ -z "$(git ls-files "$BANANA/output")" ] && ok "output/ is not tracked" || bad "output/ IS tracked"
+else
+  echo "  SKIP  $BANANA/output does not exist on this machine (no generated images to guard)"
+fi
+
+t "C-40/C-41 leak-scan FAILS CLOSED when a scan root matches zero files"
+# Codex r3 coverage gap (adopted). THE load-bearing control for this whole card, and it was only
+# ever run by hand. `git grep` exits 1 for "no match" AND for "pathspec matched nothing" -- so a
+# stale scan root reports a clean, green, zero-leak scan while reading NOTHING. This control
+# caught a real bug in the first implementation: an aggregate-only file count let ONE dead root
+# hide behind six live ones (344 -> 300 files, still "OK"). Mutate the manifest's plugin id to a
+# dir that does not exist and assert the scan refuses to report clean.
+cp skills-manifest.json "$TMPD/manifest.bak"
+python3 -c "
+import json
+f='skills-manifest.json'
+d=json.load(open(f))
+d['plugins'][0]['id']='m2ai-zz-nonexistent-probe'
+json.dump(d,open(f,'w'),indent=2)"
+collapse_out=$(bash scripts/leak-scan.sh 2>&1); collapse_rc=$?
+cp "$TMPD/manifest.bak" skills-manifest.json
+case "$collapse_out" in
+  *"matched ZERO tracked files"*)
+    [ "$collapse_rc" -ne 0 ] && ok "zero-file scan root fails CLOSED (refuses to report clean)" \
+      || bad "warned about a zero-file scan root but still exited 0" ;;
+  *) bad "a dead scan root did NOT fail closed (rc=$collapse_rc) -- the scan can silently read nothing" ;;
+esac
+# Control: prove the mutation was actually restored, or every later test runs against a broken
+# manifest and this "fix" becomes its own outage.
+node scripts/sync-from-manifest.mjs --check >/dev/null 2>&1 \
+  && ok "manifest restored after the mutation" || bad "manifest NOT restored -- later tests are compromised"
+
+t "C-47 the Phase 2 gate is a REAL install, and exists as an executable artifact"
+# Codex r1 coverage gap (adopted). The gate was originally proven by a human running the CLI in a
+# session. It really passed -- but a hand-run proof is unverifiable to anyone who was not
+# watching, which is indistinguishable from never having run it. The proof must be re-runnable.
+if [ -f tests/phase2-gate.sh ]; then
+  ok "tests/phase2-gate.sh exists (the gate is re-runnable, not a one-off claim)"
+else
+  bad "no executable Phase 2 gate -- the install proof is unverifiable"
+fi
+# It must drive the REAL CLI. A gate that only parses JSON is exactly the anti-pattern the card
+# names: "An assertion that the JSON is well-formed is NOT the proof."
+if grep -qE 'claude plugin marketplace add' tests/phase2-gate.sh 2>/dev/null \
+   && grep -qE 'claude plugin install' tests/phase2-gate.sh 2>/dev/null \
+   && grep -qE 'claude plugin list' tests/phase2-gate.sh 2>/dev/null; then
+  ok "gate drives the real CLI (marketplace add + install + list)"
+else
+  bad "gate does not drive the real claude CLI -- a JSON assertion is not the proof"
+fi
+# ...and it must clean up, or it leaves the machine holding a local-path marketplace.
+grep -qE 'plugin uninstall' tests/phase2-gate.sh 2>/dev/null \
+  && grep -qE 'marketplace remove' tests/phase2-gate.sh 2>/dev/null \
+  && ok "gate cleans up after itself (uninstall + marketplace remove)" \
+  || bad "gate does not clean up the test install"
+# C-37: the Cursor claim must be backed by a machine check, not just README prose.
+[ -f tests/cursor-schema.test.sh ] && ok "tests/cursor-schema.test.sh backs the Cursor validation claim" \
+  || bad "README claims Cursor validation with no test behind it"
+
+t "C-19 the ONE-then-scale ordering is provable from git history"
+# The card's Phase 2 gate is an ORDERING constraint ("Do not build all 7 and then test"), so it
+# has to be checked against history, not asserted in prose. m2ai-workflow-content must appear in
+# an EARLIER commit than the other six.
+WFC_COMMIT=$(git log --format=%H --diff-filter=A -1 -- 'm2ai-workflow-content/skills/*/SKILL.md' 2>/dev/null | tail -1)
+OTHER_COMMIT=$(git log --format=%H --diff-filter=A -1 -- 'm2ai-agent-ops/skills/*/SKILL.md' 2>/dev/null | tail -1)
+if [ -z "$WFC_COMMIT" ] || [ -z "$OTHER_COMMIT" ]; then
+  echo "  SKIP  cannot locate the introducing commits (shallow clone?)"
+elif [ "$WFC_COMMIT" = "$OTHER_COMMIT" ]; then
+  bad "all 7 plugins landed in ONE commit -- the one-end-to-end-then-scale gate was skipped"
+elif git merge-base --is-ancestor "$WFC_COMMIT" "$OTHER_COMMIT" 2>/dev/null; then
+  ok "m2ai-workflow-content (${WFC_COMMIT:0:7}) landed BEFORE the other plugins (${OTHER_COMMIT:0:7})"
+else
+  bad "m2ai-workflow-content did not land first -- proving order violated"
+fi
 
 t "C-36 Gate 0 marked complete in the decision doc"
 DEC="$HOME/vault/decisions/2026-07-16-m2ai-skills-pack-one-click-cursor-claude-code.md"

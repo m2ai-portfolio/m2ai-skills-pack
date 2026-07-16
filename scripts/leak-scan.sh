@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Scan TRACKED files under skills/ for personal / internal / infrastructure references
+# Scan TRACKED skill files for personal / internal / infrastructure references
 # before this pack is published.
 #
 #   bash scripts/leak-scan.sh          # exit 0 = clean, 1 = leaks found
@@ -9,14 +9,59 @@
 # to `git grep -I` while being plainly visible to `git grep`. A scan that reports clean
 # because its pattern is blind is worse than no scan.
 #
-# Scope: tracked files under skills/ ONLY. Author attribution in package metadata
-# (.claude-plugin/marketplace.json) is legitimate for an MIT repo and is deliberately
-# NOT scanned here.
+# Scope: tracked files under the PLUGIN skill dirs ONLY (<plugin>/skills/). Author attribution
+# in package metadata (marketplace.json, <plugin>/.claude-plugin/plugin.json) is legitimate for
+# an MIT repo and is deliberately NOT scanned.
+#
+# Q-20260716-0002 -- THE SCOPE-COLLAPSE HAZARD. This scan used to hardcode `-- skills/`, a dir
+# that no longer exists after the themed-plugin split. `git grep` exits 1 for "no match" AND for
+# "pathspec matched nothing" -- the two are INDISTINGUISHABLE from the caller. A stale pathspec
+# would therefore have reported a clean, green, zero-leak scan while reading ZERO files. That is
+# the C-22 false-pass class arriving through a new door: absence of a hit must mean absence of a
+# leak, not absence of a scan. Two defenses, both required:
+#   1. SCAN_PATHS is DERIVED from skills-manifest.json (the SSOT), never hardcoded and never
+#      globbed -- so it cannot silently drift from the real layout.
+#   2. The scanned-file count is asserted NON-ZERO below and fails CLOSED at zero.
 
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
 status=0
+
+# C-40/C-41: derive the scan roots from the manifest, then PROVE they contain files.
+if ! command -v node >/dev/null 2>&1; then
+  echo "LEAK [scan-scope] node is required to derive the scan scope from skills-manifest.json; refusing to scan blind"
+  exit 1
+fi
+mapfile -t SCAN_PATHS < <(node -e '
+  const m = require("./skills-manifest.json");
+  if (!Array.isArray(m.plugins) || !m.plugins.length) process.exit(2);
+  for (const p of m.plugins) console.log(p.id + "/skills/");
+' 2>/dev/null)
+if [ "${#SCAN_PATHS[@]}" -eq 0 ]; then
+  echo "LEAK [scan-scope] could not derive plugin skill dirs from skills-manifest.json; refusing to report clean"
+  exit 1
+fi
+
+# The count is the load-bearing assertion: a pathspec that matches nothing is a BROKEN scan, not
+# a clean one. Without this, renaming a plugin dir turns this whole gate into a no-op that
+# still prints OK and exits 0.
+#
+# PER-PATH, not aggregate. An aggregate-only check was written first and its own control caught
+# it: point ONE of the seven plugin dirs at a nonexistent name and the total merely drops
+# 344 -> 300 while the scan still says "OK, clean". Six live dirs mask the seventh dead one, and
+# 44 files go unscanned with a green light. Every scan root must independently prove it has files.
+SCANNED=0
+for _p in "${SCAN_PATHS[@]}"; do
+  _n=$(git ls-files -- "$_p" | wc -l)
+  if [ "$_n" -eq 0 ]; then
+    echo "LEAK [scan-scope] scan root matched ZERO tracked files: $_p"
+    echo "    A scan root that reads no files cannot report clean -- the other roots would mask it."
+    echo "    Fix the layout or skills-manifest.json's \`plugins\` section."
+    exit 1
+  fi
+  SCANNED=$((SCANNED + _n))
+done
 
 # scan <label> <pattern> [nocase]
 #   Case sensitivity is per-pattern on purpose. Blanket -i produced a false positive:
@@ -33,7 +78,7 @@ scan() {
     *)      flags+=(-E) ;;
   esac
   # no -I: binary files must be caught.
-  hits=$(git grep "${flags[@]}" "$pattern" -- skills/ 2>&1); rc=$?
+  hits=$(git grep "${flags[@]}" "$pattern" -- "${SCAN_PATHS[@]}" 2>&1); rc=$?
   # git grep exit codes: 0 = matched, 1 = no match, >1 = ERROR (bad regex, PCRE not compiled in,
   # etc). The old `2>/dev/null || true` collapsed ALL of these to "clean" -- so a build of git
   # without -P support would silently disable the home-path scan and this gate would report a
@@ -152,11 +197,14 @@ scan "credential"       "sk-[a-zA-Z0-9]{16,}|ghp_[a-zA-Z0-9]{16,}|AIza[a-zA-Z0-9
 # verified 2026-07-16. It is allowlisted by PATH so the check stays live for every other file
 # rather than being deleted outright. The owner's real address is caught by "personal-name"
 # (snow2) independently of this scan.
-ALLOW_EMAIL_PATHS='skills/silver-platter/examples/'
+ALLOW_EMAIL_PATHS='m2ai-strategy-analysis/skills/silver-platter/examples/'
 scan "email"            "[a-z0-9._%+-]+@(gmail|outlook|hotmail|yahoo)\.com" nocase "$ALLOW_EMAIL_PATHS"
 
 if [ "$status" -eq 0 ]; then
-  echo "OK: no leaks in tracked files under skills/ ($(git ls-files skills/ | wc -l) files scanned)"
+  # Print the count that was ASSERTED non-zero above, not a fresh re-glob of a path that may no
+  # longer exist -- the old form re-ran `git ls-files skills/` here and would have cheerfully
+  # printed "OK: no leaks (0 files scanned)".
+  echo "OK: no leaks in $SCANNED tracked files across ${#SCAN_PATHS[@]} plugin skill dirs"
 else
   echo ""
   echo "Leaks found. This pack is not safe to publish."

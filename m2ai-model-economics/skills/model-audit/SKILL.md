@@ -1,4 +1,6 @@
 ---
+name: model-audit
+description: Scan a codebase for LLM model usage and recommend tier, task-fit, and cost optimizations. Works on any project using Anthropic, Google, OpenAI, or open-source models. Use to check whether each task is running on the right model tier, when a new model generation ships and you want to see if you can tier down, when you suspect you are overspending on tokens for simple tasks, or for a periodic model hygiene review.
 argument-hint: "[--tier] [--task-fit] [--cost] [--recent] [--check-docs] [--path DIR]"
 model: haiku
 context: fork

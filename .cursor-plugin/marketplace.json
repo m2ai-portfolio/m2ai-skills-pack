@@ -1,5 +1,4 @@
 {
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "m2ai-skills-pack",
   "description": "M2AI skills pack — strategy, prompt engineering, model routing, agent auditing, build pipelines, and workflow tooling.",
   "owner": {
@@ -10,8 +9,7 @@
     {
       "name": "m2ai-agent-architecture",
       "description": "27 portable skills. Design, scaffold, and structure single- and multi-agent systems. Context hygiene, memory architecture, and world-model design.",
-      "source": "./m2ai-agent-architecture",
-      "category": "productivity",
+      "source": "m2ai-agent-architecture",
       "author": {
         "name": "Matthew Snow",
         "email": "matthew@memyselfplusai.com"
@@ -21,8 +19,7 @@
     {
       "name": "m2ai-safety-verification",
       "description": "27 portable skills. Guardrails, permissions, kill switches, and judgment gates before an agent acts. Hostile-reviewer passes and trust scoring before anything ships.",
-      "source": "./m2ai-safety-verification",
-      "category": "productivity",
+      "source": "m2ai-safety-verification",
       "author": {
         "name": "Matthew Snow",
         "email": "matthew@memyselfplusai.com"
@@ -32,8 +29,7 @@
     {
       "name": "m2ai-agent-ops",
       "description": "17 portable skills. Health checks, diagnostics, post-mortems, and run observability.",
-      "source": "./m2ai-agent-ops",
-      "category": "productivity",
+      "source": "m2ai-agent-ops",
       "author": {
         "name": "Matthew Snow",
         "email": "matthew@memyselfplusai.com"
@@ -43,8 +39,7 @@
     {
       "name": "m2ai-model-economics",
       "description": "28 portable skills. Routing, migration, cross-model review, and provider monitoring. Token spend, boot tax, and inference-cost exposure. Lock-in scoring, licensing, and exit-cost analysis.",
-      "source": "./m2ai-model-economics",
-      "category": "productivity",
+      "source": "m2ai-model-economics",
       "author": {
         "name": "Matthew Snow",
         "email": "matthew@memyselfplusai.com"
@@ -54,8 +49,7 @@
     {
       "name": "m2ai-build-tooling",
       "description": "37 portable skills. Spec-first build loops, code comprehension, and migration safety. Build, audit, convert, and maintain skills, tools, and MCP servers.",
-      "source": "./m2ai-build-tooling",
-      "category": "productivity",
+      "source": "m2ai-build-tooling",
       "author": {
         "name": "Matthew Snow",
         "email": "matthew@memyselfplusai.com"
@@ -65,8 +59,7 @@
     {
       "name": "m2ai-strategy-analysis",
       "description": "27 portable skills. Briefings, stress-tests, market signals, and workflow-investment scoring.",
-      "source": "./m2ai-strategy-analysis",
-      "category": "productivity",
+      "source": "m2ai-strategy-analysis",
       "author": {
         "name": "Matthew Snow",
         "email": "matthew@memyselfplusai.com"
@@ -76,8 +69,7 @@
     {
       "name": "m2ai-workflow-content",
       "description": "20 portable skills. Sessions, handoffs, recall, calendar, and remote access. Image and video prompt engineering and shorts pipelines.",
-      "source": "./m2ai-workflow-content",
-      "category": "productivity",
+      "source": "m2ai-workflow-content",
       "author": {
         "name": "Matthew Snow",
         "email": "matthew@memyselfplusai.com"

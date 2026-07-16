@@ -1,4 +1,6 @@
 ---
+name: get-api-docs
+description: Fetch curated, versioned API documentation through the `chub` CLI before writing code against an external API or SDK, so calls are checked against real docs instead of recalled from memory. Use before implementing anything that calls an external API, when unsure of the correct parameters, methods, or patterns, when a model name or endpoint needs verifying, or when the user asks how to use a specific service's API.
 argument-hint: get <id> [--lang py|js] [--full] [--file FILENAME]
 ---
 

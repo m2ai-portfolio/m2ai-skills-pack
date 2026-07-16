@@ -1,0 +1,11 @@
+{
+  "name": "m2ai-agent-architecture",
+  "version": "0.1.0",
+  "description": "Design, scaffold, and structure single- and multi-agent systems. Context hygiene, memory architecture, and world-model design.",
+  "author": {
+    "name": "Matthew Snow",
+    "email": "matthew@memyselfplusai.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/m2ai-portfolio/m2ai-skills-pack"
+}

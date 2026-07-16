@@ -1,0 +1,11 @@
+{
+  "name": "m2ai-workflow-content",
+  "version": "0.1.0",
+  "description": "Sessions, handoffs, recall, calendar, and remote access. Image and video prompt engineering and shorts pipelines.",
+  "author": {
+    "name": "Matthew Snow",
+    "email": "matthew@memyselfplusai.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/m2ai-portfolio/m2ai-skills-pack"
+}
