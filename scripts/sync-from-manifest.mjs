@@ -40,6 +40,12 @@ const focusById = new Map(manifest.divisions.map((d) => [d.id, d.focus]));
 const AUTHOR = { name: 'Matthew Snow', email: 'matthew@memyselfplusai.com' };
 const HOMEPAGE = 'https://github.com/m2ai-portfolio/m2ai-skills-pack';
 const VERSION = '0.1.0';
+// SPDX id emitted into every plugin manifest. Cursor's Publisher Terms allow permissive licenses
+// only (MIT, BSD, Apache-2.0) and reject GPL/AGPL/LGPL, so this value is load-bearing for a
+// submission, not decoration. It is declared here and independently enforced against the real
+// LICENSE file by C-37d in tests/cursor-schema.test.sh: a manifest claiming MIT over a copyleft
+// LICENSE would be worse than claiming nothing.
+const LICENSE = 'MIT';
 
 // ---- validate: plugin <-> division wiring (C-05, C-06, C-13) ----
 const errors = [];
@@ -227,15 +233,24 @@ const cursorMkt = {
 };
 writes.push([join(ROOT, '.cursor-plugin', 'marketplace.json'), J(cursorMkt)]);
 
-// per-plugin manifests. Claude Code requires name + description; Cursor requires only name.
+// per-plugin manifests. Two different bars, and they do not agree:
+//   Claude Code (code.claude.com/docs/en/plugin-marketplaces): name + description required.
+//   Cursor (cursor.com/docs/plugins):                          name required, that is all.
+//   Cursor's REVIEWER (cursor/plugins -> create-plugin/skills/review-plugin-submission):
+//     name + description + version + author + license, "required and coherent".
+// Build to the reviewer, not the docs: a submission gets bounced by the human running that
+// checklist, not by the docs page. LICENSE is emitted here rather than being asserted only by the
+// LICENSE file at the repo root, because Cursor's Publisher Terms bar copyleft (GPL/AGPL/LGPL)
+// outright and a reviewer reads the manifest. Both manifests are GENERATED: hand-editing them is
+// silently reverted by the next run of this script (which is exactly what happened on 2026-07-16).
 for (const id of pluginIds) {
   writes.push([
     join(ROOT, id, '.claude-plugin', 'plugin.json'),
-    J({ name: id, version: VERSION, description: pluginDesc.get(id), author: AUTHOR, homepage: HOMEPAGE }),
+    J({ name: id, version: VERSION, description: pluginDesc.get(id), author: AUTHOR, license: LICENSE, homepage: HOMEPAGE }),
   ]);
   writes.push([
     join(ROOT, id, '.cursor-plugin', 'plugin.json'),
-    J({ name: id, description: pluginDesc.get(id) }),
+    J({ name: id, description: pluginDesc.get(id), version: VERSION, author: AUTHOR, license: LICENSE, homepage: HOMEPAGE }),
   ]);
 }
 

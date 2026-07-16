@@ -1,4 +1,11 @@
 {
   "name": "m2ai-build-tooling",
-  "description": "Spec-first build loops, code comprehension, and migration safety. Build, audit, convert, and maintain skills, tools, and MCP servers."
+  "description": "Spec-first build loops, code comprehension, and migration safety. Build, audit, convert, and maintain skills, tools, and MCP servers.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Matthew Snow",
+    "email": "matthew@memyselfplusai.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/m2ai-portfolio/m2ai-skills-pack"
 }
