@@ -19,8 +19,10 @@ SKILL_VENV="$HOME/.claude/skills/banana-maker/venv"
 
 # C-38: probes must NEVER plant a real person's username. This file ships in a public repo; a
 # literal username here would re-introduce the identifier the gate exists to remove. PROBE_USER is
-# a synthetic name that is nobody's identity, and is passed to the scan via the LEAK_SCAN_USER
-# test seam so the bare-token path is exercised without hardcoding anyone.
+# a synthetic name that is nobody's identity, and is passed to the scan via the ADDITIVE
+# LEAK_SCAN_EXTRA_USERS seam so the bare-token path is exercised without hardcoding anyone.
+# The seam is additive by design (C-46): it can only ADD tokens to scan, never redirect the scan
+# away from the real runtime-derived `id -un`. A replace-style seam was a genuine bypass.
 PROBE_USER="zzprobeuser"
 
 # ---- planted-control helpers -------------------------------------------------------------
@@ -210,13 +212,13 @@ grep -q '"name": "Matthew Snow"' .claude-plugin/marketplace.json \
 t "C-22/C-30 NEGATIVE CONTROL: leak-scan CATCHES a planted BINARY leak"
 # The .pyc that triggered this whole gate was invisible to `git grep -I` while plainly visible
 # to `git grep`. This control proves the scan is not blind to binary. Uses a synthetic username
-# (C-38) and drives the bare-token path via the LEAK_SCAN_USER seam -- no real identity planted.
+# (C-38) and drives the bare-token path via the LEAK_SCAN_EXTRA_USERS seam -- no real identity planted.
 probe=skills/_leakprobe.bin
 cleanup_probe() { git rm --cached -q "$probe" 2>/dev/null; rm -f "$probe"; }
 trap cleanup_probe EXIT
 printf '\x00\x01binary\x00/home/%s/secret\x00' "$PROBE_USER" > "$probe"
 git add -f "$probe" || bad "could not stage probe (control inconclusive)"
-if LEAK_SCAN_USER="$PROBE_USER" bash scripts/leak-scan.sh >/dev/null 2>&1; then
+if LEAK_SCAN_EXTRA_USERS="$PROBE_USER" bash scripts/leak-scan.sh >/dev/null 2>&1; then
   bad "scan PASSED on a planted binary leak -- the scan is blind (this is the -I bug)"
 else
   ok "scan correctly failed on planted binary leak"
@@ -226,7 +228,7 @@ cleanup_probe; trap - EXIT
 t "C-33 NEGATIVE CONTROL: untracked/ignored file does NOT trip the scan (no false positive)"
 mkdir -p skills/banana-maker/__pycache__
 printf '%s /home/%s\n' "$PROBE_USER" "$PROBE_USER" > skills/banana-maker/__pycache__/probe.pyc
-if LEAK_SCAN_USER="$PROBE_USER" bash scripts/leak-scan.sh >/dev/null 2>&1; then
+if LEAK_SCAN_EXTRA_USERS="$PROBE_USER" bash scripts/leak-scan.sh >/dev/null 2>&1; then
   ok "ignored untracked file correctly not scanned"
 else
   bad "scan tripped on an untracked gitignored file -- false positive"
@@ -271,7 +273,7 @@ rm -f /tmp/_m.bak /tmp/_r.bak
 t "C-27 MUTATION: case variants of the personal name are caught"
 plant_expect_fail "C-27 uppercase MATTHEW"       "Contact MATTHEW for access."
 plant_expect_fail "C-27 lowercase matthew"       "ask matthew about this"
-plant_expect_fail "C-27 mixed-case username"     "path is /home/ZzProbeUser/x" LEAK_SCAN_USER="$PROBE_USER"
+plant_expect_fail "C-27 mixed-case username"     "path is /home/ZzProbeUser/x" LEAK_SCAN_EXTRA_USERS="$PROBE_USER"
 
 t "C-28 MUTATION: possessive / inflected forms are caught"
 plant_expect_fail "C-28 Matthews (inflection)"   "This is Matthews workflow."
@@ -338,7 +340,7 @@ grep -qE 'id -un' scripts/leak-scan.sh && ok "username derived at runtime via id
 
 t "C-37a genericizing did NOT lose concrete-path coverage"
 plant_expect_fail "C-37a /home/<runner> still caught for an arbitrary runner" \
-  "cd /home/$PROBE_USER/projects" LEAK_SCAN_USER="$PROBE_USER"
+  "cd /home/$PROBE_USER/projects" LEAK_SCAN_EXTRA_USERS="$PROBE_USER"
 
 t "C-38 ACCEPTANCE: repo-wide ZERO hits for the maintainer username"
 # Matthew decision (3)'s acceptance test. Uses the DERIVED name (see C-37 above) -- spelling the
@@ -355,21 +357,80 @@ else
   fi
 fi
 
+t "C-46 the test seam is ADDITIVE and cannot redirect the scan away from the real runner"
+# Codex r1 HIGH (adopted). The previous replace-style seam was a REAL bypass, reproduced before
+# the fix: `LEAK_SCAN_USER=zzbenign` pointed the bare-token scan at the wrong token and a genuine
+# maintainer-username leak passed with exit 0. Assert the replace seam is gone AND that setting
+# the additive seam cannot hide a real leak.
+# Check for USE, not mention: comment lines are stripped first. The scanner deliberately DOCUMENTS
+# why the replace-style seam was removed, and that prose must not trip its own test -- otherwise
+# the only way to pass is to delete the explanation, which is the opposite of what we want.
+if grep -vE '^[[:space:]]*#' scripts/leak-scan.sh | grep -qE 'LEAK_SCAN_USER\b'; then
+  bad "replace-style LEAK_SCAN_USER seam still USED in code -- it was a real bypass"
+else
+  ok "no replace-style seam in the scanner's executable lines"
+fi
+if [ -n "$MAINT_USER" ]; then
+  bp="skills/_probe_bypass_$$.md"
+  printf 'contact %s for access\n' "$MAINT_USER" > "$bp"; git add -f "$bp" >/dev/null 2>&1
+  if LEAK_SCAN_EXTRA_USERS=zzbenign bash scripts/leak-scan.sh >/dev/null 2>&1; then
+    bad "a real bare-username leak PASSED while the seam pointed elsewhere -- BYPASS"
+  else
+    ok "seam cannot redirect the scan away from the real runner"
+  fi
+  git rm --cached -q "$bp" >/dev/null 2>&1; rm -f "$bp"
+else
+  echo "  SKIP  runner is a placeholder/root; bypass probe not applicable"
+fi
+
+t "C-45 an UNKNOWN runner username fails CLOSED (never a silent skip)"
+# Codex r1 HIGH (adopted). Reproduced before the fix: a failing `id -un` mapped to empty, matched
+# the placeholder case, and skipped the bare-token scan while exiting 0. `root` is a KNOWN identity
+# we chose not to scan; "" means the scan does not know WHO it is scanning for -- and a scan that
+# cannot answer that cannot report clean. Distinct cases, distinct outcomes.
+fakebin=$(mktemp -d)
+printf '#!/bin/sh\nexit 1\n' > "$fakebin/id"; chmod +x "$fakebin/id"
+uout=$(PATH="$fakebin:$PATH" bash scripts/leak-scan.sh 2>&1); urc=$?
+case "$uout" in
+  *runner-user-unknown*) [ "$urc" -ne 0 ] && ok "unknown runner refuses to report clean" \
+                           || bad "warned about unknown runner but still exited 0" ;;
+  *) bad "unknown runner did not fail closed (rc=$urc) -- silent skip is a false clean" ;;
+esac
+rm -rf "$fakebin"
+
+t "C-47 a scan ERROR fails CLOSED (an erroring scan is not a clean scan)"
+# Codex r1 MEDIUM (adopted). `git grep` exits 0=match, 1=no-match, >1=ERROR. The old
+# `2>/dev/null || true` collapsed all three to "clean", so a git built without PCRE (-P) support
+# would silently disable the home-path scan and this gate would show green while detecting
+# nothing. Inject a deliberately invalid pattern and assert the scan refuses to report clean.
+sed 's|^scan "personal-name".*|scan "bogus-regex" "[" ;|' scripts/leak-scan.sh > scripts/_ls_err_$$.sh
+eout=$(bash scripts/_ls_err_$$.sh 2>&1); erc=$?
+case "$eout" in
+  *"SCAN ERROR"*) [ "$erc" -ne 0 ] && ok "erroring scan refuses to report clean" \
+                    || bad "printed SCAN ERROR but exited 0" ;;
+  *) bad "an invalid regex was silently treated as 'no leaks' (rc=$erc) -- false clean" ;;
+esac
+# control: only the injected pattern should error; the rest of the scan must still function
+ecount=$(printf '%s\n' "$eout" | grep -c "SCAN ERROR" || true)
+[ "$ecount" = "1" ] && ok "exactly 1 scan errored (others still functioning)" \
+  || bad "expected exactly 1 SCAN ERROR, got $ecount -- error handling is over-broad"
+rm -f scripts/_ls_err_$$.sh
+
 t "C-42 MUTATION: a runner named 'user' or 'root' must not self-flag"
-plant_expect_pass "C-42 runner=user does not flag /home/user" "see /home/user/.claude/" LEAK_SCAN_USER=user
-plant_expect_pass "C-42 runner=root does not flag prose"      "ordinary content here"      LEAK_SCAN_USER=root
+plant_expect_pass "C-42 runner=user does not flag /home/user" "see /home/user/.claude/" LEAK_SCAN_EXTRA_USERS=user
+plant_expect_pass "C-42 runner=root does not flag prose"      "ordinary content here"      LEAK_SCAN_EXTRA_USERS=root
 # NOTE: capture to a variable and match with `case`, NEVER `scan | grep -q`. Under `pipefail`,
 # grep -q exits on the first match and closes the pipe; leak-scan.sh then takes SIGPIPE on its
 # next write and pipefail propagates 141, so the assertion fails intermittently depending on
 # write timing. A flaky test is worse than no test -- it teaches you to ignore red.
-note_out=$(LEAK_SCAN_USER=user bash scripts/leak-scan.sh 2>&1 || true)
+note_out=$(LEAK_SCAN_EXTRA_USERS=user bash scripts/leak-scan.sh 2>&1 || true)
 case "$note_out" in
   *"bare-token scan skipped"*) ok "C-42 skip NOTE emitted (visible, not silent)" ;;
   *)                           bad "C-42 skip is silent -- no NOTE" ;;
 esac
 
 t "C-43 MUTATION: a username with regex metacharacters is refused LOUDLY, not scanned blind"
-out=$(LEAK_SCAN_USER='a+b[' bash scripts/leak-scan.sh 2>&1); rc=$?
+out=$(LEAK_SCAN_EXTRA_USERS='a+b[' bash scripts/leak-scan.sh 2>&1); rc=$?
 case "$out" in
   *unscannable*) [ "$rc" -ne 0 ] && ok "refused loudly (fail-safe toward the human)" \
                    || bad "printed 'unscannable' but exited 0 -- not fail-safe" ;;

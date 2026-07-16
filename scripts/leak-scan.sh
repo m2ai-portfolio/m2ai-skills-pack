@@ -26,14 +26,26 @@ status=0
 # scan <label> <pattern> [nocase|perl] [allow_path_regex]
 scan() {
   local label="$1" pattern="$2" mode="${3:-}" allow="${4:-}"
-  local hits flags=(-n)
+  local hits flags=(-n) rc
   case "$mode" in
     nocase) flags+=(-E -i) ;;
     perl)   flags+=(-P) ;;   # -P for negative lookahead (placeholder allowlist)
     *)      flags+=(-E) ;;
   esac
   # no -I: binary files must be caught.
-  hits=$(git grep "${flags[@]}" "$pattern" -- skills/ 2>/dev/null || true)
+  hits=$(git grep "${flags[@]}" "$pattern" -- skills/ 2>&1); rc=$?
+  # git grep exit codes: 0 = matched, 1 = no match, >1 = ERROR (bad regex, PCRE not compiled in,
+  # etc). The old `2>/dev/null || true` collapsed ALL of these to "clean" -- so a build of git
+  # without -P support would silently disable the home-path scan and this gate would report a
+  # green light while detecting nothing. That is the C-22 false-pass class: absence of a hit must
+  # mean absence of a leak, not absence of a working scan. An erroring scan fails CLOSED.
+  if [ "$rc" -gt 1 ]; then
+    echo "LEAK [$label] SCAN ERROR (git grep exit $rc) -- refusing to report clean:"
+    printf '%s\n' "$hits" | head -3 | sed 's/^/    /'
+    status=1
+    return
+  fi
+  [ "$rc" -eq 0 ] || hits=""   # rc==1 means no match; discard any stderr noise
   if [ -n "$allow" ] && [ -n "$hits" ]; then
     hits=$(printf '%s\n' "$hits" | grep -v -E "^$allow" || true)
   fi
@@ -65,28 +77,47 @@ scan "home-path-unix"   "/home/(?!user\b|<)[a-z0-9._-]+|/Users/(?!<)[A-Za-z0-9._
 # runner. This adds only the BARE-token case, which an absolute-path pattern cannot cover.
 # Word boundaries are safe: verified 2026-07-16 that \b still matches inside BINARY content, so
 # the .pyc case (C-30) that triggered this gate is preserved.
-# LEAK_SCAN_USER is a TEST SEAM only: it changes WHICH token is scanned, never whether the other
-# scans run, so it cannot be used to disable the gate.
-RUNNER_USER="${LEAK_SCAN_USER-$(id -un 2>/dev/null || true)}"
-case "$RUNNER_USER" in
-  user|root|"")
-    # C-42: a sanctioned placeholder or root is not a leak identity. If the runner IS named
-    # `user`, scanning the bare token would self-flag every legitimate /home/user in the pack.
-    echo "NOTE: runner username '${RUNNER_USER:-<unknown>}' is a sanctioned placeholder or root; bare-token scan skipped (C-42)."
-    ;;
-  *)
-    if printf '%s' "$RUNNER_USER" | grep -qE '^[A-Za-z0-9._-]+$'; then
-      # `.` passes the charset guard above but IS a regex metacharacter -- escape before use.
-      esc=$(printf '%s' "$RUNNER_USER" | sed 's/[.[\*^$()+?{|]/\\&/g')
-      scan "home-path-runner-user" "\\b${esc}\\b" nocase
-    else
-      # C-43: a runtime-derived username is untrusted regex input. Fail-safe toward the human:
-      # refuse loudly rather than silently scanning a corrupted pattern that matches nothing.
-      echo "LEAK [runner-user-unscannable] username has regex metacharacters; refusing to scan blind"
-      status=1
-    fi
-    ;;
-esac
+scan_user_token() {  # <username> <label>
+  local u="$1" label="$2" esc
+  case "$u" in
+    user|root)
+      # C-42: a sanctioned placeholder or root is not a leak identity. If the runner IS named
+      # `user`, scanning the bare token would self-flag every legitimate /home/user in the pack.
+      echo "NOTE: username '$u' is a sanctioned placeholder or root; bare-token scan skipped (C-42)."
+      return 0 ;;
+  esac
+  if printf '%s' "$u" | grep -qE '^[A-Za-z0-9._-]+$'; then
+    # `.` passes the charset guard above but IS a regex metacharacter -- escape before use.
+    esc=$(printf '%s' "$u" | sed 's/[.[\*^$()+?{|]/\\&/g')
+    scan "$label" "\\b${esc}\\b" nocase
+  else
+    # C-43: a derived username is untrusted regex input. Fail-safe toward the human: refuse
+    # loudly rather than silently scanning a corrupted pattern that matches nothing.
+    echo "LEAK [$label] username is unscannable (regex metacharacters); refusing to scan blind"
+    status=1
+  fi
+}
+
+RUNNER_USER="$(id -un 2>/dev/null || true)"
+if [ -z "$RUNNER_USER" ]; then
+  # C-45: an UNKNOWN runner is a HARD FAILURE, not a silent skip. Deliberately NOT folded in with
+  # the user|root placeholder case: `root` is a KNOWN identity we have decided not to scan, whereas
+  # "" means the scan cannot determine who it is scanning for -- and a scan that does not know what
+  # it is looking for cannot report clean. C-22 again.
+  echo "LEAK [runner-user-unknown] could not determine the runner username (id -un failed); refusing to report clean"
+  status=1
+else
+  scan_user_token "$RUNNER_USER" "home-path-runner-user"
+fi
+
+# ADDITIVE test seam (C-46). LEAK_SCAN_EXTRA_USERS adds tokens to scan IN ADDITION to the
+# runtime-derived `id -un`; it can never replace or suppress it. This matters: the earlier
+# replace-style seam (LEAK_SCAN_USER) was a REAL BYPASS -- `LEAK_SCAN_USER=zzbenign` pointed the
+# scan at the wrong token and a genuine maintainer-username leak passed with exit 0. An additive
+# seam is unconditionally safe because the worst a caller can do is scan for MORE things.
+for _extra in ${LEAK_SCAN_EXTRA_USERS:-}; do
+  scan_user_token "$_extra" "extra-user[$_extra]"
+done
 
 # C-31: internal agent / product / project names.
 # NOT SCANNED, deliberately (C-31a): `Data` and `Kup`. Verified 2026-07-16 that no non-overmatching
