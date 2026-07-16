@@ -5,5 +5,20 @@ venv/
 __pycache__/
 *.pyc
 
+# Runtime artifact dirs inside skills. A skill WRITES to these at run time, so anything
+# committed here is a leftover from someone's actual usage, not content. Scoped to
+# skills/*/ on purpose: `examples/`, `references/`, `evals/`, and `scripts/` are real
+# tracked documentation for several skills and must stay tracked.
+# Generators create these dirs on demand (banana-maker: generate_image.py mkdir(exist_ok=True)),
+# so ignoring them cannot break a fresh clone.
+skills/*/output/
+skills/*/reports/
+skills/*/dist/
+skills/*/build/
+skills/*/logs/
+skills/*/tmp/
+skills/*/.pytest_cache/
+node_modules/
+
 # loop state for /self-healing-claudex (local only)
 .self-healing-claudex/

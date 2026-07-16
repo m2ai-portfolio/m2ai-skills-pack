@@ -66,9 +66,30 @@ t "C-01 .pyc untracked"
 t "C-02 no build artifacts tracked anywhere"
 [ -z "$(git ls-files | grep -E '__pycache__|/venv/|\.pyc$')" ] && ok "index clean" || bad "artifacts tracked"
 
+# C-02a: the ORIGINAL C-02 pattern only knew about venvs and pycache, so it passed while 4.8MB of
+# generated images sat tracked in skills/banana-maker/output/ (69% of the pack's tracked weight)
+# and a real audit run sat in skills/skill-maintenance/reports/. A skill WRITES to these dirs, so
+# anything tracked in one is a leftover from someone's usage. Deliberately narrow: examples/,
+# references/, evals/ and scripts/ are legitimate tracked documentation and must NOT appear here.
+t "C-02a no runtime artifact DIRS tracked under skills/"
+[ -z "$(git ls-files skills/ | grep -E '/(output|reports|dist|build|logs|tmp|node_modules|\.pytest_cache)/')" ] \
+  && ok "no artifact dirs in index" || bad "artifact dir tracked: $(git ls-files skills/ | grep -E '/(output|reports|dist|build|logs|tmp|node_modules|\.pytest_cache)/' | head -3 | tr '\n' ' ')"
+
+t "C-02b legitimate doc subdirs are still tracked (guards against over-ignoring)"
+[ -n "$(git ls-files skills/silver-platter/examples/)" ] && ok "examples/ still tracked" || bad "examples/ wrongly untracked"
+[ -n "$(git ls-files skills/silver-platter/references/)" ] && ok "references/ still tracked" || bad "references/ wrongly untracked"
+
 t "C-03 .gitignore covers the artifact classes"
 git check-ignore -q skills/banana-maker/__pycache__/x.pyc && ok ".pyc ignored" || bad ".pyc NOT ignored"
 git check-ignore -q skills/banana-maker/venv/x && ok "venv ignored" || bad "venv NOT ignored"
+
+t "C-03a .gitignore covers runtime artifact dirs"
+git check-ignore -q skills/banana-maker/output/x.png && ok "output/ ignored" || bad "output/ NOT ignored"
+git check-ignore -q skills/skill-maintenance/reports/x.json && ok "reports/ ignored" || bad "reports/ NOT ignored"
+
+t "C-03b .gitignore does NOT swallow legitimate doc subdirs"
+git check-ignore -q skills/silver-platter/examples/x.md && bad "examples/ wrongly ignored" || ok "examples/ not ignored"
+git check-ignore -q skills/silver-platter/references/x.md && bad "references/ wrongly ignored" || ok "references/ not ignored"
 
 # ---------- item 2: venv relocation ----------
 t "C-04 venv absent from work-tree"
