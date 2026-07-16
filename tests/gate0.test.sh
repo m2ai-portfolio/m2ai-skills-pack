@@ -618,6 +618,58 @@ rm -f "$TMPD/r1.bak" "$TMPD/mk1.bak"
 [ -z "$(git status --porcelain README.md .claude-plugin/marketplace.json)" ] \
   && ok "generator left committed files unchanged" || bad "generator mutated committed files"
 
+t "C-25/C-48 banana-maker's untracked output/ survived the move AND is hidden from git"
+# Codex r3 coverage gap (adopted). This was verified by hand during the move and passed -- but a
+# hand-check is not a test, and this is the single most expensive thing to get wrong: `git mv` of
+# a directory relocates UNTRACKED children physically while staging only the tracked renames, and
+# the wip-snapshot cron runs `git add -A` on this repo every 30 min. If the ignore rule does not
+# cover the NEW depth, 4.8MB of generated images become tracked within half an hour. `*` does not
+# cross `/`, so the old `skills/*/output/` silently stopped matching the moment a plugin dir was
+# inserted above it. Assert the whole chain, not the pattern text.
+if [ -d "$BANANA/output" ]; then
+  n=$(find "$BANANA/output" -type f | wc -l)
+  [ "$n" -gt 0 ] && ok "output/ physically followed the move ($n files at the new path)" \
+    || bad "output/ exists but is EMPTY -- the untracked images did not follow the git mv"
+  # ignored at the CONCRETE new path...
+  f=$(find "$BANANA/output" -type f | head -1)
+  git check-ignore -q "$f" && ok "a real file in output/ is ignored at the new depth" \
+    || bad "output/ file NOT ignored at the new depth -- the cron will track it: $f"
+  # ...and therefore invisible to `git add -A`, which is the property that actually matters.
+  [ -z "$(git status --porcelain --untracked-files=all -- "$BANANA/output" 2>/dev/null)" ] \
+    && ok "output/ is invisible to git status (git add -A cannot sweep it in)" \
+    || bad "output/ is VISIBLE to git -- `git add -A` would commit it"
+  [ -z "$(git ls-files "$BANANA/output")" ] && ok "output/ is not tracked" || bad "output/ IS tracked"
+else
+  echo "  SKIP  $BANANA/output does not exist on this machine (no generated images to guard)"
+fi
+
+t "C-40/C-41 leak-scan FAILS CLOSED when a scan root matches zero files"
+# Codex r3 coverage gap (adopted). THE load-bearing control for this whole card, and it was only
+# ever run by hand. `git grep` exits 1 for "no match" AND for "pathspec matched nothing" -- so a
+# stale scan root reports a clean, green, zero-leak scan while reading NOTHING. This control
+# caught a real bug in the first implementation: an aggregate-only file count let ONE dead root
+# hide behind six live ones (344 -> 300 files, still "OK"). Mutate the manifest's plugin id to a
+# dir that does not exist and assert the scan refuses to report clean.
+cp skills-manifest.json "$TMPD/manifest.bak"
+python3 -c "
+import json
+f='skills-manifest.json'
+d=json.load(open(f))
+d['plugins'][0]['id']='m2ai-zz-nonexistent-probe'
+json.dump(d,open(f,'w'),indent=2)"
+collapse_out=$(bash scripts/leak-scan.sh 2>&1); collapse_rc=$?
+cp "$TMPD/manifest.bak" skills-manifest.json
+case "$collapse_out" in
+  *"matched ZERO tracked files"*)
+    [ "$collapse_rc" -ne 0 ] && ok "zero-file scan root fails CLOSED (refuses to report clean)" \
+      || bad "warned about a zero-file scan root but still exited 0" ;;
+  *) bad "a dead scan root did NOT fail closed (rc=$collapse_rc) -- the scan can silently read nothing" ;;
+esac
+# Control: prove the mutation was actually restored, or every later test runs against a broken
+# manifest and this "fix" becomes its own outage.
+node scripts/sync-from-manifest.mjs --check >/dev/null 2>&1 \
+  && ok "manifest restored after the mutation" || bad "manifest NOT restored -- later tests are compromised"
+
 t "C-47 the Phase 2 gate is a REAL install, and exists as an executable artifact"
 # Codex r1 coverage gap (adopted). The gate was originally proven by a human running the CLI in a
 # session. It really passed -- but a hand-run proof is unverifiable to anyone who was not
