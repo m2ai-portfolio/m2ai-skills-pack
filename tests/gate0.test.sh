@@ -287,16 +287,27 @@ ACTUAL_PLUGINS=$(ls -d m2ai-*/ 2>/dev/null | wc -l)
 [ "$(find m2ai-*/skills -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l)" = "183" ] \
   && ok "all 183 skills live under the plugin dirs" || bad "skill count under plugins != 183"
 
-t "C-20 nothing pushed: the REMOTE does not contain the Gate-0 commit"
-# FIXED (Codex r1 MEDIUM, adopted per Matthew decision (5)): the round-1 assertion checked local
-# ahead/behind, which CANNOT prove a push never happened -- being ahead of origin now is entirely
-# consistent with having pushed and then committed more on top. The only sound assertion queries
-# the REMOTE and asks whether it contains the Gate-0 commit.
-# Q-20260716-0002: anchor on the CURRENT branch tip rather than the Gate-0 commit specifically.
-# The never-pushed constraint applies to ALL local work on this branch, not just one commit, and
-# HEAD is the strongest single anchor: if HEAD is not on the remote, nothing below it that was
-# authored locally is either. Grepping for one old commit subject would also silently go
-# inconclusive the moment the branch moved past it.
+t "C-20 INVERTED (Phase 3, 2026-07-16): the work IS published, and local matches the remote"
+# THIS GUARD WAS NOT WEAKENED, ITS PREMISE WAS LIFTED BY THE OWNER. Read before touching it.
+#
+# C-20 originally asserted "nothing pushed", and it enforced that faithfully for the whole build:
+# it is the check that kept an unsanitized 183-skill pack off a PUBLIC repo (3 stargazers, 1 fork)
+# while Gate 0 was still finding leaks. It then FAILED, correctly, the moment the push happened.
+#
+# On 2026-07-16 Matthew authorized the push explicitly, in his own words, after a pre-push audit
+# showed him the repo was public and that the split would break existing installs. The publish is
+# the POINT of Phase 3, so an assertion that nothing was ever published is now asserting a
+# constraint that was deliberately retired. Leaving it red would train everyone to ignore a red
+# suite; deleting it would silently drop the only check that touches the remote at all.
+#
+# So it is INVERTED, exactly as C-19 was when the restructure legitimately happened. The mechanism
+# is unchanged and still queries the REMOTE (local ahead/behind cannot prove anything about what
+# origin actually has). Only the expected verdict flipped. What it now proves is still worth
+# proving: that what is published is exactly what was tested here, so a green suite on this
+# checkout is a statement about the artifact the public can actually clone.
+#
+# If a future phase needs a never-push constraint again (a new branch, a new repo), write a NEW
+# claim for it. Do not edit this one back and forth: a guard that flips with the wind is noise.
 GATE0_SHA=$(git rev-parse HEAD)
 if [ -z "$GATE0_SHA" ]; then
   bad "cannot resolve HEAD -- C-20 inconclusive"
@@ -325,9 +336,9 @@ else
       fi
     done
     if [ -n "$pushed" ]; then
-      bad "HEAD ${GATE0_SHA:0:7} IS on the remote (${pushed:0:7}) -- IT WAS PUSHED (constraint violated)"
+      ok "HEAD ${GATE0_SHA:0:7} is on the remote -- published, and what is public is what this suite tested"
     else
-      ok "no remote branch contains HEAD ${GATE0_SHA:0:7} -- never pushed ($(printf '%s\n' "$REMOTE_REFS" | wc -l) remote heads checked)"
+      bad "HEAD ${GATE0_SHA:0:7} is NOT on any remote branch -- local work is unpublished, so a green suite here says nothing about what the public can clone"
     fi
   fi
 fi
