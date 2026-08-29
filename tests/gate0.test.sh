@@ -184,9 +184,9 @@ t "C-12 / C-26 full leak scan over ALL tracked files under skills/"
 bash scripts/leak-scan.sh >/dev/null 2>&1 && ok "leak-scan clean" || { bash scripts/leak-scan.sh; bad "leaks found"; }
 
 # ---------- item 4: manifest SSOT ----------
-t "C-13 manifest assigns 183 skills"
+t "C-13 manifest assigns 184 skills"
 N=$(python3 -c "import json;print(len(json.load(open('skills-manifest.json'))['skills']))")
-[ "$N" = "183" ] && ok "183 skills" || bad "manifest has $N, expected 183"
+[ "$N" = "184" ] && ok "184 skills" || bad "manifest has $N, expected 184"
 
 t "C-14 zero orphans, zero ghosts, zero duplicates (symmetric diff, both directions)"
 python3 - <<'PY' && ok "manifest == disk, each skill in exactly one plugin" || bad "manifest/disk mismatch"
@@ -284,7 +284,7 @@ ACTUAL_PLUGINS=$(ls -d m2ai-*/ 2>/dev/null | wc -l)
   && ok "$ACTUAL_PLUGINS themed plugin dirs present (manifest says $EXPECTED_PLUGINS)" \
   || bad "expected $EXPECTED_PLUGINS plugin dirs, found $ACTUAL_PLUGINS"
 [ ! -e skills ] && ok "the old monolithic skills/ dir is gone" || bad "skills/ still exists -- split incomplete"
-[ "$(find m2ai-*/skills -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l)" = "183" ] \
+[ "$(find m2ai-*/skills -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l)" = "184" ] \
   && ok "all 183 skills live under the plugin dirs" || bad "skill count under plugins != 183"
 
 t "C-20 INVERTED (Phase 3, 2026-07-16): the work IS published, and local matches the remote"
@@ -412,7 +412,7 @@ rm -f "$TMPD/mk.bak"
 
 t "C-24 NEGATIVE CONTROL: --check DETECTS a hand-edited count literal"
 cp README.md "$TMPD/r.bak"
-sed -i 's/\*\*183 portable Claude Code skills\*\*/**999 portable Claude Code skills**/' README.md
+sed -i 's/\*\*184 portable Claude Code skills\*\*/**999 portable Claude Code skills**/' README.md
 node scripts/sync-from-manifest.mjs --check >/dev/null 2>&1 && bad "--check missed drifted literal" || ok "--check caught drift"
 cp "$TMPD/r.bak" README.md
 rm -f "$TMPD/m.bak" "$TMPD/r.bak"

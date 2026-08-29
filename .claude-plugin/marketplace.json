@@ -20,7 +20,7 @@
     },
     {
       "name": "m2ai-safety-verification",
-      "description": "27 portable skills. Guardrails, permissions, kill switches, and judgment gates before an agent acts. Hostile-reviewer passes and trust scoring before anything ships.",
+      "description": "28 portable skills. Guardrails, permissions, kill switches, and judgment gates before an agent acts. Hostile-reviewer passes and trust scoring before anything ships.",
       "source": "./m2ai-safety-verification",
       "category": "productivity",
       "author": {

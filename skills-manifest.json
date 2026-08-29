@@ -314,6 +314,7 @@
     "workflow-investment-scorer": "strategy-business-analysis",
     "workflow-tier-classifier": "strategy-business-analysis",
     "world-model-principles-scorecard": "context-memory",
-    "world-model-readiness-diagnostic": "context-memory"
+    "world-model-readiness-diagnostic": "context-memory",
+    "tie-breaker": "safety-governance-control"
   }
 }

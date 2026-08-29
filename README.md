@@ -1,8 +1,8 @@
 # M2AI Skills Pack
 
-> **183 portable Claude Code skills** for building, governing, and operating AI agents: architecture, safety, model strategy, cost control, code pipelines, and business analysis. Ships as 7 themed plugins spanning 13 working divisions, so you install only the ones you need.
+> **184 portable Claude Code skills** for building, governing, and operating AI agents: architecture, safety, model strategy, cost control, code pipelines, and business analysis. Ships as 7 themed plugins spanning 13 working divisions, so you install only the ones you need.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-183-brightgreen.svg)](#the-catalog)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-184-brightgreen.svg)](#the-catalog)
 
 ## Install
 
@@ -11,7 +11,7 @@ The pack ships as **7 themed plugins** from this one repo. Install only the ones
 | Plugin | Skills | What it covers |
 |---|---:|---|
 | [`m2ai-agent-architecture`](m2ai-agent-architecture/) | 27 | Design, scaffold, and structure single- and multi-agent systems. Context hygiene, memory architecture, and world-model design. |
-| [`m2ai-safety-verification`](m2ai-safety-verification/) | 27 | Guardrails, permissions, kill switches, and judgment gates before an agent acts. Hostile-reviewer passes and trust scoring before anything ships. |
+| [`m2ai-safety-verification`](m2ai-safety-verification/) | 28 | Guardrails, permissions, kill switches, and judgment gates before an agent acts. Hostile-reviewer passes and trust scoring before anything ships. |
 | [`m2ai-agent-ops`](m2ai-agent-ops/) | 17 | Health checks, diagnostics, post-mortems, and run observability. |
 | [`m2ai-model-economics`](m2ai-model-economics/) | 28 | Routing, migration, cross-model review, and provider monitoring. Token spend, boot tax, and inference-cost exposure. Lock-in scoring, licensing, and exit-cost analysis. |
 | [`m2ai-build-tooling`](m2ai-build-tooling/) | 37 | Spec-first build loops, code comprehension, and migration safety. Build, audit, convert, and maintain skills, tools, and MCP servers. |
@@ -84,7 +84,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | Division | Skills | Focus |
 |---|---:|---|
 | 🏗️ [Agent Architecture & Design](#agent-architecture--design) | 19 | Design, scaffold, and structure single- and multi-agent systems. |
-| 🛡️ [Safety, Governance & Control](#safety-governance--control) | 17 | Guardrails, permissions, kill switches, and judgment gates before an agent acts. |
+| 🛡️ [Safety, Governance & Control](#safety-governance--control) | 18 | Guardrails, permissions, kill switches, and judgment gates before an agent acts. |
 | 🩺 [Operations, Reliability & Observability](#operations-reliability--observability) | 17 | Health checks, diagnostics, post-mortems, and run observability. |
 | 🔀 [Model & Inference Strategy](#model--inference-strategy) | 12 | Routing, migration, cross-model review, and provider monitoring. |
 | 💰 [Cost & Token Economics](#cost--token-economics) | 6 | Token spend, boot tax, and inference-cost exposure. |
@@ -96,7 +96,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | ✅ [Deliverable Quality & Verification](#deliverable-quality--verification) | 10 | Hostile-reviewer passes and trust scoring before anything ships. |
 | 🗂️ [Productivity & Workflow](#productivity--workflow) | 16 | Sessions, handoffs, recall, calendar, and remote access. |
 | 🎬 [Content & Media](#content--media) | 4 | Image and video prompt engineering and shorts pipelines. |
-| | **183** | |
+| | **184** | |
 
 ## The catalog
 
@@ -148,6 +148,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | [plan-stop-hook](m2ai-safety-verification/skills/plan-stop-hook/) | Installs a "bouncer" hook in Claude Code that blocks all file edits until an explicit planning gate is passed. | A task is non-trivial, prior attempts drifted, or the cost of a wrong plan is high |
 | [policy-gen](m2ai-safety-verification/skills/policy-gen/) | Generate the policy agent YAML security policies for agent sandboxing. | The user says "the policy agent policy", "agent sandbox", "generate security policy", "sandbox config", "the policy agent yaml"… |
 | [spec-driven-dev-enforcer](m2ai-safety-verification/skills/spec-driven-dev-enforcer/) | Enforce a spec-first development workflow that gates code generation behind explicit specification approval. | The user says "spec first", "spec driven", "write the spec before coding", "requirements first", "design doc first", "no code u… |
+| [tie-breaker](m2ai-safety-verification/skills/tie-breaker/) | Break a tie when two agents or vendors disagree on how to clear a blocker: restate it in plain language, present both sides, synth… | Someone says "tie-breaker", "break the tie", "two models recommend different things", or two agents have given conflicting rec… |
 | [vendor-pressure-test](m2ai-safety-verification/skills/vendor-pressure-test/) | Run a vendor pitch, RFP response, or internal proposal through the 7-row agent control-layer lens to identify which r… | Evaluating a vendor for an agent deployment, responding to an RFP, or stress-testing your own internal proposal before presenti… |
 
 ### 🩺 Operations, Reliability & Observability

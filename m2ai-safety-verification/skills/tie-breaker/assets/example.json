@@ -1,0 +1,63 @@
+{
+  "issue": "Claude and Hermes disagree on how to clear the blocked deploy for the pricing-page migration. Claude wants to roll back the schema change and redo it in a smaller step. Hermes wants to forward-fix the broken column in place.",
+  "models": [
+    {
+      "name": "Claude",
+      "recommendation": "Roll back the migration to the last known-good state, then re-run it as two smaller migrations.",
+      "reasoning": "The failure touched a column used by three other services; a rollback removes the immediate risk and the smaller migrations are each easy to verify.",
+      "risks": "Rollback takes the pricing page offline for a few minutes and needs a maintenance window."
+    },
+    {
+      "name": "Hermes",
+      "recommendation": "Forward-fix the column definition in place with a follow-up patch migration.",
+      "reasoning": "No downtime, and the broken state is already isolated to one column that nothing is reading yet.",
+      "risks": "If the assumption about nothing reading the column is wrong, a forward-fix could corrupt data instead of just failing loudly."
+    }
+  ],
+  "middle_ground": [
+    {
+      "title": "Forward-fix behind a feature flag, verify, then remove the flag",
+      "summary": "Apply Hermes's forward-fix but gate reads behind a flag until a verification query confirms the column is clean.",
+      "steps": [
+        "Ship the patch migration with the column read-gated off",
+        "Run a verification query against production data",
+        "Flip the flag on once verified",
+        "Remove the flag in a follow-up cleanup"
+      ],
+      "tradeoffs": "Slightly more code than a plain forward-fix, but avoids downtime and avoids blind trust in the no-readers assumption.",
+      "who": "Whoever ships the patch also owns writing and running the verification query before flipping the flag.",
+      "reversal": "Flip the flag back off; the original column state is untouched until verification passes."
+    },
+    {
+      "title": "Rollback now, forward-fix later during a scheduled window",
+      "summary": "Take Claude's safe rollback now to stop the bleeding, then apply Hermes's forward-fix approach during a planned low-traffic window instead of as two full migrations.",
+      "steps": [
+        "Roll back immediately",
+        "Schedule a low-traffic window in the next 48 hours",
+        "Apply the forward-fix patch during that window with monitoring on"
+      ],
+      "tradeoffs": "Two touches instead of one, but each touch is low-risk and the team is not rushing either step.",
+      "who": "On-call rolls back now; the assigned engineer owns scheduling and running the windowed fix.",
+      "reversal": "The rollback is already the safe state; the scheduled fix can be aborted at any point before it starts."
+    }
+  ],
+  "comparison": [
+    {
+      "option": "Forward-fix behind a flag",
+      "effort": "Medium",
+      "risk": "Low",
+      "reversibility": "High (flag flip)",
+      "speed": "Fast, no downtime",
+      "objection": "Claude would want the verification query reviewed before trusting it"
+    },
+    {
+      "option": "Rollback now, fix later",
+      "effort": "Medium",
+      "risk": "Low",
+      "reversibility": "High",
+      "speed": "Slower, needs a scheduled window",
+      "objection": "Hermes would call the downtime unnecessary"
+    }
+  ],
+  "claude_pick": "I would pick the flag-gated forward-fix. It gets Hermes's no-downtime benefit while adding the one guardrail that actually addresses Claude's underlying worry, which is the unverified assumption. The rollback-then-fix path is safer in spirit but costs a maintenance window for a problem the flag can solve without one."
+}
