@@ -292,6 +292,7 @@
     "strategic-timing-matrix": "strategy-business-analysis",
     "stress-test-finder": "strategy-business-analysis",
     "structured-elicitation": "productivity-workflow",
+    "swarm-discovery": "build-pipelines-code-comprehension",
     "thesis-cluster-detector": "strategy-business-analysis",
     "tldr": "productivity-workflow",
     "token-burn-auditor": "cost-token-economics",
