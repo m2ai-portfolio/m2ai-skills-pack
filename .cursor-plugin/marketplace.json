@@ -48,7 +48,7 @@
     },
     {
       "name": "m2ai-build-tooling",
-      "description": "37 portable skills. Spec-first build loops, code comprehension, and migration safety. Build, audit, convert, and maintain skills, tools, and MCP servers.",
+      "description": "38 portable skills. Spec-first build loops, code comprehension, and migration safety. Build, audit, convert, and maintain skills, tools, and MCP servers.",
       "source": "m2ai-build-tooling",
       "author": {
         "name": "Matthew Snow",

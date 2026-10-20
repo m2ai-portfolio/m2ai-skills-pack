@@ -1,8 +1,8 @@
 # M2AI Skills Pack
 
-> **184 portable Claude Code skills** for building, governing, and operating AI agents: architecture, safety, model strategy, cost control, code pipelines, and business analysis. Ships as 7 themed plugins spanning 13 working divisions, so you install only the ones you need.
+> **185 portable Claude Code skills** for building, governing, and operating AI agents: architecture, safety, model strategy, cost control, code pipelines, and business analysis. Ships as 7 themed plugins spanning 13 working divisions, so you install only the ones you need.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-184-brightgreen.svg)](#the-catalog)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-185-brightgreen.svg)](#the-catalog)
 
 ## Install
 
@@ -14,7 +14,7 @@ The pack ships as **7 themed plugins** from this one repo. Install only the ones
 | [`m2ai-safety-verification`](m2ai-safety-verification/) | 28 | Guardrails, permissions, kill switches, and judgment gates before an agent acts. Hostile-reviewer passes and trust scoring before anything ships. |
 | [`m2ai-agent-ops`](m2ai-agent-ops/) | 17 | Health checks, diagnostics, post-mortems, and run observability. |
 | [`m2ai-model-economics`](m2ai-model-economics/) | 28 | Routing, migration, cross-model review, and provider monitoring. Token spend, boot tax, and inference-cost exposure. Lock-in scoring, licensing, and exit-cost analysis. |
-| [`m2ai-build-tooling`](m2ai-build-tooling/) | 37 | Spec-first build loops, code comprehension, and migration safety. Build, audit, convert, and maintain skills, tools, and MCP servers. |
+| [`m2ai-build-tooling`](m2ai-build-tooling/) | 38 | Spec-first build loops, code comprehension, and migration safety. Build, audit, convert, and maintain skills, tools, and MCP servers. |
 | [`m2ai-strategy-analysis`](m2ai-strategy-analysis/) | 27 | Briefings, stress-tests, market signals, and workflow-investment scoring. |
 | [`m2ai-workflow-content`](m2ai-workflow-content/) | 20 | Sessions, handoffs, recall, calendar, and remote access. Image and video prompt engineering and shorts pipelines. |
 
@@ -90,13 +90,13 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | 💰 [Cost & Token Economics](#cost--token-economics) | 6 | Token spend, boot tax, and inference-cost exposure. |
 | 🔓 [Portability & Vendor Independence](#portability--vendor-independence) | 10 | Lock-in scoring, licensing, and exit-cost analysis. |
 | 🧠 [Context & Memory](#context--memory) | 8 | Context hygiene, memory architecture, and world-model design. |
-| 🏭 [Build Pipelines & Code Comprehension](#build-pipelines--code-comprehension) | 15 | Spec-first build loops, code comprehension, and migration safety. |
+| 🏭 [Build Pipelines & Code Comprehension](#build-pipelines--code-comprehension) | 16 | Spec-first build loops, code comprehension, and migration safety. |
 | 🧰 [Skills, Tools & MCP](#skills-tools--mcp) | 22 | Build, audit, convert, and maintain skills, tools, and MCP servers. |
 | 📊 [Strategy & Business Analysis](#strategy--business-analysis) | 27 | Briefings, stress-tests, market signals, and workflow-investment scoring. |
 | ✅ [Deliverable Quality & Verification](#deliverable-quality--verification) | 10 | Hostile-reviewer passes and trust scoring before anything ships. |
 | 🗂️ [Productivity & Workflow](#productivity--workflow) | 16 | Sessions, handoffs, recall, calendar, and remote access. |
 | 🎬 [Content & Media](#content--media) | 4 | Image and video prompt engineering and shorts pipelines. |
-| | **184** | |
+| | **185** | |
 
 ## The catalog
 
@@ -259,6 +259,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | [self-healing-claudex](m2ai-build-tooling/skills/self-healing-claudex/) | Self-healing build pipeline with Planner/Builder + Codex adversarial review. | The user says "self-healing claudex", "claudex build", "PBJ with codex review", "two-vendor build loop", or wants Codex (not ju… |
 | [self-healing-pipeline](m2ai-build-tooling/skills/self-healing-pipeline/) | Self-healing build pipeline with Planner/Builder/Judge loop. | The user says "self-healing pipeline", "healing build", "auto-fix pipeline", "build with retries", or wants a resilient impleme… |
 | [spec-gap-detector](m2ai-build-tooling/skills/spec-gap-detector/) | Stress-test any agent prompt or specification for ambiguity, missing constraints, and edge cases that would cause ran… | During spec-first builds or code review. |
+| [swarm-discovery](m2ai-build-tooling/skills/swarm-discovery/) | Map an unfamiliar repo with a verified agent swarm: Haiku maps each module, Sonnet skeptics vote on claims, Opus writes the architecture map. | First contact with a repo or service tree, before a refactor, migration or ETL design (needs the Workflow tool) |
 | [validated-data-migration](m2ai-build-tooling/skills/validated-data-migration/) | Migrate a shoebox of inconsistent files (CSV, Excel, JSON, PDFs, VCF) into a clean SQLite database with rejection log… | Onboarding a client with legacy data or cleaning up a data dump before importing into a new system |
 
 ### 🧰 Skills, Tools & MCP
