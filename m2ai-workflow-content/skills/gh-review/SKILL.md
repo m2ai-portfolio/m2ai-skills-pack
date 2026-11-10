@@ -69,6 +69,31 @@ This is the most valuable part. Based on the project context from Step 1:
 
 Keep examples grounded in the user's actual tech stack when project context is available.
 
+## Step 3b: Offer the deep check (swarm-discovery)
+
+The quick pass above reads only the README and file tree. The deep check reads the code itself: it clones the repo and runs the `swarm-discovery` workflow (one Haiku worker per module, Sonnet skeptics on flagged findings, one Opus synthesis). It answers what the quick pass cannot: how the parts connect, what it talks to and stores, and what could hurt you (security holes, dead code, risky IO).
+
+Requires the `swarm-discovery` skill (shipped in the m2ai-build-tooling plugin) and Claude Code's Workflow tool. If either is missing, skip this step and say so in one line. `SWARM_DIR` below is the swarm-discovery skill's folder.
+
+Always ask before running it, with the AskUserQuestion tool and exactly this question:
+
+> **Do you want to perform a deep check?**
+
+- One repo: options "Yes, deep check" and "No, quick review only".
+- Two or three repos: same question, `multiSelect: true`, one option per repo; selecting none means quick review only.
+- In each Yes option's description, say what it costs. Reference runs: 31 to 105 agents and 6 to 18 minutes (10 modules: 31 agents, 6 min; 24 modules: 49 agents, 14 min; 26 modules: 105 agents, 13 min; 40 modules: 81 agents, 18 min).
+- **Module cap (default 40).** The deep check maps at most the 40 largest modules by LOC. Run the inventory (step 2 below) before asking, so the question can name the module count. If the repo has more than 40 modules, the single-repo options become three: "Yes, deep check the 40 largest (Recommended)" (say the % of LOC it covers), "Yes, all N modules" (say: uncapped, a 195-module repo spent 294 agents in 43 minutes and was stopped before synthesis), and "No, quick review only". Map everything only on an explicit "all" answer; a plain "deep" request means the capped default.
+
+Never run it without a Yes; never treat a missing answer as Yes. If the answer is No, go straight to Step 4.
+
+For each repo the user said Yes to:
+
+1. Clone shallow into a scratch directory (not the cwd): `gh repo clone owner/repo <scratch>/gh-review-src/<repo> -- --depth 1`
+2. Inventory and launch script (deterministic, one command): `node $SWARM_DIR/scripts/repo-inventory.mjs <clone path> --max-modules 40 --out <scratch>/gh-review-src/<repo>-inventory.json --emit-script <scratch>/gh-review-src/<repo>-launch.js`. `--max-modules 40` keeps full detail for the 40 largest modules and stubs the rest (totals still cover the whole repo); use `--max-modules 0` when the user chose "all". `--emit-script` writes a copy of `swarm-discovery.js` with the inventory embedded, so the inventory is never pasted into Workflow args (a large repo's inventory can be hundreds of KB); it exits non-zero if the script would exceed the Workflow limit. If it reports 0 modules, say so and skip the deep check for that repo.
+3. Launch the emitted script, always this way whatever the repo size: `Workflow({ scriptPath: '<scratch>/gh-review-src/<repo>-launch.js', args: { repo: '<clone path>', out: '<scratch>/gh-review-src/swarm-discovery-<repo-slug>.md', ts: '<ISO now>', inventory: { repo: '<clone path>', head: '<head>', totals: <totals from the inventory> } } })`. The emit step prints these args ready to copy. `repo` must be the local clone path, not `owner/repo`: workers read files under `${repo}/<module>`. The workflow caps at 40 modules by default; add `max_modules: 0` only when the user chose "all". It runs in the background; write and share the quick report (Steps 4-5) while it works.
+4. When it completes, read the map file at `out` (the file is the deliverable; the return value can be lost). Add a "Deep check" section to that repo's card: the Verdict bullets, the biggest risk, the top 5 risk-register entries, module and LOC totals, how many cards the skeptics contested, and, when capped, the coverage line ("mapped 40 of N modules, X% of LOC; N-40 not mapped", from the map's "Not mapped" section).
+5. Regenerate the report with the Deep check section, at the same path, so the shared URL now shows it.
+
 ## Step 4: Generate the HTML report
 
 Write a single self-contained HTML file. The styling should be:
@@ -133,7 +158,7 @@ Then tell the user the URL. The URL format is important -- the user browses from
 Example output to the user:
 > Report ready: `http://<host>:8901/20260410-143022-report.html`
 
-If the user wants deeper analysis of a specific repo (reading source files, analyzing specific modules), they can ask as a follow-up. This first pass intentionally stays at README + file-tree level to keep things fast.
+If the user wants deeper analysis of a specific module after the deep check, read those source files directly as a follow-up.
 
 ## Edge cases
 

@@ -4,6 +4,31 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-185-brightgreen.svg)](#the-catalog)
 
+## What Matt's using now
+
+The skills from this pack in my own daily setup, synced to the versions I actually run (last checked November 2026). If you only install a few, start here.
+
+| Skill | Plugin | What it does for me |
+|---|---|---|
+| [next](./m2ai-workflow-content/skills/next/) | `m2ai-workflow-content` | Ends every session with a handoff note (where we are, what we decided, next step) so the next session or another tool resumes cold. |
+| [goal-maker](./m2ai-workflow-content/skills/goal-maker/) | `m2ai-workflow-content` | Turns a half-formed idea into a runnable goal card with success criteria, budget, human gates, and how to run it. |
+| [decompose-goal](./m2ai-workflow-content/skills/decompose-goal/) | `m2ai-workflow-content` | Breaks a clean goal into atomic, dispatchable subtasks for subagents, workflows, or a checklist. |
+| [gh-review](./m2ai-workflow-content/skills/gh-review/) | `m2ai-workflow-content` | Reviews a GitHub repo against my current project: what it is, whether it fits, how I would integrate it. |
+| [swarm-discovery](./m2ai-build-tooling/skills/swarm-discovery/) | `m2ai-build-tooling` | Maps an unfamiliar repo with a verified agent swarm before I plan anything against it. |
+| [get-api-docs](./m2ai-build-tooling/skills/get-api-docs/) | `m2ai-build-tooling` | Pulls current API docs before writing code against an SDK, so model names and parameters come from docs, not memory. |
+| [skill-maintenance](./m2ai-build-tooling/skills/skill-maintenance/) | `m2ai-build-tooling` | Audits my skills for description quality, triggers, and structure. |
+| [model-router](./m2ai-model-economics/skills/model-router/) | `m2ai-model-economics` | Picks the model tier for a task and dispatches it, with logging so routing improves from outcomes. |
+| [model-audit](./m2ai-model-economics/skills/model-audit/) | `m2ai-model-economics` | Scans a codebase for every model it calls and flags tier, task-fit, and cost changes. |
+
+Install the three plugins that cover these:
+
+```
+/plugin marketplace add m2ai-portfolio/m2ai-skills-pack
+/plugin install m2ai-workflow-content@m2ai-skills-pack
+/plugin install m2ai-build-tooling@m2ai-skills-pack
+/plugin install m2ai-model-economics@m2ai-skills-pack
+```
+
 ## Install
 
 The pack ships as **7 themed plugins** from this one repo. Install only the ones you want — each is independent.
@@ -190,7 +215,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | [model-audit](m2ai-model-economics/skills/model-audit/) | Benchmark and compare model assignments across a multi-stage pipeline; produce a model-by-stage audit report with cos… | Choosing, migrating, or reviewing models. |
 | [model-migration-preflight](m2ai-model-economics/skills/model-migration-preflight/) | Audit your prompts, system instructions, and Claude Code configuration before switching model versions. | Any model version upgrade that affects production workflows |
 | [model-release-deep-dive](m2ai-model-economics/skills/model-release-deep-dive/) | Produce a structured capability-delta brief for any AI model release -- what actually changed beyond benchmark scores… | A new model release or when benchmarks alone don't explain real-world behavior changes |
-| [model-router](m2ai-model-economics/skills/model-router/) | Classify a task and recommend the optimal model tier (Opus/Sonnet/Haiku) based on reasoning complexity, output length… | Choosing, migrating, or reviewing models. |
+| [model-router](m2ai-model-economics/skills/model-router/) | Classify a task, pick the model tier (Fable/Opus/Sonnet/Haiku/local), and dispatch it, with route and outcome logging. | Choosing, migrating, or reviewing models. |
 | [prompt-rewriter](m2ai-model-economics/skills/prompt-rewriter/) | Rewrite system prompts to strip compensating complexity and produce clean outcome-based prompts. | Modernizing prompts after a model upgrade, simplifying over-engineered system prompts, or converting procedural instructions to… |
 | [provider-availability-scout](m2ai-model-economics/skills/provider-availability-scout/) | Scheduled task that probes model provider availability, pricing changes, restriction announcements, and API deprecati… | Diffs against last run and optionally updates a routing defaults file so your model routing layer stays current without manual… |
 
@@ -356,7 +381,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | [goal-maker](m2ai-workflow-content/skills/goal-maker/) | Turn a fuzzy idea or triaged item into a well-formed, runnable GOAL card — crisp objective, observable done-state, and a chosen execution shape (one-shot/loop/cron/subagents/worktree) with owner/sink/kill. Upstream of decompose-goal. | A raw idea needs sharpening into an objective with success criteria and a way to run it; "make a goal", "turn this into a goal/loop", "how should I run this" |
 | [goal-os-optimize](m2ai-workflow-content/skills/goal-os-optimize/) | Use /goal to run a self-directed optimization loop on your agentic OS — skills, CLAUDE.md, rules files, and projects. | A judge agent on a separate LLM validates each iteration |
 | [life-engine](m2ai-workflow-content/skills/life-engine/) | Reference implementation of a proactive Life Engine -- a time-windowed briefing loop that checks email, calendar, pro… | This is a REFERENCE IMPLEMENTATION showing one user's full wiring, not a plug-and-play template |
-| [next](m2ai-workflow-content/skills/next/) | Generate a continuation prompt for a fresh session and list current tasks. | Wrapping up a session or handing off work |
+| [next](m2ai-workflow-content/skills/next/) | Write an end-of-session handoff (where we are, what we decided, next step) to `~/handoffs/<project>/` so any tool can resume. | Wrapping up a session or handing off work |
 | [quick](m2ai-workflow-content/skills/quick/) | Quick-capture a spur-of-the-moment idea into a content-backlog inbox file so it is not lost. Tags captures for the AF… | The user says "/quick …", "quick capture", "jot this down", "add to the backlog", or fires off a half-formed idea |
 | [remote-channels](m2ai-workflow-content/skills/remote-channels/) | Set up and configure Claude Code remote access via Telegram and Discord channels. | Guides through bot creation, plugin installation, security lockdown, and always-on configuration |
 | [sparring-planner](m2ai-workflow-content/skills/sparring-planner/) | Custom planning mode that challenges assumptions, asks deep multi-option questions, and explores multiple approaches… | The user says "plan", "let's think through", "help me decide", "sparring planner", "think this through with me", "let's figure… |

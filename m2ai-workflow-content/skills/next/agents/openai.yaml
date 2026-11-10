@@ -1,0 +1,4 @@
+interface:
+  display_name: "Next Session Handoff"
+  short_description: "Write the project handoff; resume later from ~/handoffs"
+  default_prompt: "Write the handoff for this session with the next skill."

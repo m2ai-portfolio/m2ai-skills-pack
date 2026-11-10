@@ -1,6 +1,7 @@
 ---
 name: skill-maintenance
 description: Audit Claude Code skills for content quality against Anthropic best practices. Use when Forge runs maintenance cycles, when the user asks to check skill quality, or when reviewing skills before publishing.
+context: fork
 ---
 
 # Skill Maintenance — Content Quality Auditor

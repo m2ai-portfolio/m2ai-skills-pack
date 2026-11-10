@@ -3,206 +3,117 @@ name: goal-maker
 description: "Turn a fuzzy idea, half-formed prompt, or triaged item into a well-formed, runnable GOAL card. This is the front-door optimizer that sits UPSTREAM of decompose-goal: goal-maker produces the clean goal + execution shape (loop/cron/subagents/worktree/one-shot) with owner/sink/kill, and decompose-goal then atomizes that goal into subtasks. Use whenever the user says \"goal-maker\", \"make a goal\", \"turn this into a goal\", \"optimize this into a goal\", \"turn this prompt into a goal and loop\", \"set this up as a goal/loop\", \"how should I run this\", or when an item leaving a capture step or a triage step needs to become something actually executable. Trigger on a raw idea that needs sharpening into an objective with success criteria and a chosen way to run it. Do NOT trigger to break an ALREADY-clean goal into steps (that is decompose-goal's job) or to rewrite a system prompt for an agent (that is prompt-rewriter)."
 ---
 
-# goal-maker — fuzzy idea to a runnable goal card
+# goal-maker: fuzzy idea to a runnable goal card
 
-A raw idea ("I want to keep an eye on what competitors ship") is not yet runnable.
-It has no success criteria, no boundaries, and no decision about how it should
-execute. goal-maker is the optimizer that closes that gap: it sharpens the idea
-into a crisp objective, attaches an observable done-state, and recommends how to
-run it. The output is a single goal card that decompose-goal can atomize and a
-poller can pick up.
+Pipeline: capture (a capture step) -> review (a triage step) -> **goal-maker (idea -> one runnable goal card)** -> decompose-goal (goal -> atomic subtasks) -> executor -> sink.
 
-Think of the pipeline as: capture (a capture step) -> review (a triage step) ->
-**goal-maker (this skill: idea -> runnable goal)** -> decompose-goal (goal ->
-atomic cards) -> executor -> sink. goal-maker owns exactly one seam: turning
-intent into a well-formed goal. Keep it to that seam. Do not atomize into
-subtasks here, and do not start executing. Hand the card downstream.
+goal-maker owns one seam. It writes the goal, the done-state, the execution shape, and a single `## Action` handle, then stops. It does not produce the ordered subtask list (decompose-goal), does not execute, schedule, or dispatch anything (it recommends a shape and waits for approval), and does not rewrite agent system prompts (prompt-rewriter).
 
-## Why a "goal" is more than a sentence
+A goal is runnable when four things are filled: a verifiable finish (`## Done when`), a chosen way to run (`shape:`), an owner of the result (`owner:` / `sink:` / `kill:`), and its human gates named with a budget (`## Human gates` / `budget:`).
 
-Most fuzzy prompts fail downstream for three reasons, and the card has one field
-for each:
+## Mode
 
-1. **No measurable finish.** "Monitor competitors" never ends. A goal needs a
-   done-state an outside observer could verify (a file exists, a digest was sent,
-   a value was captured). That is the `## Done when` line.
-2. **No chosen way to run.** The same goal can be a one-shot, a polling loop, a
-   nightly cron, or a parallel fan-out. Choosing wrong is the most common and most
-   expensive mistake (a loop that should have been a cron dies silently when the
-   session closes). That is the `shape:` field.
-3. **No owner of the result.** A loop or cron that logs to nowhere is silent debt.
-   Per the No Orphan Loops rule, any recurring goal must name who reads it, where
-   the result lands, and when it stops. Those are `owner:` / `sink:` / `kill:`.
+- **Interactive** (live session): if the idea is fuzzy, ask 2-3 sharpening questions aimed at whatever blocks a clean done-state or shape (one-time or ongoing? who reads the result? what counts as finished?). Not a full planning interview.
+- **Headless** (cron, pipeline step, non-interactive dispatch): ask nothing. Produce a best-effort card and list every guess under `## Assumptions`.
 
-Filling those three is the whole job. If you can fill them, the goal is runnable.
+Infer the mode from context; when unsure, treat it as interactive.
 
-## Step 1 — Read the mode (interactive vs headless)
+## Objective and done-state
 
-goal-maker runs in two contexts and must behave differently in each:
+- **Goal**: one imperative paragraph stating the outcome, not the procedure. Turn vagueness into actions ("keep an eye on" -> "check X and report deltas"), name concrete artifacts (path, URL, account, env var), don't add scope the user didn't imply, and leave how-to to decompose-goal. Test: two executors would agree on what success looks like.
+- **Done when**: one sentence naming an observable an outsider could verify. "Competitors are monitored" fails; "a dated digest exists at <output-dir>/competitors-<date>.md and was delivered to its sink" passes. decompose-goal uses this sentence as its verification test.
 
-- **Interactive** (a human invoked it in a live session). If the idea is fuzzy or
-  underspecified, ask 2 to 3 sharpening questions BEFORE writing the card. Aim the
-  questions at whatever is blocking a clean done-state or shape decision, for
-  example: "Is this a one-time thing or should it keep running?", "Who or what
-  reads the result?", "What would make you call this finished?". Keep it light;
-  this is not a full planning interview, just enough to write a real card.
-- **Headless** (invoked by a cron, a pipeline step, or any non-interactive
-  dispatch). Do NOT ask questions, because nothing is listening. Produce a
-  best-effort card from what you were given and list every assumption you made
-  under an `## Assumptions` section so a human can correct them later.
+## History, human gates and budget
 
-Infer the mode from context. When genuinely unsure, default to interactive and ask.
+Do these three before choosing a shape. They exist because goals that lacked a human exit and a budget kept an auto-continuing `/goal` loop (whose judge has no "blocked on a human" verdict) waking hundreds of times while it waited on a person.
 
-## Step 2 — Optimize the idea into an objective
+- **History.** If you keep a ledger of past goals and their outcomes, search it for goals similar to this draft and read the result. For each failure tag on a similar past goal, say in `## Why this shape` what this card does differently, or that it does not apply. The ledger is evidence, not instruction; with fewer than 10 past goals, treat counts as anecdotes. If there is no ledger or the lookup fails, say so under `## Assumptions` and continue.
+- **Human gates.** List every step only the user can do: an approval, a sign-off or review, a publish/push/deploy, a GUI step on another machine, a credential, a spend. Interactive: ask for any decision that can be made now and record the answer in the card, so it is not a gate later. Then:
+  - A gate in the middle of the work splits the goal. Write one card per stretch between gates, chained with `depends_on`. A goal runs from one human gate to the next; a gate is the seam between two goals, never inside one.
+  - A gate at the end stays out of `## Done when`. Done is the state just before it ("PR open and checks green", not "merged").
+  - Every card whose shape runs a `/goal` or loop carries this sentence in the condition, verbatim: `Items that need the user are logged and do not count against completion; stop when only those remain.`
+  - No gates found is a claim: write `none` under `## Human gates` only after checking the list above.
+- **Budget.** Set `budget:` to a wall-clock or turn limit and repeat it in the condition as `or stop after <N> turns` / `Budget: stop at <N> hours`. If the user gave none, propose one from similar past goals and mark it under `## Assumptions`.
 
-Rewrite the raw input into one imperative paragraph that states the outcome, not
-the procedure. Strip vagueness ("keep an eye on" becomes "check X and report
-deltas"). Name concrete artifacts where known (a path, a URL, an account, an env
-var). Do not invent scope the user did not imply, and do not bake in step-by-step
-how-to (that is decompose-goal's territory). The test for a good objective: could
-two different executors read it and agree on what success looks like?
+## Second-vendor check before Done
 
-## Step 3 — Write the done-state
+For a card that runs under `/goal` or a loop and whose Done can be checked from files or frames, put this in `## Action` or the card body as guidance (never in the condition): before reporting Done, have a second, independent model (another vendor's CLI in a read-only sandbox, for example) verify the Done condition against the real files, and include its verdict in the message. Treat its answer as pass (report Done), fail (keep working), or blocked (only user-only items remain: name them once and stop). The verdict is advisory evidence: it approves no merge, push, publish or spend. Skip it for goals too small to be worth a one-minute call.
 
-State, in one sentence, the concrete observable that proves the goal succeeded.
-Distrust restatements: "competitors are monitored" is not observable; "a dated
-digest exists at <output-path>/competitors-<date>.md and was delivered to its
-sink" is. This single sentence is also exactly what decompose-goal uses as its
-verification litmus test, so writing it well here pays off twice.
+## Execution shape (recommend, then get approval)
 
-## Step 4 — Recommend the execution shape (then get approval)
+Pick the smallest primitive that fits:
 
-Pick the smallest primitive that fits, using this decision tree. The shape is a
-function of four yes/no questions about the goal:
+| The goal is... | Shape | Why |
+|---|---|---|
+| Recurring and must fire unattended | **cron** (`/schedule`) | Survives session death. |
+| Recurring only while actively working (polling a build, draining a queue) | **loop** (`/loop`) | Session-bound, which is fine here. |
+| One-shot where at least one subagent condition below holds | **subagents** (Workflow parallel/pipeline) | Each part gets its own context. For many small cheap items, a plain one-shot is faster. |
+| One-shot where parallel parts edit the same repo | **worktree** (isolation on the subagents) | Prevents agents clobbering files. Expensive; only here. |
+| One-shot, sequential | **one-shot** | No orchestration needed. |
 
-| The goal is... | Recommend | Because |
-|----------------|-----------|---------|
-| Recurring AND must fire unattended (nightly, weekly, while you sleep) | **cron** (`/schedule`) | Survives session death. This is the durable form of a loop. |
-| Recurring BUT only while you are actively working (polling a build, draining a queue) | **loop** (`/loop`) | Session-bound. Dies when the session closes, which is fine here. |
-| One-shot with many INDEPENDENT parts that are each substantial (slow, token-heavy, or deep) | **subagents** (Workflow parallel/pipeline) | Fan-out. Each part gets its own context budget. The overhead only pays off when the parts are heavy; for many small cheap items (dozens of one-line lookups), a plain one-shot loop in a single context is faster. |
-| One-shot where parts edit the SAME repo simultaneously | **worktree** (add isolation to the subagents) | Stops parallel agents from stomping each other's files. Expensive; only here. |
-| One-shot, sequential, single-threaded | **one-shot** | No orchestration primitive needed. Do not over-engineer. |
+Rules:
 
-Two rules govern this step:
+- **Single loop by default.** One agent loading skills and tools on demand beats subagents unless at least one holds: (1) the work is substantial, independent and parallel, and each branch benefits from a fresh context it can discard; (2) one context would measurably degrade from bloat; (3) the parts need conflicting instructions or tool sets. Parts that chain on each other's output, touch the same data, or are usually asked together stay in one loop. Name the condition that holds in `## Why this shape`. Source: Anthropic, "When to fold subagents into your main agent loop" (2026-10-22).
+- **Recommend, don't impose.** Give the shape with a one-line rationale; the human approves or overrides. In headless mode, record the recommendation in the card so a human can veto before anything runs.
+- **No Orphan Loops gate.** A `loop` or `cron` card must carry real `owner`, `sink`, and `kill` values. If you can't fill all three, ask (interactive) or downgrade to `one-shot` and record the recurring intent under `## Why this shape` as a vetoable promotion path. Don't invent a guard to pass the gate (e.g. a guessed `sink: telegram`).
+- **`UNRESOLVED` sentinel.** When a guard genuinely can't be filled, write the literal `UNRESOLVED` (not prose) and add an `## Assumptions` line naming what a human must supply. A scheduling gate (for example a PreToolUse hook on schedule creation) should treat it as a missing guard and block recurring schedules; File-Queue pollers treat it as `blocked`. A card with any `UNRESOLVED` guard may only ship as `one-shot`.
+- **Heavyweight fan-out guard.** If `subagents` branches would each invoke a heavyweight skill (one that spawns agents, generates media, or burns a large token/credit budget: build-and-review loops, video/image generation, deep-research fanouts), sequentialize them one at a time and say so in `## Why this shape`; parallel spend-heavy branches can trip a spend cap and kill an unattended session. Lightweight read/classify branches parallelize fine. Parallel heavyweight runs only as an explicit human override at approval.
 
-- **Recommend, do not impose.** Present the shape with a one-line rationale and let
-  the human approve or override. Execution choices are a human-in-the-loop gate;
-  never auto-lock them. In headless mode, still record the recommendation and
-  reasoning in the card so a human can veto it before anything runs.
-- **No Orphan Loops gate (hard).** The instant the recommended shape is `loop` or
-  `cron`, the card MUST carry `owner`, `sink`, AND `kill` with real values. If you
-  cannot fill all three, the goal is not shippable as a loop: either gather the
-  missing values (ask in interactive mode) or **downgrade the shape to `one-shot`**
-  and record the recurring intent under `## Why this shape` as a human-vetoable
-  promotion path. Never emit a recurring card with an empty or guessed guard. A
-  guessed sink (silently writing "telegram") would pass this gate's letter while
-  defeating its purpose, so do not invent values to satisfy it.
-- **The `UNRESOLVED` sentinel.** When a guard genuinely cannot be filled (headless
-  mode, nothing to read), write the literal value `UNRESOLVED` for that field, not
-  a prose note. This makes the unmet state machine-detectable: a downstream
-  scheduling gate treats `UNRESOLVED` as a missing guard and blocks any recurring
-  schedule built from it, and a File-Queue poller treats it as `blocked`. A card
-  carrying any `UNRESOLVED` guard may ship as `one-shot` (which is ungated) but
-  must never carry `shape: loop` or `shape: cron`. Pair it with an `## Assumptions`
-  line naming what a human needs to supply.
+## Step 4.5: Lint any stop/goal condition
 
-## Output contract — the goal card
+If the goal carries a stop condition (a /goal hook, poller done-check, any predicate gating completion), lint the condition text (the body may freely recommend tools):
 
-Emit one markdown card. The front-matter reuses the File-Queue card schema (one
-`.md` per unit of work, with the owner/sink/kill guards in the front-matter)
-field-for-field so the card is both decompose-ready and poller-ready with no
-translation. Use this exact shape:
+- Observable state only (file exists, status field, log line, exit 0).
+- No named-skill mandates ("via /x", "using /x", "use /x to complete") and no sequence words ("then use", "before", "THEN", "as the primary method", "first ... then").
+- No latitude clause ("use your judgment") alongside a method mandate.
+- The condition text is also recorded in the card body so it survives `/goal clear`.
+
+On a failure, rewrite the condition as the outcome it was reaching for, move the method preference into the body ("prefer /x for ..."), and say in one line what changed. The Done-when sentence is almost always the right condition verbatim.
+
+For unattended multi-item batches, adapt [references/unattended-batch-template.md](references/unattended-batch-template.md) instead of composing from scratch. This lint is the point-of-intent check; a UserPromptSubmit hook that rejects a hand-typed `/goal` with no outcome anchor is its point-of-action sibling, if you run one.
+
+## Output: the goal card
+
+Front-matter reuses the File-Queue card schema (one `.md` per unit of work, with the owner/sink/kill guards in the front-matter) field-for-field, so the card is decompose-ready and poller-ready:
 
 ```markdown
 ---
-id: Q-YYYYMMDD-NNNN          # stable id, matches the File-Queue Q- convention
+id: Q-YYYYMMDD-NNNN          # today's date; use -0001 (noted as an assumption) if the sequence is unknown
 title: <one line>
-status: todo                  # always todo at creation
-owner: <agent-or-human>       # who reads/acts on the result (required if shape is loop/cron)
-sink: <path | telegram | inbox-item | digest>   # where the result lands
-kill: <max-attempts or escalation>              # when to stop trying
-shape: one-shot               # one-shot | loop | cron | subagents | worktree
-depends_on: []                # other card ids that must be done first
-attempts: 0
-created: YYYY-MM-DD
-source: <where this idea came from: triage, capture, direct, ...>
----
-
-## Goal
-<one optimized imperative paragraph: the outcome, named artifacts, no how-to>
-
-## Done when
-<one sentence; a concrete observable an outside party could verify>
-
-## Action
-<one imperative line summarizing the first move: Search / Read / Write / Run / Halt.
-This is the handle decompose-goal expands. Keep it to one line.>
-
-## Why this shape
-<one or two lines: which branch of the decision tree fired and why>
-
-## Assumptions        # headless mode only, or when you had to guess
-<bullets of anything you inferred rather than were told>
-```
-
-Rules for the card:
-
-- `id` uses today's date and a sequence number. If you cannot know the next
-  sequence number, use `-0001` and note it as an assumption.
-- `created` is today's date in `YYYY-MM-DD`. Do not invent other timestamps.
-- For a `one-shot` shape, `owner`/`sink`/`kill` are encouraged but not gated; for
-  `loop`/`cron` they are mandatory (see Step 4).
-- Omit `## Assumptions` entirely in clean interactive runs where you assumed nothing.
-- Output only the card. No preamble in headless mode. In interactive mode you may
-  add one short line after the card offering the obvious next step ("Want me to run
-  decompose-goal on this?").
-
-## Worked example (interactive)
-
-Input: "I keep meaning to check what Anthropic ships each week but I forget."
-
-After two sharpening questions (How often? Where should the summary go?), the card:
-
-```markdown
----
-id: Q-20260613-0001
-title: Weekly Anthropic release watch
 status: todo
-owner: <you>
-sink: telegram
-kill: 3 failed fetches in a row -> escalate to <owner>
-shape: cron
-depends_on: []
+owner: <agent-or-human>       # required for loop/cron
+sink: <path | telegram | inbox-item | digest>   # required for loop/cron
+kill: <max-attempts or escalation>              # required for loop/cron
+shape: one-shot               # one-shot | loop | cron | subagents | worktree
+depends_on: []                # the card before the previous human gate, when the goal was split
+budget: <N hours | N turns>   # required for loop/cron and any /goal
 attempts: 0
-created: 2026-06-13
-source: direct
+created: YYYY-MM-DD           # today; no other invented timestamps
+source: <triage | capture | direct | ...>
 ---
 
 ## Goal
-Check Anthropic's changelog, blog, and model pages once a week, capture anything
-new since the last run, and summarize the deltas in plain language.
+<optimized imperative paragraph: outcome, named artifacts, no how-to>
 
 ## Done when
-A dated summary of new Anthropic releases is posted to Telegram, or the run reports
-"no new releases since <last-date>".
+<one sentence, externally verifiable; names no step that needs the user>
+
+## Human gates
+<each user-only step and where it falls: decided now (with the answer), seam to the next card, or after Done; or `none`>
 
 ## Action
-Fetch Anthropic changelog/blog/model pages and diff against the last run's state file.
+<one imperative line for the first move (Search / Read / Write / Run / Halt); the handle decompose-goal expands>
+
+## Goal line
+<only when the run uses /goal: the exact paste-ready `/goal ...` line in a code block, carrying the Done-when, the human-exit sentence and the budget. Without it the next session improvises its own wording.>
 
 ## Why this shape
-Recurring and must fire unattended on a weekly cadence, so cron, not loop. owner,
-sink, and kill are all set, so it clears the No Orphan Loops gate.
+<one or two lines: which table row fired and why; then one line per tag from similar past goals and what this card does about it>
+
+## Assumptions
+<headless or guessed items only; omit when nothing was assumed>
 ```
 
-That card is ready to hand to decompose-goal, or to /schedule once approved.
+Output only the card; no preamble in headless mode. In interactive mode you may add one line offering the next step ("Want me to run decompose-goal on this?").
 
-## What goal-maker does NOT do
-
-- It does not break the goal into the ordered subtask list. That is decompose-goal.
-  goal-maker writes the single `## Action` handle and stops.
-- It does not execute, schedule, or dispatch anything. It recommends a shape and
-  waits for a human to approve. Building the cron/loop/team is a separate step.
-- It does not rewrite an agent's system prompt. That is prompt-rewriter.
-
-Holding this line is what keeps the pipeline composable: each stage has one job and
-a clean contract with the next.
+Example `## Why this shape` for a weekly release watch with `shape: cron`, `owner: <you>`, `sink: telegram`, `kill: 3 failed fetches in a row -> escalate to <owner>`: "Recurring and must fire unattended weekly, so cron, not loop. owner, sink, and kill are set, so it clears the No Orphan Loops gate."

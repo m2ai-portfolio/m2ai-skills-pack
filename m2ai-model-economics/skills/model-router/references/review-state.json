@@ -1,0 +1,13 @@
+{
+  "_comment": "Trust-ladder state for the model-router review loop. Lives OUTSIDE routes.jsonl deliberately: if the log is ever truncated or rotated, the rung must not silently reset. Written by the Phase 3.5 review pass and by rung changes only. rung 1 = propose only; 2 = auto-write mechanical ops; 3 = auto-write new lessons.",
+  "rung": 1,
+  "passes_at_rung": 0,
+  "confirmed_predictions": 0,
+  "graduation_requires": {
+    "rung_1_to_2": "5 lessons whose falsifiable prediction was later CONFIRMED by a route outcome. Approval alone does not count.",
+    "rung_2_to_3": "10 further confirmed predictions at rung 2 with zero reverted auto-edits."
+  },
+  "demotion_rule": "Any auto-written lesson that the user reverts, or any lesson whose prediction is REFUTED, drops the rung by one immediately and resets passes_at_rung to 0.",
+  "predictions": [],
+  "history": []
+}

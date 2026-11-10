@@ -17,7 +17,7 @@ Detailed documentation of each content quality check. Rationale sourced from Ant
 
 **Rationale**: "Use lowercase letters, numbers, and hyphens only. Maximum 64 characters." (Anthropic). Invalid names break skill discovery and may cause filesystem issues.
 
-**Pass**: `banana-maker`, `skill-maintenance`, `l5-sprint`
+**Pass**: `banana-maker`, `skill-maintenance`, `self-healing-claudex`
 **Fail**: `Banana_Maker` (uppercase, underscores), `my-really-long-skill-name-that-exceeds-sixty-four-characters-limit-by-far` (too long)
 
 ## NM-02: Name Matches Directory

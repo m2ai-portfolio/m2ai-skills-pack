@@ -18,7 +18,8 @@ SKILL_NAME=$(basename "$SKILL_DIR")
 # --- Raw metrics ---
 TOTAL_LINES=$(wc -l < "$SKILL_MD")
 FRONTMATTER_LINES=0
-CODE_BLOCK_COUNT=$(grep -c '^\s*```' "$SKILL_MD" 2>/dev/null || echo 0)
+# grep -c prints "0" AND exits 1 on no match, so "|| echo 0" produced "0\n0" (fixed 2026-09-06)
+CODE_BLOCK_COUNT=$(grep -c '^\s*```' "$SKILL_MD" 2>/dev/null || true); CODE_BLOCK_COUNT=${CODE_BLOCK_COUNT:-0}
 # Count divided by 2 for paired blocks
 CODE_BLOCK_COUNT=$(( CODE_BLOCK_COUNT / 2 ))
 EXTERNAL_FILE_REFS=$(grep -cE '(references/|scripts/|assets/)' "$SKILL_MD" 2>/dev/null) || EXTERNAL_FILE_REFS=0
@@ -42,7 +43,17 @@ if head -1 "$SKILL_MD" | grep -q '^---$'; then
     # Extract fields from frontmatter
     FM_BLOCK=$(sed -n "2,${CLOSING_LINE}p" "$SKILL_MD")
     FM_NAME=$(echo "$FM_BLOCK" | grep -E '^name:\s*' | sed 's/^name:\s*//' | tr -d '\r' | xargs)
-    FM_DESCRIPTION=$(echo "$FM_BLOCK" | grep -E '^description:\s*' | sed 's/^description:\s*//' | tr -d '\r')
+    # Description may be a single line or a YAML block scalar (>, |, >-, |+ ...):
+    # for block scalars, join the indented continuation lines that follow.
+    # (Fixed 2026-09-06: the single-line grep read block scalars as a literal ">",
+    # failing DS-03/DS-04 on 23 of 88 skills.)
+    FM_DESCRIPTION=$(echo "$FM_BLOCK" | tr -d '\r' | awk '
+      /^description:[[:space:]]*[>|][-+]?[[:space:]]*$/ { inblk=1; next }
+      /^description:[[:space:]]*/ { sub(/^description:[[:space:]]*/, ""); print; exit }
+      inblk && /^[[:space:]]+/ { sub(/^[[:space:]]+/, ""); out = out (out ? " " : "") $0; next }
+      inblk { print out; exit }
+      END { if (inblk && out != "") print out }
+    ')
 
     if echo "$FM_BLOCK" | grep -qE '^allowed-tools:'; then
       FM_HAS_ALLOWED_TOOLS=true
@@ -78,12 +89,12 @@ if [ -n "$FM_DESCRIPTION" ]; then
   DESC_LENGTH=${#FM_DESCRIPTION}
 
   # Heuristic: action verbs suggest "what" is answered
-  if echo "$FM_DESCRIPTION" | grep -qiE '(audit|generate|create|build|analyze|check|review|manage|deploy|run|execute|transform|convert|scan|monitor|report|help|guide|produce|extract|process|search|fetch|validate|test|format|optimize|schedule|automate)'; then
+  if echo "$FM_DESCRIPTION" | grep -qiE '(audit|generate|create|build|analyze|check|review|manage|deploy|run|execute|transform|convert|scan|monitor|report|help|guide|produce|extract|process|search|fetch|validate|test|format|optimize|schedule|automate|save|capture|summari[sz]e|plan|decompose|route|dispatch|render|publish|triage|compare|recall|resolve|establish|sanitize|pick|turn .* into|write|edit|make|get|post)'; then
     DESC_ANSWERS_WHAT=true
   fi
 
   # Heuristic: trigger phrases suggest "when" is answered
-  if echo "$FM_DESCRIPTION" | grep -qiE '(use when|activate when|trigger when|when the user|when forge|when you need|when asked|when running|when reviewing|when creating|when building|before publishing|after bulk|use this)'; then
+  if echo "$FM_DESCRIPTION" | grep -qiE '(use when|use whenever|activate when|trigger when|triggers? on|trigger phrases?|when the user|when forge|when you need|when asked|when running|when reviewing|when creating|when building|before publishing|after bulk|use this)'; then
     DESC_ANSWERS_WHEN=true
   fi
 fi
