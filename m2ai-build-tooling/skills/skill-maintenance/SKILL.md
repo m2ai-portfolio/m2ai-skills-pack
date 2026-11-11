@@ -1,6 +1,6 @@
 ---
 name: skill-maintenance
-description: Audit Claude Code skills for content quality against Anthropic best practices. Use when Forge runs maintenance cycles, when the user asks to check skill quality, or when reviewing skills before publishing.
+description: Audit Claude Code skills for content quality against Anthropic best practices. Use when a scheduled maintenance cycle runs, when the user asks to check skill quality, or when reviewing skills before publishing.
 context: fork
 ---
 
@@ -10,7 +10,7 @@ context: fork
 
 Activate when:
 - The user asks to audit, review, or check skill quality
-- Forge triggers a maintenance cycle
+- A scheduled maintenance cycle runs
 - Before publishing or sharing skills
 - After bulk skill creation to verify standards compliance
 
@@ -24,7 +24,7 @@ This skill focuses on **content quality** (structure, metadata, progressive disc
 
 ### Step 1: Determine Scope
 
-Ask the user (or accept from Forge):
+Ask the user (or accept from the calling agent or schedule):
 - **Single skill**: audit one skill by name or path
 - **Full sweep**: audit all skills in `~/.claude/skills/`
 
