@@ -1,6 +1,10 @@
 # M2AI Skills Pack
 
-> **185 portable Claude Code skills** for building, governing, and operating AI agents: architecture, safety, model strategy, cost control, code pipelines, and business analysis. Ships as 7 themed plugins spanning 13 working divisions, so you install only the ones you need.
+![M2AI Skills Pack, carry a useful method into the next project and session](docs/portfolio-hero.png)
+
+A useful AI workflow should not disappear when the chat ends. M2AI Skills Pack captures recurring methods as inspectable skill files: clarify a goal, hand work to another agent, review an artifact, diagnose a failure, or prepare a video prompt. The aim is to make the next attempt easier to reproduce and judge.
+
+The source contains **185 skills in seven themed plugins**, covering 13 working divisions. Choose the methods relevant to your work, inspect their requirements, and adapt them to your environment. A skill is a procedure for an assistant to follow; installing one is not proof that its integrations are configured or its output is correct.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-185-brightgreen.svg)](#the-catalog)
 
@@ -29,9 +33,26 @@ Install the three plugins that cover these:
 /plugin install m2ai-model-economics@m2ai-skills-pack
 ```
 
+## Your first walkthrough
+
+1. Pick one bounded task. For example, turn a rough idea into a goal with an observable finish line, then split it into reviewable assignments.
+2. Read [goal-maker](m2ai-workflow-content/skills/goal-maker/SKILL.md) and [decompose-goal](m2ai-workflow-content/skills/decompose-goal/SKILL.md) before using them. Identify the inputs, outputs, and any environment assumptions.
+3. Install `m2ai-workflow-content` using the instructions below in your own Claude Code environment.
+4. Invoke the skill explicitly on a small example. Confirm the generated goal names the owner, result destination, stop condition, and acceptance criteria you actually intend.
+5. Review the decomposed tasks before handing them to an executor. A written goal or task list does not authorize its own execution.
+
+To inspect the collection without installing a plugin:
+
+```bash
+git clone https://github.com/m2ai-portfolio/m2ai-skills-pack.git
+cd m2ai-skills-pack
+```
+
+Open any plugin's `skills/<name>/SKILL.md` in your editor. No API key is needed to read the source. Running a skill requires a compatible assistant environment; individual skills may also need authenticated tools, local utilities, or paid provider access as described in their files.
+
 ## Install
 
-The pack ships as **7 themed plugins** from this one repo. Install only the ones you want — each is independent.
+The pack ships as **7 themed plugins** from this one repo. Install only the ones you want : each is independent.
 
 | Plugin | Skills | What it covers |
 |---|---:|---|
@@ -72,7 +93,7 @@ To pre-declare the pack for a team (no install command at all), add to `.claude/
 
 Restart Claude Code. Skills auto-trigger on their descriptions, or invoke explicitly (e.g. `/model-router`, `/diagnose`, `/aar`).
 
-There is no "Add to Claude Code" button, and no `claude://` install link — Claude Code has no plugin-install deeplink. The commands above are the shortest path that exists.
+There is no "Add to Claude Code" button, and no `claude://` install link : Claude Code has no plugin-install deeplink. The commands above are the shortest path that exists.
 
 ### Cursor
 
@@ -84,23 +105,23 @@ The same 7 plugins are also valid Cursor plugins (`.cursor-plugin/`), and Cursor
 
 **If you installed `m2ai-skills-pack@m2ai-skills-pack`, it will break.** That plugin no longer exists: the 183-skill monolith was split into the 7 plugins above.
 
-There is no automatic migration. Claude Code's `renames` field maps one old plugin name to one new name, and cannot express one plugin becoming seven — so nothing in the format can do this for you. Uninstall the old plugin and install the themed ones you want:
+There is no automatic migration. Claude Code's `renames` field maps one old plugin name to one new name, and cannot express one plugin becoming seven : so nothing in the format can do this for you. Uninstall the old plugin and install the themed ones you want:
 
 ```
 /plugin uninstall m2ai-skills-pack@m2ai-skills-pack
 /plugin install m2ai-agent-ops@m2ai-skills-pack
 ```
 
-Your skills are all still here, under the same names, and none of their content changed — only which plugin ships them.
+Your skills are all still here, under the same names, and none of their content changed : only which plugin ships them.
 
 ## Starter Kit
 
-New to Claude Code agents? [`templates/starter-kit/`](templates/starter-kit/) contains a ready `CLAUDE.md` + `agent.yaml` pair that shows how the two files connect — useful for anyone setting up their first agent.
+New to Claude Code agents? [`templates/starter-kit/`](templates/starter-kit/) contains a ready `CLAUDE.md` + `agent.yaml` pair that shows how the two files connect : useful for anyone setting up their first agent.
 
 | File | What it is |
 |---|---|
-| [`CLAUDE.md.template`](templates/starter-kit/CLAUDE.md.template) | A complete `CLAUDE.md` skeleton — hard rules, learned-mistakes log, adoption gate, and agent team rules — showing how behavioral constraints are written as enforced code, not documentation |
-| [`agent.yaml.example`](templates/starter-kit/agent.yaml.example) | A single `agent.yaml` identity card — model, description, tools, and routing fields — showing how it pairs with `CLAUDE.md` to form one complete agent |
+| [`CLAUDE.md.template`](templates/starter-kit/CLAUDE.md.template) | A complete `CLAUDE.md` skeleton : hard rules, learned-mistakes log, adoption gate, and agent team rules : showing how behavioral constraints are written as enforced code, not documentation |
+| [`agent.yaml.example`](templates/starter-kit/agent.yaml.example) | A single `agent.yaml` identity card : model, description, tools, and routing fields : showing how it pairs with `CLAUDE.md` to form one complete agent |
 
 Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `agents/<your-agent-name>/agent.yaml`, fill in your details, then install the skills above. The `rules/` subfolder contains starter rule files for shell safety and architecture discipline that `CLAUDE.md.template` already points to.
 
@@ -135,8 +156,8 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | [agent-sdk-layer-stack](m2ai-agent-architecture/skills/agent-sdk-layer-stack/) | Build a personal multi-agent AI command center using Claude Code as the immutable foundation with independently swapp… | Designing a personal AI stack, replacing an agent framework, building a multi-agent system, or asking "how do I build my own ag… |
 | [agents-md-generator](m2ai-agent-architecture/skills/agents-md-generator/) | Generate or lint an AGENTS.md file from repository analysis. | The user says "generate agents.md", "create agents.md", "lint agents.md", "agents file", "agent instructions", or wants to crea… |
 | [anticipation-gap-audit](m2ai-agent-architecture/skills/anticipation-gap-audit/) | Scores any agent definition or skill manifest against the four consumer-AI breakthrough problems (context, reliabilit… | Designing or restructuring an agent system. |
-| [bitter-lesson-scorecard](m2ai-agent-architecture/skills/bitter-lesson-scorecard/) | Score an agent system design against the Bitter Lesson principle — how much "how" is encoded vs "what", how much bets… | Designing new agent systems, reviewing agent architecture, or deciding what to simplify |
-| [build-spec-generator](m2ai-agent-architecture/skills/build-spec-generator/) | Takes a workflow that scored BUILD from workflow-fit-scorer and emits a deployment-ready build spec — trigger, I/O co… | Designing or restructuring an agent system. |
+| [bitter-lesson-scorecard](m2ai-agent-architecture/skills/bitter-lesson-scorecard/) | Score an agent system design against the Bitter Lesson principle : how much "how" is encoded vs "what", how much bets… | Designing new agent systems, reviewing agent architecture, or deciding what to simplify |
+| [build-spec-generator](m2ai-agent-architecture/skills/build-spec-generator/) | Takes a workflow that scored BUILD from workflow-fit-scorer and emits a deployment-ready build spec : trigger, I/O co… | Designing or restructuring an agent system. |
 | [classify-agent](m2ai-agent-architecture/skills/classify-agent/) | Classify a problem into one of four agent architectures: coding harness, dark factory, auto research, or orchestratio… | Starting a new agent project, evaluating a build approach, or when someone says "what kind of agent should I build?", "classify… |
 | [claudemd-router](m2ai-agent-architecture/skills/claudemd-router/) | Restructure a bloated CLAUDE.md into a lean router that delegates to compartmentalized .claude/rules/ files. | CLAUDE.md exceeds ~80 lines, when adding a new domain of instructions, or when the user says "clean up my CLAUDE.md", "my CLAUD… |
 | [compound-skill-orchestrator](m2ai-agent-architecture/skills/compound-skill-orchestrator/) | Build orchestrator skills that chain multiple existing skills in sequence using context:fork, passing output between… | The user says "chain skills", "combine skills", "orchestrator skill", "compound skill", "run skills in sequence", "skill pipeli… |
@@ -158,10 +179,10 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | Skill | What it does | When to use |
 |---|---|---|
 | [action-class-policy](m2ai-safety-verification/skills/action-class-policy/) | Interview the user about their agent usage patterns and risk tolerance, then generate a tiered action-class policy do… | Someone says "/action-class-policy", "define action classes", "agent permissions policy", "what actions can my agent take unsup… |
-| [agent-authority-map](m2ai-safety-verification/skills/agent-authority-map/) | Audit and visualize what an agent is actually allowed to do — parses Claude Code settings, hooks, MCP server configs… | The user says "agent authority map", "what can my agent do", "permission audit", "authority gaps", or wants to inventory autono… |
-| [agent-blast-radius](m2ai-safety-verification/skills/agent-blast-radius/) | Inventory everything an autonomous agent has actually touched over a time window — files modified, commits authored… | The user says "blast radius", "what has my agent done", "agent footprint", "audit agent actions", or wants visibility into the… |
+| [agent-authority-map](m2ai-safety-verification/skills/agent-authority-map/) | Audit and visualize what an agent is actually allowed to do : parses Claude Code settings, hooks, MCP server configs… | The user says "agent authority map", "what can my agent do", "permission audit", "authority gaps", or wants to inventory autono… |
+| [agent-blast-radius](m2ai-safety-verification/skills/agent-blast-radius/) | Inventory everything an autonomous agent has actually touched over a time window : files modified, commits authored… | The user says "blast radius", "what has my agent done", "agent footprint", "audit agent actions", or wants visibility into the… |
 | [classify-loop](m2ai-safety-verification/skills/classify-loop/) | Classify an agent workflow by the loop it operates in (code-generation, operational, supervisory, or fully-autonomous… | Designing a new agent workflow, auditing an existing agent deployment, or when someone asks "what loop is my agent in?", "how a… |
-| [claudex-plan](m2ai-safety-verification/skills/claudex-plan/) | Enforced multi-round planning loop with a stop hook that blocks code execution until the plan survives adversarial re… | A task is high-stakes enough that a wrong plan is expensive to undo — the stop hook is the "bouncer" that prevents jumping stra… |
+| [claudex-plan](m2ai-safety-verification/skills/claudex-plan/) | Enforced multi-round planning loop with a stop hook that blocks code execution until the plan survives adversarial re… | A task is high-stakes enough that a wrong plan is expensive to undo : the stop hook is the "bouncer" that prevents jumping stra… |
 | [control-map](m2ai-safety-verification/skills/control-map/) | Walk any agent workflow through a 7-row control map (runtime, governed data, identity/principal, action authorization… | Designing a new agent workflow, auditing an existing one, or answering "what controls does this agent have?" before shipping |
 | [describability-gate](m2ai-safety-verification/skills/describability-gate/) | Eight-field readiness gate that blocks any automation project until inputs, outputs, decision rules, exceptions, owne… | Kicking off any automation build, as a pre-dispatch check, or when reviewing automation specs |
 | [destructive-op-guard](m2ai-safety-verification/skills/destructive-op-guard/) | Design or audit a PreToolUse hook that intercepts high-blast-radius shell operations (DROP TABLE, rm -rf, git push --… | Adding a safety hook to a Claude Code project, reviewing an existing hook's coverage, or after an incident where an autonomous… |
@@ -208,7 +229,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 |---|---|---|
 | [adversarial-dual-model-workflow](m2ai-model-economics/skills/adversarial-dual-model-workflow/) | Set up and run a two-AI coding workflow where a primary assistant handles planning and code generation while an adver… | The user wants complementary AI tool pairing, a structured code review gate, an adversarial planning loop, or a background audi… |
 | [api-breaking-change-scanner](m2ai-model-economics/skills/api-breaking-change-scanner/) | Scans a codebase for deprecated API parameters and patterns that break silently or return 400 errors when migrating t… | Choosing, migrating, or reviewing models. |
-| [compensating-complexity-auditor](m2ai-model-economics/skills/compensating-complexity-auditor/) | Audit system prompts and agent pipelines for compensating complexity — scaffolding, procedural hacks, and duct tape b… | Upgrading models, reviewing system prompts, or preparing for model migration |
+| [compensating-complexity-auditor](m2ai-model-economics/skills/compensating-complexity-auditor/) | Audit system prompts and agent pipelines for compensating complexity : scaffolding, procedural hacks, and duct tape b… | Upgrading models, reviewing system prompts, or preparing for model migration |
 | [compute-availability-tracker](m2ai-model-economics/skills/compute-availability-tracker/) | Poll the status pages of major AI providers (Anthropic, OpenAI, Google, OpenRouter) and produce a current availabilit… | A model call is failing, before routing important work, or on a schedule to detect degradation early |
 | [cross-model-peer-review](m2ai-model-economics/skills/cross-model-peer-review/) | Implements a cross-model peer review loop where Model A grades Model B's output on a structured rubric, catching erro… | Choosing, migrating, or reviewing models. |
 | [gemini-rescue](m2ai-model-economics/skills/gemini-rescue/) | Get a second opinion from Google Gemini on the current diff, plan, or problem. | Claude is stuck, when an implementation needs adversarial review by a different vendor, or when a 1M-context audit is needed th… |
@@ -245,7 +266,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | [inference-vendor-lock-in-scorer](m2ai-model-economics/skills/inference-vendor-lock-in-scorer/) | Scan agent and skill manifests for AI vendor lock-in exposure -- hardcoded model names, non-portable API surfaces, ab… | A vendor migration or portability planning sprint |
 | [license-audit](m2ai-model-economics/skills/license-audit/) | Takes a team's current AI tool inventory and work types, then outputs a one-page misfit memo identifying duplicative… | Interactive advisory skill for AI tool stack rationalization |
 | [mcp-portability-auditor](m2ai-model-economics/skills/mcp-portability-auditor/) | Scan an agent stack (Claude Code plugins, Conway .cnw.zip files, Gemini extensions, ChatGPT GPTs) and flag which capa… | The user asks to audit their agent extensions, score MCP portability, check for vendor-proprietary extension formats, or plan a… |
-| [platform-dependency-mapper](m2ai-model-economics/skills/platform-dependency-mapper/) | Audit an org's or individual's AI stack and produce an exit-cost estimate across four axes — data, integrations, beha… | The user asks to audit AI lock-in, map vendor dependencies, estimate switching costs, or assess platform risk on their AI stack |
+| [platform-dependency-mapper](m2ai-model-economics/skills/platform-dependency-mapper/) | Audit an org's or individual's AI stack and produce an exit-cost estimate across four axes : data, integrations, beha… | The user asks to audit AI lock-in, map vendor dependencies, estimate switching costs, or assess platform risk on their AI stack |
 | [poly-skill](m2ai-model-economics/skills/poly-skill/) | Convert any Claude Code skill to work in OpenAI Codex (or vice versa) by applying a structural adapter that handles n… | Assessing lock-in or planning a vendor exit. |
 | [renewal-interrogation](m2ai-model-economics/skills/renewal-interrogation/) | Generate a vendor-specific SaaS renewal playbook for contracts where agent workloads are in scope. | The user says "renewal-interrogation", "renewal playbook", "SaaS renewal prep", "contract negotiation for agents", "help me pre… |
 
@@ -255,13 +276,13 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 
 | Skill | What it does | When to use |
 |---|---|---|
-| [claude-code-memory-architect](m2ai-agent-architecture/skills/claude-code-memory-architect/) | Interviews the user to design and build a personalized Claude Code memory system — choosing which building blocks (de… | A user wants to build, redesign, or consolidate their Claude Code memory layer |
-| [claude-memory-architect](m2ai-agent-architecture/skills/claude-memory-architect/) | Interview-driven skill that designs a custom Claude Code memory system tailored to how the user actually works. | Clones open-source memory repos, audits their patterns, then builds a personal memory spec using building blocks — decay, promo… |
+| [claude-code-memory-architect](m2ai-agent-architecture/skills/claude-code-memory-architect/) | Interviews the user to design and build a personalized Claude Code memory system : choosing which building blocks (de… | A user wants to build, redesign, or consolidate their Claude Code memory layer |
+| [claude-memory-architect](m2ai-agent-architecture/skills/claude-memory-architect/) | Interview-driven skill that designs a custom Claude Code memory system tailored to how the user actually works. | Clones open-source memory repos, audits their patterns, then builds a personal memory spec using building blocks : decay, promo… |
 | [context-fork-guide](m2ai-agent-architecture/skills/context-fork-guide/) | Use when creating or modifying skills that do heavy research, search, or multi-tool work. | Creating or modifying skills that do heavy research, search, or multi-tool work |
 | [context-hygiene](m2ai-agent-architecture/skills/context-hygiene/) | Reference for Claude Code context management. | "context is getting large", "session feels slow", "Claude forgot what we were doing", "how do I manage context" |
 | [memory-fingerprint-architect](m2ai-agent-architecture/skills/memory-fingerprint-architect/) | Design a personalized Claude Code memory system by cloning existing open-source memory frameworks, auditing them with… | Saying "design my memory system", "build my memory", "personalize my CLAUDE.md memory", "memory architect", or "memory fingerpr… |
 | [memory-system-assembler](m2ai-agent-architecture/skills/memory-system-assembler/) | Build a personalized Claude Code memory system by auditing open-source memory repos, cherry-picking patterns that mat… | Setting up memory for the first time, redesigning an existing memory system, or evaluating new memory patterns from the OSS eco… |
-| [world-model-principles-scorecard](m2ai-agent-architecture/skills/world-model-principles-scorecard/) | Score an agent system or knowledge base against five principles that determine whether a world model compounds value… | Complementary to bitter-lesson-scorecard (architecture simplicity) — this measures knowledge/decision quality |
+| [world-model-principles-scorecard](m2ai-agent-architecture/skills/world-model-principles-scorecard/) | Score an agent system or knowledge base against five principles that determine whether a world model compounds value… | Complementary to bitter-lesson-scorecard (architecture simplicity) : this measures knowledge/decision quality |
 | [world-model-readiness-diagnostic](m2ai-agent-architecture/skills/world-model-readiness-diagnostic/) | Interactive diagnostic that maps an organization to a world model paradigm (vector DB, structured ontology, or signal… | Assessing organizational AI readiness, choosing a knowledge architecture, or starting a consulting engagement |
 
 ### 🏭 Build Pipelines & Code Comprehension
@@ -304,14 +325,14 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | [eval-agent](m2ai-build-tooling/skills/eval-agent/) | Score any agent tool or platform against 3 structural questions (persistent memory, inspectable artifacts, compoundin… | Evaluating agent tools, comparing platforms, or deciding whether to trust a tool with a specific workflow |
 | [failure-mode-tool-router](m2ai-build-tooling/skills/failure-mode-tool-router/) | Given any task description, classify it into the right AI tool category and explain why common alternatives are wrong… | Prevents wasting time building agents for tasks that should use a different tool entirely |
 | [get-api-docs](m2ai-build-tooling/skills/get-api-docs/) | Fetch authoritative API documentation via the Context Hub (/chub) to verify model names, parameters, and endpoints be… | Building, auditing, or converting skills and tools. |
-| [inbox-load-audit](m2ai-build-tooling/skills/inbox-load-audit/) | Scans installed skills, plugins, MCP servers, hooks, and scheduled tasks to produce an inbox load score — how many in… | Building, auditing, or converting skills and tools. |
-| [mcp-spec-generator](m2ai-build-tooling/skills/mcp-spec-generator/) | Takes any SaaS product or internal system and outputs a complete MCP server specification — tool list, input/output s… | The user says "spec an MCP server for X", "write an MCP spec", "how would I wrap X as MCP", or wants a buildable blueprint befo… |
+| [inbox-load-audit](m2ai-build-tooling/skills/inbox-load-audit/) | Scans installed skills, plugins, MCP servers, hooks, and scheduled tasks to produce an inbox load score : how many in… | Building, auditing, or converting skills and tools. |
+| [mcp-spec-generator](m2ai-build-tooling/skills/mcp-spec-generator/) | Takes any SaaS product or internal system and outputs a complete MCP server specification : tool list, input/output s… | The user says "spec an MCP server for X", "write an MCP spec", "how would I wrap X as MCP", or wants a buildable blueprint befo… |
 | [optimize-description](m2ai-build-tooling/skills/optimize-description/) | Rewrite a skill's description field for maximum agent discoverability -- clear trigger conditions, explicit input/out… | Building, auditing, or converting skills and tools. |
-| [prototype-classifier](m2ai-build-tooling/skills/prototype-classifier/) | Classify any software tool, script, or AI artifact onto a 4-rung production-class ladder (Personal Tool → Team Beta →… | Never rounds up on aspiration — only classifies at the highest rung the artifact fully qualifies for |
+| [prototype-classifier](m2ai-build-tooling/skills/prototype-classifier/) | Classify any software tool, script, or AI artifact onto a 4-rung production-class ladder (Personal Tool → Team Beta →… | Never rounds up on aspiration : only classifies at the highest rung the artifact fully qualifies for |
 | [skill-audit](m2ai-build-tooling/skills/skill-audit/) | Audit your Claude Code skills directory, CLAUDE.md, and recent session patterns to surface candidates for new skills… | Building, auditing, or converting skills and tools. |
 | [skill-maintenance](m2ai-build-tooling/skills/skill-maintenance/) | Audit Claude Code skills for content quality against Anthropic best practices. | A scheduled maintenance cycle runs, when the user asks to check skill quality, or when reviewing skills before publishing |
-| [tool-audit](m2ai-build-tooling/skills/tool-audit/) | Audit a tool already in your stack against a semantic-depth rubric and emit a clear decision — Extend, Wrap, Replace… | Evaluating whether a current tool is worth keeping, improving, or replacing; when a tool is causing agent failures; or the user… |
-| [tool-build-guide-generator](m2ai-build-tooling/skills/tool-build-guide-generator/) | Generate a hands-on, machine-ready build guide for any tool or library — takes a tool name and produces a runnable, a… | Not a hello-world demo; a real build that develops genuine fluency |
+| [tool-audit](m2ai-build-tooling/skills/tool-audit/) | Audit a tool already in your stack against a semantic-depth rubric and emit a clear decision : Extend, Wrap, Replace… | Evaluating whether a current tool is worth keeping, improving, or replacing; when a tool is causing agent failures; or the user… |
+| [tool-build-guide-generator](m2ai-build-tooling/skills/tool-build-guide-generator/) | Generate a hands-on, machine-ready build guide for any tool or library : takes a tool name and produces a runnable, a… | Not a hello-world demo; a real build that develops genuine fluency |
 | [tool-fluency-builder](m2ai-build-tooling/skills/tool-fluency-builder/) | Turn any AI tool or framework from "heard of it" to "can build with it" by generating a machine-ready, hands-on build… | Goes beyond hello-world to produce a real, runnable project with annotated steps, pitfalls, and judgment calls |
 | [tool-migration-brief](m2ai-build-tooling/skills/tool-migration-brief/) | Converts enterprise tool audit results (which tools fail agent-infrastructure tests) into a leadership-ready migratio… | The user says "write a migration brief", "make this exec-ready", "brief for leadership on tool migration", or has scored their… |
 | [video-to-skill](m2ai-build-tooling/skills/video-to-skill/) | Create Claude Code skills from screen recordings of manual processes. | The user says "record to skill", "video to skill", "screen record skill", "extract skill from video", "SOP from recording", or… |
@@ -330,22 +351,22 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | [career-gap-map](m2ai-strategy-analysis/skills/career-gap-map/) | Calculate an individual's AI exposure score (percent of weekly tasks AI can already compress to near-zero) and produc… | The user wants to audit their own job, plan a career pivot, evaluate how exposed their role is to the next model release, or bu… |
 | [counterargument-stress-test](m2ai-strategy-analysis/skills/counterargument-stress-test/) | Takes any strategic argument, business case, or thesis and systematically generates and addresses the N strongest cou… | Analyzing a market, workflow, or business decision. |
 | [data-fabric-fit-assessor](m2ai-strategy-analysis/skills/data-fabric-fit-assessor/) | Given a client's or team's existing data infrastructure (Microsoft 365, Google Workspace, Salesforce, custom RAG, etc… | Maps four major data fabrics to agent products optimized for each |
-| [decision-interview-builder](m2ai-strategy-analysis/skills/decision-interview-builder/) | Conduct a structured multi-turn interview through one real past decision the user made — walking situation, decision… | The user says "interview me about a decision", "build my judgment artifact", "extract my reasoning", "decision interview", "sho… |
+| [decision-interview-builder](m2ai-strategy-analysis/skills/decision-interview-builder/) | Conduct a structured multi-turn interview through one real past decision the user made : walking situation, decision… | The user says "interview me about a decision", "build my judgment artifact", "extract my reasoning", "decision interview", "sho… |
 | [executive-briefing](m2ai-strategy-analysis/skills/executive-briefing/) | Takes a complex geopolitical, industry, or market event and produces a structured executive briefing with thesis, tra… | Analyzing a market, workflow, or business decision. |
-| [gap-trace](m2ai-strategy-analysis/skills/gap-trace/) | Run Nate's three-question industry diagnostic — what inefficiency is this built on, how fast can AI close it, what ne… | The user wants a fast (5-minute) diagnostic of any industry, product, or workflow without running the full arbitrage-audit |
+| [gap-trace](m2ai-strategy-analysis/skills/gap-trace/) | Run Nate's three-question industry diagnostic : what inefficiency is this built on, how fast can AI close it, what ne… | The user wants a fast (5-minute) diagnostic of any industry, product, or workflow without running the full arbitrage-audit |
 | [geopolitical-signal-enricher](m2ai-strategy-analysis/skills/geopolitical-signal-enricher/) | Enriches a market or technology signal with geopolitical context -- affected regions, supply chain nodes, timeline es… | Analyzing a market, workflow, or business decision. |
 | [impl-arch-audit](m2ai-strategy-analysis/skills/impl-arch-audit/) | Score an AI deployment against six implementation layers (workflow, data, authority, evaluation, audit trail, recovery). | Analyzing a market, workflow, or business decision. |
 | [launch-filter](m2ai-strategy-analysis/skills/launch-filter/) | Run any agent or AI product announcement through Nate's 5-question launch filter to get a structured verdict and go/w… | Evaluating a new agent platform, AI product release, or vendor announcement |
-| [middleware-trap-detector](m2ai-strategy-analysis/skills/middleware-trap-detector/) | Diagnose whether an agent deployment is falling into the "middleware trap" — wrapping legacy systems without redesign… | The user says "middleware trap", "deployment health", "is this deployment safe", "wrapping legacy", "automated bottleneck", or… |
+| [middleware-trap-detector](m2ai-strategy-analysis/skills/middleware-trap-detector/) | Diagnose whether an agent deployment is falling into the "middleware trap" : wrapping legacy systems without redesign… | The user says "middleware trap", "deployment health", "is this deployment safe", "wrapping legacy", "automated bottleneck", or… |
 | [news-narrative-decomposer](m2ai-strategy-analysis/skills/news-narrative-decomposer/) | Takes a month of AI/tech news and extracts the structural shifts underneath the headlines -- classifying each story b… | Fights "absorbed a lot of takes but couldn't name what changed |
-| [reasoning-extractor](m2ai-strategy-analysis/skills/reasoning-extractor/) | Apply a four-question reasoning framework (situation → decision → risk → change) to any piece of work — from an indiv… | The user says "extract my reasoning", "reasoning trail", "document my thinking", "why I made this call", "annotate this decisio… |
+| [reasoning-extractor](m2ai-strategy-analysis/skills/reasoning-extractor/) | Apply a four-question reasoning framework (situation → decision → risk → change) to any piece of work : from an indiv… | The user says "extract my reasoning", "reasoning trail", "document my thinking", "why I made this call", "annotate this decisio… |
 | [semantic-score](m2ai-strategy-analysis/skills/semantic-score/) | Score any AI product, vendor pitch, or announcement across 10 semantic-depth dimensions to distinguish "access-only"… | Evaluating AI tooling, reviewing a vendor pitch, auditing an integration, or the user says "/semantic-score", "semantic depth t… |
 | [silver-platter](m2ai-strategy-analysis/skills/silver-platter/) | Interview a business owner about their day-to-day tools, build a tailored data map, render a Pantry → Prep → Plate HT… | Audits existing Claude Code setups in the cwd before asking questions, so users who've started building don't get re-asked |
 | [strategic-timing-matrix](m2ai-strategy-analysis/skills/strategic-timing-matrix/) | Map your biggest pending decisions (hiring, fundraising, product launches, home purchase, job change) against macro e… | The user says "timing matrix", "when should I", "decision timing", "should I wait", "accelerate or delay", "macro timing", "str… |
 | [stress-test-finder](m2ai-strategy-analysis/skills/stress-test-finder/) | Interview the user about their current workload, surface the task they've been avoiding because it felt too messy or… | Deciding what to hand off next or when stuck in indecision about AI delegation |
 | [thesis-cluster-detector](m2ai-strategy-analysis/skills/thesis-cluster-detector/) | Ingests a batch of enterprise AI or technology news items (from RSS, Substack previews, or pasted headlines) and clus… | The user says "thesis cluster", "what's the underlying bet here", "cluster these stories", "detect the pattern", "what do these… |
 | [weekly-signal-diff](m2ai-strategy-analysis/skills/weekly-signal-diff/) | Tracks N companies across M categories, re-ranks using user context (projects, interests, priorities), and produces a… | Saves analysis back so signal compounds over time |
-| [workflow-decomposer](m2ai-strategy-analysis/skills/workflow-decomposer/) | Turn a function, role, or process description into a list of discrete, scoreable workflows — the pre-step before any… | "decompose this role", "break this function into workflows", "workflow decomposer", or before scoring any AI automation opportu… |
+| [workflow-decomposer](m2ai-strategy-analysis/skills/workflow-decomposer/) | Turn a function, role, or process description into a list of discrete, scoreable workflows : the pre-step before any… | "decompose this role", "break this function into workflows", "workflow decomposer", or before scoring any AI automation opportu… |
 | [workflow-fit-scorer](m2ai-strategy-analysis/skills/workflow-fit-scorer/) | Score a candidate workflow against 5 automation-fit properties and return a build / switch-tools / resolve-ambiguity… | Front-door diagnostic for any M2AI automation advisory engagement |
 | [workflow-investment-scorer](m2ai-strategy-analysis/skills/workflow-investment-scorer/) | Score each workflow on six dimensions (frequency, mistake cost, judgment, model-improvement trajectory, market maturi… | "score this workflow", "investment motion", "should I automate or buy", "build buy hire wait" |
 | [workflow-tier-classifier](m2ai-strategy-analysis/skills/workflow-tier-classifier/) | Paste a product description or pitch and get back a five-tier verdict (Decoration → Full Stack) with the missing impl… | Lightweight lead-magnet classifier and self-assessment tool |
@@ -359,10 +380,10 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | [artifact-contract-validator](m2ai-safety-verification/skills/artifact-contract-validator/) | Validate a directory of claimed deliverables for file-type authenticity, formula presence in spreadsheets, embedded m… | Shipping any AI-generated deliverable set to a client or reviewer |
 | [institutional-taste-encoder](m2ai-safety-verification/skills/institutional-taste-encoder/) | Formalize implicit quality judgments, style preferences, and "taste" into structured constraint specifications that a… | The user says "encode my taste", "formalize quality rules", "taste encoder", "write my style constraints", "capture my preferen… |
 | [knowledge-work-tests](m2ai-safety-verification/skills/knowledge-work-tests/) | Generate evaluation criteria, acceptance checks, and scoring rubrics for knowledge work outputs -- the missing "test… | Defining quality gates for agent outputs, building acceptance criteria for delegated work, or reviewing knowledge work delivera… |
-| [multi-artifact-work-package](m2ai-safety-verification/skills/multi-artifact-work-package/) | Turn a messy business situation into a full deliverable set with an explicit artifact contract — Word, PowerPoint, Ex… | A client engagement, proposal, or agent task requires multiple coordinated output formats |
+| [multi-artifact-work-package](m2ai-safety-verification/skills/multi-artifact-work-package/) | Turn a messy business situation into a full deliverable set with an explicit artifact contract : Word, PowerPoint, Ex… | A client engagement, proposal, or agent task requires multiple coordinated output formats |
 | [pretty-but-wrong](m2ai-safety-verification/skills/pretty-but-wrong/) | Final hostile-reviewer pass on any AI-generated document, deck, or workbook before sharing. | Sharing any AI-generated deliverable with a decision-maker |
 | [promotion-packet-auditor](m2ai-safety-verification/skills/promotion-packet-auditor/) | Adversarial reviewer that scores a promotion packet or performance self-review for real judgment signal versus AI-gen… | The user says "audit my promo packet", "signal check", "promotion review", "does this show real impact", "what will a reviewer… |
-| [recognizable-quality-test-generator](m2ai-safety-verification/skills/recognizable-quality-test-generator/) | Generate an LLM-as-judge quality rubric from a workflow description and historical examples. | Building an agent that needs verifiable success criteria — converts "I know good when I see it" into a prompt-based pass/fail t… |
+| [recognizable-quality-test-generator](m2ai-safety-verification/skills/recognizable-quality-test-generator/) | Generate an LLM-as-judge quality rubric from a workflow description and historical examples. | Building an agent that needs verifiable success criteria : converts "I know good when I see it" into a prompt-based pass/fail t… |
 | [source-packet](m2ai-safety-verification/skills/source-packet/) | Builds a structured source inventory from a set of files or documents before any artifact is created. | Starting any AI-generated deliverable (deck, report, workbook) to establish what is known, what is estimated, and where sources… |
 | [trust-score](m2ai-safety-verification/skills/trust-score/) | Score any AI-generated document, spreadsheet, or deck on a 0–100 trust scale across five verifiable dimensions. | Final review before sharing a deliverable. |
 | [workbook-doctor](m2ai-safety-verification/skills/workbook-doctor/) | Audits an existing or AI-generated Excel workbook for hidden risks before it is used in decisions. | Relying on any AI-generated spreadsheet for financial decisions, reporting, or client deliverables |
@@ -375,11 +396,11 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 |---|---|---|
 | [afk](m2ai-workflow-content/skills/afk/) | Overnight worker fired by a scheduled task. Drains a content-backlog inbox: expands items tagged `afk: ready` into dr… | A nightly scheduler fires it, or the user says "/afk", "run afk", "drain the inbox" |
 | [calendar-hygiene](m2ai-workflow-content/skills/calendar-hygiene/) | Audit the next N days of a Google Calendar and surface hygiene issues before the user notices them -- back-to-back me… | Asking "calendar hygiene", "audit my calendar", "check my schedule", "what's wrong with my week?", "add buffers to my calendar"… |
-| [decompose-goal](m2ai-workflow-content/skills/decompose-goal/) | Decompose a free-text goal into an ordered list of atomic, dispatchable subtasks for any downstream executor — subagents, Agent Teams, DAG engines (LangGraph, CrewAI, n8n), headless cron, or human checklists. Downstream of goal-maker. | A multi-step instruction needs atomization before handoff; "decompose this goal", "break this into subtasks", "flatten this for dispatch", "turn this into a runnable task list" |
-| [file-intel](m2ai-workflow-content/skills/file-intel/) | Run the Gemini file processor on any folder — extracts content from PDF, PPTX, XLSX, DOCX, CSV, JSON, and any text fo… | Asked to "summarise this folder", "run file intel", "process these files", or a folder path is provided and summaries are needed |
+| [decompose-goal](m2ai-workflow-content/skills/decompose-goal/) | Decompose a free-text goal into an ordered list of atomic, dispatchable subtasks for any downstream executor : subagents, Agent Teams, DAG engines (LangGraph, CrewAI, n8n), headless cron, or human checklists. Downstream of goal-maker. | A multi-step instruction needs atomization before handoff; "decompose this goal", "break this into subtasks", "flatten this for dispatch", "turn this into a runnable task list" |
+| [file-intel](m2ai-workflow-content/skills/file-intel/) | Run the Gemini file processor on any folder : extracts content from PDF, PPTX, XLSX, DOCX, CSV, JSON, and any text fo… | Asked to "summarise this folder", "run file intel", "process these files", or a folder path is provided and summaries are needed |
 | [gh-review](m2ai-workflow-content/skills/gh-review/) | Review 1-3 GitHub repos against the current project and generate an HTML report with plain-speak summaries, relevance… | Ever the user shares a GitHub repo link and wants to understand how it fits their project, asks 'what is this repo?', 'how woul… |
-| [goal-maker](m2ai-workflow-content/skills/goal-maker/) | Turn a fuzzy idea or triaged item into a well-formed, runnable GOAL card — crisp objective, observable done-state, and a chosen execution shape (one-shot/loop/cron/subagents/worktree) with owner/sink/kill. Upstream of decompose-goal. | A raw idea needs sharpening into an objective with success criteria and a way to run it; "make a goal", "turn this into a goal/loop", "how should I run this" |
-| [goal-os-optimize](m2ai-workflow-content/skills/goal-os-optimize/) | Use /goal to run a self-directed optimization loop on your agentic OS — skills, CLAUDE.md, rules files, and projects. | A judge agent on a separate LLM validates each iteration |
+| [goal-maker](m2ai-workflow-content/skills/goal-maker/) | Turn a fuzzy idea or triaged item into a well-formed, runnable GOAL card : crisp objective, observable done-state, and a chosen execution shape (one-shot/loop/cron/subagents/worktree) with owner/sink/kill. Upstream of decompose-goal. | A raw idea needs sharpening into an objective with success criteria and a way to run it; "make a goal", "turn this into a goal/loop", "how should I run this" |
+| [goal-os-optimize](m2ai-workflow-content/skills/goal-os-optimize/) | Use /goal to run a self-directed optimization loop on your agentic OS : skills, CLAUDE.md, rules files, and projects. | A judge agent on a separate LLM validates each iteration |
 | [life-engine](m2ai-workflow-content/skills/life-engine/) | Reference implementation of a proactive Life Engine -- a time-windowed briefing loop that checks email, calendar, pro… | This is a REFERENCE IMPLEMENTATION showing one user's full wiring, not a plug-and-play template |
 | [next](m2ai-workflow-content/skills/next/) | Write an end-of-session handoff (where we are, what we decided, next step) to `~/handoffs/<project>/` so any tool can resume. | Wrapping up a session or handing off work |
 | [quick](m2ai-workflow-content/skills/quick/) | Quick-capture a spur-of-the-moment idea into a content-backlog inbox file so it is not lost. Tags captures for the AF… | The user says "/quick …", "quick capture", "jot this down", "add to the backlog", or fires off a half-formed idea |
@@ -398,7 +419,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 |---|---|---|
 | [banana-maker](m2ai-workflow-content/skills/banana-maker/) | Generate images using the Gemini image generation API with the Nano Banana Pro prompting methodology. | The user asks to generate, create, or make an image, picture, photo, illustration, or visual |
 | [seedance-prompt](m2ai-workflow-content/skills/seedance-prompt/) | Master AI Video Prompt Engineer for Seedance 2.0. | Converting a user concept into a high-quality, cinematic Seedance 2 |
-| [seedance-shot-prompt](m2ai-workflow-content/skills/seedance-shot-prompt/) | Use when generating a Seedance 2 video prompt for a linear forward-motion shot — transitions, chase shots, establishi… | Generating a Seedance 2 video prompt for a linear forward-motion shot — transitions, chase shots, establishing shots, A→B narra… |
+| [seedance-shot-prompt](m2ai-workflow-content/skills/seedance-shot-prompt/) | Use when generating a Seedance 2 video prompt for a linear forward-motion shot : transitions, chase shots, establishi… | Generating a Seedance 2 video prompt for a linear forward-motion shot : transitions, chase shots, establishing shots, A→B narra… |
 | [viral-shorts-pipeline](m2ai-workflow-content/skills/viral-shorts-pipeline/) | Generate and publish viral TikTok/YouTube Shorts from a single theme prompt. | Asked to "make viral videos", "generate TikToks", "create shorts", "run the viral pipeline", or "generate and post videos" |
 
 ## Configuration
@@ -420,20 +441,26 @@ each skill falls back gracefully and flags the missing source in its output.
 
 A few skills contain environment-specific references. They still work, but you may want to adjust:
 
-- **gh-review** — hardcoded LAN IP `<host>` for the report-server URL. Swap for your own file server, or ignore (the HTML file is still generated locally).
-- **banana-maker** — one mention of a "Surface tablet." Harmless.
-- **context-fork-guide** — example command points at `/home/user/.claude/skills/`. Replace with your skills path if you run the example verbatim.
-- **get-api-docs** — depends on the `/chub` (Context Hub) skill being installed separately. Without it, this skill is a no-op.
-- **aar** — assumes an orchestrated agent system with a SQLite task DB and A2A endpoints. Without those, Phase 1 forensics gets thin.
-- **what-am-i-forgetting** — most useful if you maintain a memory-index file, per-project TODO/NEXT files, and daily notes. Without them, it falls back to folder inventory + cron listings.
-- **gemini-rescue** — requires a Gemini MCP server exposing `gemini_ask` and `gemini_run` tools. Configure with your Google API key.
-- **self-healing-claudex** — requires the Codex CLI (`codex`) installed and authenticated. Falls back to the all-Claude `/self-healing-pipeline` if Codex is unavailable.
+- **gh-review** : hardcoded LAN IP `<host>` for the report-server URL. Swap for your own file server, or ignore (the HTML file is still generated locally).
+- **banana-maker** : one mention of a "Surface tablet." Harmless.
+- **context-fork-guide** : example command points at `/home/user/.claude/skills/`. Replace with your skills path if you run the example verbatim.
+- **get-api-docs** : depends on the `/chub` (Context Hub) skill being installed separately. Without it, this skill is a no-op.
+- **aar** : assumes an orchestrated agent system with a SQLite task DB and A2A endpoints. Without those, Phase 1 forensics gets thin.
+- **what-am-i-forgetting** : most useful if you maintain a memory-index file, per-project TODO/NEXT files, and daily notes. Without them, it falls back to folder inventory + cron listings.
+- **gemini-rescue** : requires a Gemini MCP server exposing `gemini_ask` and `gemini_run` tools. Configure with your Google API key.
+- **self-healing-claudex** : requires the Codex CLI (`codex`) installed and authenticated. Falls back to the all-Claude `/self-healing-pipeline` if Codex is unavailable.
 - **tldr** -- assumes an Obsidian vault at `~/vault/`. Adjust the path in the skill if your vault lives elsewhere.
 - **life-engine** -- reference implementation, not plug-and-play. Shows how one user wired Gmail, Google Calendar, an idea-catcher DB, and changelog tracking into a 30-minute proactive loop. Read the Adaptation Guide at the bottom of the skill to build your own.
-- **silver-platter** — uses Jinja2 for HTML rendering (`pip install jinja2`). Examples use fictional business personas.
+- **silver-platter** : uses Jinja2 for HTML rendering (`pip install jinja2`). Examples use fictional business personas.
 
 ## Version
 
 `0.5.1` -- added trace-prompt, a diagnostic skill that captures a sanitized markdown trace of the current exchange only (prompt, active model, tools run, errors verbatim) for support threads and bug reports (179 skills).
 
 `0.5.0` -- consolidated SkillForge into the pack (now 178 skills), sanitized for sharing, and reorganized the README into 13 divisions. Feedback welcome.
+
+## Attribution and validation scope
+
+Built by Matthew Snow / [M2AI](https://memyselfplusai.com). [MIT license](LICENSE). The skill bodies identify external methods and tools where relevant; those providers and their services are not bundled with the pack.
+
+The repository includes shell checks under `tests/` for packaging and schema assumptions. Those checks do not establish that all 185 workflows have run successfully against every supported integration. Read the selected skill's prerequisites, validate it on a bounded task, and review its output before relying on it.
