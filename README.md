@@ -4,9 +4,9 @@
 
 A useful AI workflow should not disappear when the chat ends. M2AI Skills Pack captures recurring methods as inspectable skill files: clarify a goal, hand work to another agent, review an artifact, diagnose a failure, or prepare a video prompt. The aim is to make the next attempt easier to reproduce and judge.
 
-The source contains **185 skills in seven themed plugins**, covering 13 working divisions. Choose the methods relevant to your work, inspect their requirements, and adapt them to your environment. A skill is a procedure for an assistant to follow; installing one is not proof that its integrations are configured or its output is correct.
+The source contains **186 skills in seven themed plugins**, covering 13 working divisions. Choose the methods relevant to your work, inspect their requirements, and adapt them to your environment. A skill is a procedure for an assistant to follow; installing one is not proof that its integrations are configured or its output is correct.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-185-brightgreen.svg)](#the-catalog)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](#install) [![Skills](https://img.shields.io/badge/skills-186-brightgreen.svg)](#the-catalog)
 
 ## What Matt's using now
 
@@ -62,7 +62,7 @@ The pack ships as **7 themed plugins** from this one repo. Install only the ones
 | [`m2ai-model-economics`](m2ai-model-economics/) | 28 | Routing, migration, cross-model review, and provider monitoring. Token spend, boot tax, and inference-cost exposure. Lock-in scoring, licensing, and exit-cost analysis. |
 | [`m2ai-build-tooling`](m2ai-build-tooling/) | 38 | Spec-first build loops, code comprehension, and migration safety. Build, audit, convert, and maintain skills, tools, and MCP servers. |
 | [`m2ai-strategy-analysis`](m2ai-strategy-analysis/) | 27 | Briefings, stress-tests, market signals, and workflow-investment scoring. |
-| [`m2ai-workflow-content`](m2ai-workflow-content/) | 20 | Sessions, handoffs, recall, calendar, and remote access. Image and video prompt engineering and shorts pipelines. |
+| [`m2ai-workflow-content`](m2ai-workflow-content/) | 21 | Sessions, handoffs, recall, calendar, and remote access. Image and video prompt engineering and shorts pipelines. |
 
 ### Claude Code
 
@@ -141,8 +141,8 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | 📊 [Strategy & Business Analysis](#strategy--business-analysis) | 27 | Briefings, stress-tests, market signals, and workflow-investment scoring. |
 | ✅ [Deliverable Quality & Verification](#deliverable-quality--verification) | 10 | Hostile-reviewer passes and trust scoring before anything ships. |
 | 🗂️ [Productivity & Workflow](#productivity--workflow) | 16 | Sessions, handoffs, recall, calendar, and remote access. |
-| 🎬 [Content & Media](#content--media) | 4 | Image and video prompt engineering and shorts pipelines. |
-| | **185** | |
+| 🎬 [Content & Media](#content--media) | 5 | Image and video prompt engineering and shorts pipelines. |
+| | **186** | |
 
 ## The catalog
 
@@ -420,6 +420,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 | [banana-maker](m2ai-workflow-content/skills/banana-maker/) | Generate images using the Gemini image generation API with the Nano Banana Pro prompting methodology. | The user asks to generate, create, or make an image, picture, photo, illustration, or visual |
 | [seedance-prompt](m2ai-workflow-content/skills/seedance-prompt/) | Master AI Video Prompt Engineer for Seedance 2.0. | Converting a user concept into a high-quality, cinematic Seedance 2 |
 | [seedance-shot-prompt](m2ai-workflow-content/skills/seedance-shot-prompt/) | Use when generating a Seedance 2 video prompt for a linear forward-motion shot : transitions, chase shots, establishi… | Generating a Seedance 2 video prompt for a linear forward-motion shot : transitions, chase shots, establishing shots, A→B narra… |
+| [side-walk-flow](m2ai-workflow-content/skills/side-walk-flow/) | Run a Google Flow video generation one shot at a time: build a run sheet, lint every prompt offline, stop before every credit spend, and QA each take with ffprobe and contact sheets. | Generating video shots in Google Flow from a shot list, with a human approving each spend and each take. |
 | [viral-shorts-pipeline](m2ai-workflow-content/skills/viral-shorts-pipeline/) | Generate and publish viral TikTok/YouTube Shorts from a single theme prompt. | Asked to "make viral videos", "generate TikToks", "create shorts", "run the viral pipeline", or "generate and post videos" |
 
 ## Configuration

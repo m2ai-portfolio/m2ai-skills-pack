@@ -1,0 +1,8 @@
+{
+  "name": "side-walk-flow-kit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline Flow run-sheet, prompt-lint and clip-import kit. No runtime dependencies. Frozen build.",
+  "license": "MIT"
+}

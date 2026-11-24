@@ -184,9 +184,9 @@ t "C-12 / C-26 full leak scan over ALL tracked files under skills/"
 bash scripts/leak-scan.sh >/dev/null 2>&1 && ok "leak-scan clean" || { bash scripts/leak-scan.sh; bad "leaks found"; }
 
 # ---------- item 4: manifest SSOT ----------
-t "C-13 manifest assigns 185 skills"
+t "C-13 manifest assigns 186 skills"
 N=$(python3 -c "import json;print(len(json.load(open('skills-manifest.json'))['skills']))")
-[ "$N" = "185" ] && ok "185 skills" || bad "manifest has $N, expected 185"
+[ "$N" = "186" ] && ok "186 skills" || bad "manifest has $N, expected 186"
 
 t "C-14 zero orphans, zero ghosts, zero duplicates (symmetric diff, both directions)"
 python3 - <<'PY' && ok "manifest == disk, each skill in exactly one plugin" || bad "manifest/disk mismatch"
@@ -250,7 +250,7 @@ mk_total=sum(int(re.match(r'(\d+) portable skills',p['description']).group(1)) f
 got={
  'manifest': n,
  'marketplace_sum': mk_total,
- 'blurb': int(re.search(r'\*\*(\d+) portable Claude Code skills\*\*',r).group(1)),
+ 'blurb': int(re.search(r'\*\*(\d+) skills in seven themed plugins\*\*',r).group(1)),
  'badge': int(re.search(r'badge/skills-(\d+)-brightgreen',r).group(1)),
  'summary_total': int(re.search(r'\|\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\|',r).group(1)),
  # The link target now carries the plugin dir. This regex previously read `\]\(skills/` and would
@@ -284,8 +284,8 @@ ACTUAL_PLUGINS=$(ls -d m2ai-*/ 2>/dev/null | wc -l)
   && ok "$ACTUAL_PLUGINS themed plugin dirs present (manifest says $EXPECTED_PLUGINS)" \
   || bad "expected $EXPECTED_PLUGINS plugin dirs, found $ACTUAL_PLUGINS"
 [ ! -e skills ] && ok "the old monolithic skills/ dir is gone" || bad "skills/ still exists -- split incomplete"
-[ "$(find m2ai-*/skills -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l)" = "185" ] \
-  && ok "all 185 skills live under the plugin dirs" || bad "skill count under plugins != 185"
+[ "$(find m2ai-*/skills -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l)" = "186" ] \
+  && ok "all 186 skills live under the plugin dirs" || bad "skill count under plugins != 186"
 
 t "C-20 INVERTED (Phase 3, 2026-07-16): the work IS published, and local matches the remote"
 # THIS GUARD WAS NOT WEAKENED, ITS PREMISE WAS LIFTED BY THE OWNER. Read before touching it.
@@ -412,7 +412,7 @@ rm -f "$TMPD/mk.bak"
 
 t "C-24 NEGATIVE CONTROL: --check DETECTS a hand-edited count literal"
 cp README.md "$TMPD/r.bak"
-sed -i 's/\*\*185 portable Claude Code skills\*\*/**999 portable Claude Code skills**/' README.md
+sed -i 's/\*\*[0-9]* skills in seven themed plugins\*\*/**999 skills in seven themed plugins**/' README.md
 node scripts/sync-from-manifest.mjs --check >/dev/null 2>&1 && bad "--check missed drifted literal" || ok "--check caught drift"
 cp "$TMPD/r.bak" README.md
 rm -f "$TMPD/m.bak" "$TMPD/r.bak"
@@ -712,8 +712,8 @@ t "C-19 the ONE-then-scale ordering is provable from git history"
 # The card's Phase 2 gate is an ORDERING constraint ("Do not build all 7 and then test"), so it
 # has to be checked against history, not asserted in prose. m2ai-workflow-content must appear in
 # an EARLIER commit than the other six.
-WFC_COMMIT=$(git log --format=%H --diff-filter=A -1 -- 'm2ai-workflow-content/skills/*/SKILL.md' 2>/dev/null | tail -1)
-OTHER_COMMIT=$(git log --format=%H --diff-filter=A -1 -- 'm2ai-agent-ops/skills/*/SKILL.md' 2>/dev/null | tail -1)
+WFC_COMMIT=$(git log --reverse --format=%H --diff-filter=A -- 'm2ai-workflow-content/skills/*/SKILL.md' 2>/dev/null | head -1)
+OTHER_COMMIT=$(git log --reverse --format=%H --diff-filter=A -- 'm2ai-agent-ops/skills/*/SKILL.md' 2>/dev/null | head -1)
 if [ -z "$WFC_COMMIT" ] || [ -z "$OTHER_COMMIT" ]; then
   echo "  SKIP  cannot locate the introducing commits (shallow clone?)"
 elif [ "$WFC_COMMIT" = "$OTHER_COMMIT" ]; then

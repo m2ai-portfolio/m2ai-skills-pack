@@ -182,7 +182,7 @@ const readmeBefore = readme;
   }
 }
 
-readme = readme.replace(/\*\*\d+ portable Claude Code skills\*\*/, `**${TOTAL} portable Claude Code skills**`);
+readme = readme.replace(/\*\*\d+ skills in seven themed plugins\*\*/, `**${TOTAL} skills in seven themed plugins**`);
 readme = readme.replace(/badge\/skills-\d+-brightgreen/, `badge/skills-${TOTAL}-brightgreen`);
 readme = readme.replace(/\[!\[Skills\]\(([^)]*?)skills-\d+/, `[![Skills]($1skills-${TOTAL}`);
 
@@ -261,7 +261,7 @@ if (process.exitCode === 1) {
 
 // ---- verify no stale literal survives anywhere (C-24) ----
 const stale = [];
-const blurb = readme.match(/\*\*(\d+) portable Claude Code skills\*\*/)?.[1];
+const blurb = readme.match(/\*\*(\d+) skills in seven themed plugins\*\*/)?.[1];
 const badge = readme.match(/badge\/skills-(\d+)-brightgreen/)?.[1];
 const total = readme.match(/\|\s*\|\s*\*\*(\d+)\*\*\s*\|\s*\|/)?.[1];
 for (const [name, v] of [['README blurb', blurb], ['README badge', badge], ['README total', total]]) {

@@ -75,7 +75,7 @@
     },
     {
       "name": "m2ai-workflow-content",
-      "description": "20 portable skills. Sessions, handoffs, recall, calendar, and remote access. Image and video prompt engineering and shorts pipelines.",
+      "description": "21 portable skills. Sessions, handoffs, recall, calendar, and remote access. Image and video prompt engineering and shorts pipelines.",
       "source": "./m2ai-workflow-content",
       "category": "productivity",
       "author": {
