@@ -18,19 +18,17 @@ The skills from this pack in my own daily setup, synced to the versions I actual
 | [goal-maker](./m2ai-workflow-content/skills/goal-maker/) | `m2ai-workflow-content` | Turns a half-formed idea into a runnable goal card with success criteria, budget, human gates, and how to run it. |
 | [decompose-goal](./m2ai-workflow-content/skills/decompose-goal/) | `m2ai-workflow-content` | Breaks a clean goal into atomic, dispatchable subtasks for subagents, workflows, or a checklist. |
 | [gh-review](./m2ai-workflow-content/skills/gh-review/) | `m2ai-workflow-content` | Reviews a GitHub repo against my current project: what it is, whether it fits, how I would integrate it. |
+| [side-walk-flow](./m2ai-workflow-content/skills/side-walk-flow/) | `m2ai-workflow-content` | Runs Google Flow video generation one shot at a time: an offline run sheet, a prompt lint, a stop before every credit spend, and QA on each take. |
 | [swarm-discovery](./m2ai-build-tooling/skills/swarm-discovery/) | `m2ai-build-tooling` | Maps an unfamiliar repo with a verified agent swarm before I plan anything against it. |
 | [get-api-docs](./m2ai-build-tooling/skills/get-api-docs/) | `m2ai-build-tooling` | Pulls current API docs before writing code against an SDK, so model names and parameters come from docs, not memory. |
 | [skill-maintenance](./m2ai-build-tooling/skills/skill-maintenance/) | `m2ai-build-tooling` | Audits my skills for description quality, triggers, and structure. |
-| [model-router](./m2ai-model-economics/skills/model-router/) | `m2ai-model-economics` | Picks the model tier for a task and dispatches it, with logging so routing improves from outcomes. |
-| [model-audit](./m2ai-model-economics/skills/model-audit/) | `m2ai-model-economics` | Scans a codebase for every model it calls and flags tier, task-fit, and cost changes. |
 
-Install the three plugins that cover these:
+Install the two plugins that cover these:
 
 ```
 /plugin marketplace add m2ai-portfolio/m2ai-skills-pack
 /plugin install m2ai-workflow-content@m2ai-skills-pack
 /plugin install m2ai-build-tooling@m2ai-skills-pack
-/plugin install m2ai-model-economics@m2ai-skills-pack
 ```
 
 ## Your first walkthrough
