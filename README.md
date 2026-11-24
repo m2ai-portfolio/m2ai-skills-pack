@@ -203,7 +203,7 @@ Copy `CLAUDE.md.template` to `~/.claude/CLAUDE.md` and `agent.yaml.example` to `
 
 | Skill | What it does | When to use |
 |---|---|---|
-| [aar](m2ai-agent-ops/skills/aar/) | Run an After-Action Review on an agent dispatch run, build execution, or multi-step orchestrated operation. | The user says "aar", "after action review", "let's review what happened", "review this run", or after any dispatch that produce… |
+| [aar](m2ai-agent-ops/skills/aar/) | Run an After-Action Review on any multi-step operation: a build, an agent dispatch run, a debug session, a deploy, or a video production run. | The user says "aar", "after action review", "let's review what happened", "review this run", or after any operation with mixed results worth learning from. |
 | [action-outcome-postmortem](m2ai-agent-ops/skills/action-outcome-postmortem/) | Structured post-mortem for the failure mode where an agent executed the correct mechanical action but produced the wr… | An agent did exactly what it was told but the result was wrong, or the user says "/action-outcome-postmortem", "right action wr… |
 | [agent-cold-start-diagnostic](m2ai-agent-ops/skills/agent-cold-start-diagnostic/) | Evaluate an existing agent setup (CLAUDE.md, SOUL.md, memory files, cron config, agent.yaml) and score it on operatio… | The user says "cold start diagnostic", "check agent config", "agent health score", "is my agent configured properly", "audit ag… |
 | [agent-correction-capture](m2ai-agent-ops/skills/agent-correction-capture/) | Document and implement the pattern for capturing user corrections to agent output as structured events (user_correcti… | Building any agent-facing UI, CLI, or chat interface where you want corrections to flow into an evaluation or feedback pipeline… |
@@ -430,11 +430,11 @@ each skill falls back gracefully and flags the missing source in its output.
 | Variable | Used by | Purpose |
 |---|---|---|
 | `$PROJECTS_DIR` | `what-am-i-forgetting` | Root of your code projects (e.g. `~/projects`) |
-| `$VAULT_DIR` | `what-am-i-forgetting`, `aar` | Notes vault for daily notes and saved reports |
+| `$VAULT_DIR` | `what-am-i-forgetting` | Notes vault for daily notes and saved reports |
 | `$MEMORY_INDEX` | `what-am-i-forgetting` | Path to your memory-index file |
 | `$MEMORY_DIR` | `what-am-i-forgetting` | Directory containing memory files |
-| `$ORCHESTRATOR_DB` | `aar` | SQLite DB holding agent mission/task state |
-| `$OPEN_ITEMS_JSON` | `aar` | Queue file for action-item append |
+| `$AAR_DIR` | `aar` | Where saved AARs go (defaults to the current folder) |
+| `$ORCHESTRATOR_DB` | `aar` | Optional: SQLite DB holding agent task state (dispatch appendix only) |
 | `GEMINI_API_KEY` | `file-intel`, `banana-maker` | Gemini API access |
 
 ## Known Rough Edges
@@ -445,7 +445,7 @@ A few skills contain environment-specific references. They still work, but you m
 - **banana-maker** : one mention of a "Surface tablet." Harmless.
 - **context-fork-guide** : example command points at `/home/user/.claude/skills/`. Replace with your skills path if you run the example verbatim.
 - **get-api-docs** : depends on the `/chub` (Context Hub) skill being installed separately. Without it, this skill is a no-op.
-- **aar** : assumes an orchestrated agent system with a SQLite task DB and A2A endpoints. Without those, Phase 1 forensics gets thin.
+- **aar** : the agent-dispatch appendix assumes an orchestrator with a SQLite task DB; skip it otherwise. The video appendix needs `ffmpeg`/`ffprobe` on PATH.
 - **what-am-i-forgetting** : most useful if you maintain a memory-index file, per-project TODO/NEXT files, and daily notes. Without them, it falls back to folder inventory + cron listings.
 - **gemini-rescue** : requires a Gemini MCP server exposing `gemini_ask` and `gemini_run` tools. Configure with your Google API key.
 - **self-healing-claudex** : requires the Codex CLI (`codex`) installed and authenticated. Falls back to the all-Claude `/self-healing-pipeline` if Codex is unavailable.
